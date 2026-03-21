@@ -6,35 +6,20 @@
 
 請依序完成以下所有步驟，不要跳過：
 
-### Step 0：專案驗證
-
-先檢查當前目錄是否為有效專案。
-
-**專案指標檔案**（任一存在即視為有效專案）：
-`.git`、`package.json`、`Cargo.toml`、`pyproject.toml`、`go.mod`、`pom.xml`、`build.gradle`、`Makefile`、`CMakeLists.txt`、`*.sln`、`*.csproj`、`composer.json`、`Gemfile`、`pubspec.yaml`、`CLAUDE.md`
-
-**如果以上皆不存在：**
-```
-⚠️ 目前目錄不像是一個專案（無 .git、無專案設定檔）。
-📁 目前位置：<完整路徑>
-無法同步進度，跳過 /canvas。
-```
-**不建立任何檔案，直接結束。**
-
-**如果驗證通過 → 繼續 Step 1。**
-
----
-
-### Step 1：讀取 progress.md 並判斷狀態
+### Step 0：檢查 progress.md
 
 使用 Glob 搜尋 `**/memory/progress.md` 定位 progress.md。
 
 **如果 progress.md 不存在：**
 ```
 ⚠️ 找不到 progress.md。
-💡 請先執行 /hello 建立專案進度，再使用 /canvas 同步。
+💡 請先執行 /hello new 建立專案進度，再使用 /sc 同步。
 ```
 **直接結束。**
+
+---
+
+### Step 1：讀取 progress.md 並判斷狀態
 
 **如果 progress.md 存在：** 讀取內容，檢查是否有 `### Slack Canvas` 區段且包含 `Canvas ID`。
 
