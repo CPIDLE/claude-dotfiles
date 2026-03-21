@@ -45,39 +45,10 @@ Get-ChildItem "$ScriptDir\commands\*.md" | ForEach-Object {
     Backup-And-Copy $_.FullName "$ClaudeDir\commands\$($_.Name)"
 }
 
-# 4. Skills
-Write-Host ""
-Write-Host "--- Skills ---"
-if (-not (Test-Path "$ClaudeDir\skills")) {
-    New-Item -ItemType Directory -Path "$ClaudeDir\skills" | Out-Null
-}
-
-# Copy skill files at root level (e.g., gyro-kb.md)
-Get-ChildItem "$ScriptDir\skills\*.md" -ErrorAction SilentlyContinue | ForEach-Object {
-    Backup-And-Copy $_.FullName "$ClaudeDir\skills\$($_.Name)"
-}
-
-# Copy skill directories
-Get-ChildItem "$ScriptDir\skills" -Directory | ForEach-Object {
-    $skillName = $_.Name
-    $destSkill = "$ClaudeDir\skills\$skillName"
-    if (Test-Path $destSkill) {
-        $backup = "$destSkill.bak"
-        if (Test-Path $backup) { Remove-Item -Recurse -Force $backup }
-        Rename-Item $destSkill $backup
-        Write-Host "  [BAK] $destSkill -> $backup" -ForegroundColor Yellow
-    }
-    Copy-Item -Recurse -Path $_.FullName -Destination $destSkill
-    Write-Host "  [OK]  $destSkill" -ForegroundColor Green
-}
-
 # Summary
 Write-Host ""
 Write-Host "=== Done! ===" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Next steps:" -ForegroundColor White
-Write-Host "  1. Copy gmail OAuth files manually:" -ForegroundColor White
-Write-Host "     token.json + client_secret.json -> $ClaudeDir\skills\gmail\assets\" -ForegroundColor Gray
-Write-Host "  2. Reinstall marketplace plugins: claude plugins install" -ForegroundColor White
-Write-Host "  3. Reconnect MCP connectors (Gmail, GCal, Slack) - requires OAuth" -ForegroundColor White
-Write-Host "  4. Check gyro-kb skill paths match your new machine" -ForegroundColor White
+Write-Host "  1. Reinstall marketplace plugins: claude plugins install" -ForegroundColor White
+Write-Host "  2. Reconnect MCP connectors (Gmail, GCal, Slack) - requires OAuth" -ForegroundColor White
