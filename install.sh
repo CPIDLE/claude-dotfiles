@@ -44,7 +44,3 @@ done
 
 echo ""
 echo "=== Done! ==="
-echo ""
-echo "Next steps:"
-echo "  1. Reinstall marketplace plugins: claude plugins install"
-echo "  2. Reconnect MCP connectors (Gmail, GCal, Slack) - requires OAuth"

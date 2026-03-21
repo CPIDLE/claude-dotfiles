@@ -48,7 +48,3 @@ Get-ChildItem "$ScriptDir\commands\*.md" | ForEach-Object {
 # Summary
 Write-Host ""
 Write-Host "=== Done! ===" -ForegroundColor Cyan
-Write-Host ""
-Write-Host "Next steps:" -ForegroundColor White
-Write-Host "  1. Reinstall marketplace plugins: claude plugins install" -ForegroundColor White
-Write-Host "  2. Reconnect MCP connectors (Gmail, GCal, Slack) - requires OAuth" -ForegroundColor White

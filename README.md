@@ -28,13 +28,9 @@ cd claude-dotfiles
 bash install.sh
 ```
 
-## Post-Install Checklist
+## Notes
 
-After running the install script:
-
-1. **Gmail OAuth credentials** — manually copy `token.json` and `client_secret.json` into `~/.claude/skills/gmail/assets/` (not stored in repo for security)
-2. **Marketplace plugins** — reinstall with `claude plugins install`
-3. **MCP Connectors** — reconnect via OAuth (Gmail, Google Calendar, Slack, Google Drive) — these are cloud-based and cannot be transferred via files
+- Marketplace plugins and MCP connectors are **not affected** — they are stored separately and will remain intact on the target machine.
 
 ## Conflict Handling
 
