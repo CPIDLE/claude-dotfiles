@@ -131,6 +131,37 @@
 
 ---
 
+### Step 4：更新專案總覽 Dashboard
+
+每次 `/sc` 完成同步操作後（與 Step 3 同時機），自動更新「📊 專案總覽 Dashboard」Canvas（ID: `F0AMWD1GAD9`）。
+
+**流程：**
+1. 使用 `slack_read_canvas`（canvas_id: `F0AMWD1GAD9`）讀取 Dashboard 現有內容
+2. 取得 section_id_mapping，找到當前專案名稱對應的 section
+3. 根據 progress.md 內容，產生該專案的摘要區段
+
+**每個專案區段格式：**
+```markdown
+## 🔹 <專案名稱>
+狀態：<開發中 / 規劃中 / 已完成 / 維護中>
+- ✅ <最近完成的 1-2 項>
+- 🔄 <進行中的 1-2 項>
+- 📌 <待辦的 1-2 項>
+🔗 [完整進度](<該專案的 Canvas URL>)
+```
+
+**更新邏輯：**
+- **專案已存在於 Dashboard**：使用 `slack_update_canvas`（action=replace, section_id=對應區段）更新該專案區段
+- **專案不存在於 Dashboard**：使用 `slack_update_canvas`（action=append）新增該專案區段
+- 在 Dashboard 最末尾更新「最後更新：YYYY-MM-DD HH:MM」
+
+**注意：**
+- Dashboard Canvas ID（`F0AMWD1GAD9`）為固定值
+- 只更新當前專案的區段，不影響其他專案
+- Step 2A 選 3（只看）和選 4（取消連結）不更新 Dashboard
+
+---
+
 ## progress.md 擴充格式
 
 在 progress.md 現有內容的最後，新增以下區段：
