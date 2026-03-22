@@ -96,23 +96,16 @@
 ### 檔案格式
 
 ```
-YYYY-MM-DD\tpm:<state>,sync:<state>,bye:<state>
+pm:<state>,sync:<state>,bye:<state>
 ```
 
 `<state>` 為 `pending`、`running`、`done` 之一。
+Session 結束時由 Stop hook 自動刪除，下次進入 Claude Code 全部重新開始（灰色）。
 
 ### 更新規則
 
-使用 Bash 執行以下邏輯（用一行指令）：
-
-**開始時**：將對應的 key 設為 `running`，保留其他 key 的狀態。
+**開始時**：將對應的 key 設為 `running`。
 **完成時**：將對應的 key 設為 `done`。
-
-具體操作：
-
-1. 讀取 `~/.claude/pm-last.txt`，如果日期不是今天或檔案不存在，初始化為 `pm:pending,sync:pending,bye:pending`
-2. 用 `sed` 替換對應 key 的 state
-3. 寫回檔案
 
 **快速參考**（每個子命令要執行的 Bash）：
 

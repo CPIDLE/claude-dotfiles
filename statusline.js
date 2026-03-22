@@ -19,14 +19,12 @@ process.stdin.on('end', () => {
     const RESET = '\x1b[0m';
 
     // PM status from ~/.claude/pm-last.txt
-    // Format: YYYY-MM-DD\tpm:done,sync:running,bye:pending
+    // Format: pm:pending,sync:pending,bye:pending
     let pmState = { pm: 'pending', sync: 'pending', bye: 'pending' };
     try {
       const pmFile = path.join(process.env.HOME || process.env.USERPROFILE, '.claude', 'pm-last.txt');
-      const pmData = fs.readFileSync(pmFile, 'utf8').trim();
-      const [date, stateStr] = pmData.split('\t');
-      const today = new Date().toISOString().slice(0, 10);
-      if (date === today && stateStr) {
+      const stateStr = fs.readFileSync(pmFile, 'utf8').trim();
+      if (stateStr) {
         for (const part of stateStr.split(',')) {
           const [key, val] = part.split(':');
           if (pmState.hasOwnProperty(key)) pmState[key] = val;

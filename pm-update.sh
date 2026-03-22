@@ -1,25 +1,28 @@
 #!/bin/bash
 # Usage: bash pm-update.sh <key> <state>
-# Example: bash pm-update.sh pm running
-# Updates ~/.claude/pm-last.txt with today's date and the given key:state
+#   bash pm-update.sh pm running
+#   bash pm-update.sh reset        — reset all to pending
 
 KEY="$1"
 STATE="$2"
 PM_FILE="$HOME/.claude/pm-last.txt"
-TODAY=$(date +%Y-%m-%d)
 
-if [ -z "$KEY" ] || [ -z "$STATE" ]; then
+if [ -z "$KEY" ]; then
   echo "Usage: pm-update.sh <pm|sync|bye> <pending|running|done>" >&2
+  echo "       pm-update.sh reset" >&2
   exit 1
+fi
+
+# Reset command
+if [ "$KEY" = "reset" ]; then
+  echo "pm:pending,sync:pending,bye:pending" > "$PM_FILE"
+  exit 0
 fi
 
 # Read current state or initialize
 CURRENT=""
 if [ -f "$PM_FILE" ]; then
-  FILE_DATE=$(cut -f1 "$PM_FILE")
-  if [ "$FILE_DATE" = "$TODAY" ]; then
-    CURRENT=$(cut -f2 "$PM_FILE")
-  fi
+  CURRENT=$(cat "$PM_FILE" | tr -d '\r\n')
 fi
 
 if [ -z "$CURRENT" ]; then
@@ -29,5 +32,4 @@ fi
 # Update the specific key
 UPDATED=$(echo "$CURRENT" | sed "s/${KEY}:[a-z]*/${KEY}:${STATE}/")
 
-# Write back
-printf '%s\t%s\n' "$TODAY" "$UPDATED" > "$PM_FILE"
+echo "$UPDATED" > "$PM_FILE"

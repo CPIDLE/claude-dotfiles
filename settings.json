@@ -17,6 +17,10 @@
           {
             "type": "command",
             "command": "powershell -c \"[console]::beep(800,500); Start-Sleep -Milliseconds 300; [console]::beep(800,500); Start-Sleep -Milliseconds 300; [console]::beep(800,500)\""
+          },
+          {
+            "type": "command",
+            "command": "rm -f ~/.claude/pm-last.txt"
           }
         ]
       }
