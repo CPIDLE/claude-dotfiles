@@ -78,7 +78,11 @@
 這是持續開發中的專案。執行以下流程：
 
 1. 讀取 `progress.md`
-2. 顯示進度摘要：
+2. 如果 progress.md 有 `### Session` 區段且包含 `Resume` 指令，顯示：
+   ```
+   💡 上次 session 可續：claude --resume <sessionId>
+   ```
+3. 顯示進度摘要：
    ```
    📋 上次工作：YYYY-MM-DD
 

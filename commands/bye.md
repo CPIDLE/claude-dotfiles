@@ -80,13 +80,19 @@ git remote -v
 gh repo create <folder-name> --private --source=. --push
 ```
 
-### Step 6：寫入 progress.md
+### Step 6：寫入 progress.md（含 Session ID）
 
 將整理好的進度寫入 memory 資料夾中的 `progress.md`（覆寫，只保留最新狀態）。
 此時 git 操作（commit/push）已完成，progress.md 會反映最終的 Git 狀態。
 
 > progress.md 的位置在 memory 資料夾中（與其他 memory 檔案相同位置）。
 > 使用 Glob 工具搜尋 `**/memory/progress.md` 來定位既有檔案，若不存在則在當前專案的 memory 資料夾中建立。
+
+**撈取 Session ID：**
+1. 列出 `~/.claude/sessions/` 目錄下的 `.json` 檔案
+2. 找到 `cwd` 匹配當前工作目錄的檔案
+3. 讀取其中的 `sessionId` 欄位
+4. 如果找不到，跳過 Session 區段
 
 使用以下格式：
 
@@ -109,6 +115,9 @@ gh repo create <folder-name> --private --source=. --push
 - Branch: `branch-name`
 - 未 push commits: N
 - Remote: origin → url
+
+### Session
+- Resume: `claude --resume <sessionId>`
 ```
 
 ### Step 7：自動執行 /sc 1 完整同步
@@ -150,6 +159,7 @@ gh repo create <folder-name> --private --source=. --push
 顯示告別訊息後，使用 `/exit` 退出 Claude Code：
 ```
 👋 收工！進度已儲存。
+   💡 續回本次：claude --resume <sessionId>
    下次開工用 /pm 或 /hello 👋
 ```
 
