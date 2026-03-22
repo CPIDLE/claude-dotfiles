@@ -8,6 +8,7 @@
 |---|---|
 | `/pm` | 開工（= `/hello` 流程） |
 | `/pm new` | 首次開工（= `/hello new` 流程） |
+| `/pm resume` | 接續上次 session（用 progress.md 中的 session ID） |
 | `/pm sync` | 同步進度（= `/sc 1` 完整流程） |
 | `/pm status` | 快速查看進度（不同步、不互動） |
 | `/pm bye` | 收工（= git 整理 + `/sc 1` + `/bye` 流程） |
@@ -31,6 +32,22 @@
 執行 `/hello new` 的完整流程（首次模式，掃描專案並建立 progress.md）。
 
 等同於直接執行 `/hello new`。
+
+---
+
+### `/pm resume` — 接續上次 session
+
+從 progress.md 的 `### Session` 區段讀取上次的 session ID，然後：
+
+1. 如果找到 session ID：
+   - 顯示：`🔄 正在接續上次 session...`
+   - 執行：`claude --resume <sessionId>`
+   - **注意**：這會結束當前 session 並啟動新的 resume session，後續步驟不會執行
+2. 如果找不到 session ID：
+   ```
+   ⚠️ 找不到上次的 session ID。
+   💡 請使用 /pm 正常開工。
+   ```
 
 ---
 
