@@ -15,7 +15,7 @@ process.stdin.on('end', () => {
     // ANSI codes
     const DIM = '\x1b[90m';     // gray
     const YELLOW = '\x1b[33m';  // yellow = running
-    const BOLD = '\x1b[1;97m';  // bright white bold = done
+    const BOLD = '\x1b[96m';    // bright cyan = done
     const RESET = '\x1b[0m';
 
     // PM status from ~/.claude/pm-last.txt
