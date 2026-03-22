@@ -121,15 +121,22 @@
 
 ---
 
-### Step 3：發送摘要到 #all-cpidle
+### Step 3：發送摘要到 #all-cpidle（防洗版）
 
-每次 `/sc` 完成同步操作（Step 2A 選 1 或選 2、Step 2B 選 1）後，自動發送摘要訊息到 `#all-cpidle`（Channel ID: `C0AN35HJQ8L`）。
+每次 `/sc` 完成同步操作（Step 2A 選 1 或選 2、Step 2B 選 1）後，發送或更新摘要訊息到 `#all-cpidle`（Channel ID: `C0AN35HJQ8L`）。
+
+**防洗版機制：**
+1. 先用 `slack_search_public` 搜尋 `from:<@U0AMZHMH3HQ> in:<#C0AN35HJQ8L> <專案名稱>`，找今天該專案是否已有摘要訊息
+2. **如果今天已有該專案的摘要**：使用 `slack_update_message`（如可用）更新該訊息；若無法更新，則跳過不發新訊息，僅在終端顯示 `ℹ️ 今日已發送過摘要，跳過`
+3. **如果今天沒有**：發送新訊息
 
 **摘要訊息格式：**
 ```
 📋 *<專案名稱> — 進度更新*
 
-<從 progress.md 擷取 3-5 個重點，每項一行，使用 bullet points>
+• <重點 1>
+• <重點 2>
+• <重點 3>
 
 🔗 <Canvas URL|完整進度>
 ```
@@ -143,7 +150,8 @@
 
 **注意：**
 - Step 2A 選 3（只看）和選 4（取消連結）不發送摘要
-- 使用 `slack_send_message` 發送，不需額外確認（同步操作本身已經確認過）
+- 使用 `slack_send_message` 發送，不需額外確認
+- **不要在訊息中附加任何檔案或額外 metadata**
 
 ---
 
@@ -166,15 +174,20 @@
 🔗 [完整進度](<該專案的 Canvas URL>)
 ```
 
-**更新邏輯：**
-- **專案已存在於 Dashboard**：使用 `slack_update_canvas`（action=replace, section_id=對應區段）更新該專案區段
-- **專案不存在於 Dashboard**：使用 `slack_update_canvas`（action=append）新增該專案區段
-- 在 Dashboard 最末尾更新「最後更新：YYYY-MM-DD HH:MM」
+**更新邏輯（防止重複區段）：**
+1. 讀取 Dashboard，從 section_id_mapping 中搜尋包含當前專案名稱的 `## 🔹` header
+2. **專案已存在於 Dashboard**：
+   - 找到該專案的 header section_id
+   - 使用 `slack_update_canvas`（action=replace, section_id=該 header 的 section_id）更新**整個區段內容**（包含 header + 狀態 + bullet points + 連結）
+   - **重要**：replace 時 content 必須包含完整的 `## 🔹 <專案名稱>` header，因為 replace 會覆蓋該 section
+3. **專案不存在於 Dashboard**：使用 `slack_update_canvas`（action=append）新增該專案區段
+4. 最後單獨更新「最後更新」時間戳（找到包含「最後更新」的 section_id 並 replace）
 
 **注意：**
 - Dashboard Canvas ID（`F0AMWD1GAD9`）為固定值
 - 只更新當前專案的區段，不影響其他專案
 - Step 2A 選 3（只看）和選 4（取消連結）不更新 Dashboard
+- **每個專案只能有一個 `## 🔹` 區段**，如果發現重複，先用全量 replace 清理
 
 ---
 
