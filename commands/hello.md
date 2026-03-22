@@ -102,7 +102,11 @@
    git log @{u}..HEAD --oneline 2>/dev/null  # 未 push 的 commits
    ```
 4. 如果有 dirty files 或未 push commits，特別提醒
-5. 詢問使用者：「要繼續之前的工作，還是有新的任務？」
+5. 如果 progress.md 有 `### Slack Canvas` 區段，顯示提示：
+   ```
+   💡 工作中可用 /pm sync 或 /sc 1 同步進度，收工用 /pm bye 或 /bye
+   ```
+6. 詢問使用者：「要繼續之前的工作，還是有新的任務？」
 
 ---
 
