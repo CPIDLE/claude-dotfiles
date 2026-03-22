@@ -35,7 +35,13 @@ Write-Host ""
 Write-Host "--- settings.json ---"
 Backup-And-Copy "$ScriptDir\settings.json" "$ClaudeDir\settings.json"
 
-# 3. Commands
+# 3. Status Line
+Write-Host ""
+Write-Host "--- Status Line ---"
+Backup-And-Copy "$ScriptDir\statusline.sh" "$ClaudeDir\statusline.sh"
+Backup-And-Copy "$ScriptDir\statusline.js" "$ClaudeDir\statusline.js"
+
+# 4. Commands
 Write-Host ""
 Write-Host "--- Commands ---"
 if (-not (Test-Path "$ClaudeDir\commands")) {

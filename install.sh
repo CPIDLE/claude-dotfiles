@@ -33,7 +33,13 @@ echo ""
 echo "--- settings.json ---"
 backup_and_copy "$SCRIPT_DIR/settings.json" "$CLAUDE_DIR/settings.json"
 
-# 3. Commands
+# 3. Status Line
+echo ""
+echo "--- Status Line ---"
+backup_and_copy "$SCRIPT_DIR/statusline.sh" "$CLAUDE_DIR/statusline.sh"
+backup_and_copy "$SCRIPT_DIR/statusline.js" "$CLAUDE_DIR/statusline.js"
+
+# 4. Commands
 echo ""
 echo "--- Commands ---"
 mkdir -p "$CLAUDE_DIR/commands"

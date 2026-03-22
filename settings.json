@@ -34,6 +34,10 @@
     "playground@claude-plugins-official": true,
     "qodo-skills@claude-plugins-official": true
   },
+  "statusLine": {
+    "type": "command",
+    "command": "bash ~/.claude/statusline.sh"
+  },
   "effortLevel": "medium",
   "skipDangerousModePermissionPrompt": true
 }
