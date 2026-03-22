@@ -149,9 +149,9 @@
 將 progress.md 轉為 Canvas 時，保持 Markdown 格式，但注意：
 - 移除 frontmatter（`---` 包圍的 YAML 區塊）
 - 移除 `### Slack Canvas` 區段
+- **移除與 Canvas 標題重複的頂層標題**（例如 progress.md 開頭的 `# 專案名稱` 如果跟 Canvas 標題相同或相似，必須移除，避免標題重複顯示）
 - emoji（✅ 🔄 等）保留原樣
 - Headers 不超過 3 層（`###`）
-- 不在內容中重複 Canvas 標題
 
 ## 注意事項
 
