@@ -40,6 +40,7 @@ Write-Host ""
 Write-Host "--- Status Line ---"
 Backup-And-Copy "$ScriptDir\statusline.sh" "$ClaudeDir\statusline.sh"
 Backup-And-Copy "$ScriptDir\statusline.js" "$ClaudeDir\statusline.js"
+Backup-And-Copy "$ScriptDir\pm-update.sh" "$ClaudeDir\pm-update.sh"
 
 # 4. Commands
 Write-Host ""

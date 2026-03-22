@@ -38,6 +38,7 @@ echo ""
 echo "--- Status Line ---"
 backup_and_copy "$SCRIPT_DIR/statusline.sh" "$CLAUDE_DIR/statusline.sh"
 backup_and_copy "$SCRIPT_DIR/statusline.js" "$CLAUDE_DIR/statusline.js"
+backup_and_copy "$SCRIPT_DIR/pm-update.sh" "$CLAUDE_DIR/pm-update.sh"
 
 # 4. Commands
 echo ""

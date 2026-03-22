@@ -89,6 +89,46 @@
 
 ---
 
+## Status Line 整合（必要）
+
+每個 `/pm` 子命令在 **開始前** 和 **完成後** 必須更新 `~/.claude/pm-last.txt`，用於 CLI status line 顯示進度。
+
+### 檔案格式
+
+```
+YYYY-MM-DD\tpm:<state>,sync:<state>,bye:<state>
+```
+
+`<state>` 為 `pending`、`running`、`done` 之一。
+
+### 更新規則
+
+使用 Bash 執行以下邏輯（用一行指令）：
+
+**開始時**：將對應的 key 設為 `running`，保留其他 key 的狀態。
+**完成時**：將對應的 key 設為 `done`。
+
+具體操作：
+
+1. 讀取 `~/.claude/pm-last.txt`，如果日期不是今天或檔案不存在，初始化為 `pm:pending,sync:pending,bye:pending`
+2. 用 `sed` 替換對應 key 的 state
+3. 寫回檔案
+
+**快速參考**（每個子命令要執行的 Bash）：
+
+| 時機 | 指令 |
+|---|---|
+| `/pm` 或 `/pm new` 開始 | `bash ~/.claude/pm-update.sh pm running` |
+| `/pm` 或 `/pm new` 完成 | `bash ~/.claude/pm-update.sh pm done` |
+| `/pm sync` 開始 | `bash ~/.claude/pm-update.sh sync running` |
+| `/pm sync` 完成 | `bash ~/.claude/pm-update.sh sync done` |
+| `/pm bye` 開始 | `bash ~/.claude/pm-update.sh bye running` |
+| `/pm bye` 完成 | `bash ~/.claude/pm-update.sh bye done` |
+
+**`/pm status` 不更新狀態檔。**
+
+---
+
 ## 注意事項
 
 - 所有輸出使用繁體中文
