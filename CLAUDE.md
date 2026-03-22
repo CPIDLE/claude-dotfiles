@@ -1,3 +1,18 @@
+# Claude Dotfiles
+
+Custom commands（`/hello`、`/sc`、`/bye`、`/pm` 等）的原始碼：
+- **GitHub**：https://github.com/CPIDLE/claude-dotfiles
+- **安裝位置**：`~/.claude/`（由 install script 複製）
+
+## 關鍵 ID
+
+| 項目 | ID |
+|---|---|
+| Slack Channel `#all-cpidle` | `C0AN35HJQ8L` |
+| Dashboard Canvas | `F0AMWD1GAD9` |
+
+---
+
 # User Preferences
 
 ## Notification Sounds
