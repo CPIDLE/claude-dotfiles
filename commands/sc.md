@@ -1,3 +1,8 @@
+> ⚠️ **Legacy 指令** — 建議改用 `/pm sync`，除同步外還有 Code Review、QA 等選項。
+> `/pm sync 2` 等同 `/sc 1`（直接同步）。此指令仍可正常使用。
+
+---
+
 # SC (Slack Canvas) — Slack Canvas 進度同步
 
 將專案 `progress.md` 與 Slack Canvas 雙向同步，自動判斷狀態並引導操作。

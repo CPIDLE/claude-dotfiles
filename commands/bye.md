@@ -1,3 +1,8 @@
+> ⚠️ **Legacy 指令** — 建議改用 `/pm bye`，額外包含自動 Code Review、QA 檢查及 Retro。
+> 此指令仍可正常使用，但未來更新將集中在 `/pm bye`。
+
+---
+
 # Bye — 收工告別
 
 結束工作 session 時使用，自動整理進度、提醒 commit/push、保存工作狀態。
