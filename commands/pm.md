@@ -9,7 +9,7 @@
 | `/pm` | 開工（自動判斷首次/正常模式） |
 | `/pm new` | 首次開工（掃描專案 + 建立 progress.md） |
 | `/pm sync` | 中期選單（同步/審核/調整） |
-| `/pm sync 2` | 直接同步 Canvas（跳過選單） |
+| `/pm sync 2` | 直接同步進度（跳過選單，執行選 1） |
 | `/pm bye` | 收工全流程（easy 審核 + git + sync + retro） |
 | `/pm review` | 獨立審核（預設 deep） |
 | `/pm review easy` | 快速審核（主 agent 直接跑，不產報告） |
@@ -26,8 +26,6 @@
 | `/pm` 或 `/pm new` 完成 | `bash ~/.claude/pm-update.sh pm done` |
 | `/pm sync` 開始 | `bash ~/.claude/pm-update.sh sync running` |
 | `/pm sync` 完成 | `bash ~/.claude/pm-update.sh sync done` |
-| `/pm review` 開始 | `bash ~/.claude/pm-update.sh review running` |
-| `/pm review` 完成 | `bash ~/.claude/pm-update.sh review done` |
 | `/pm bye` 開始 | `bash ~/.claude/pm-update.sh bye running` |
 | `/pm bye` 完成 | `bash ~/.claude/pm-update.sh bye done` |
 
@@ -36,6 +34,17 @@
 ---
 
 ## `/pm` 或 `/pm new` — 開工
+
+### Step 0：Status Line
+
+```bash
+bash ~/.claude/pm-update.sh reset && bash ~/.claude/pm-update.sh pm running
+```
+
+**結束前**（顯示選單或結束之前）也必須執行：
+```bash
+bash ~/.claude/pm-update.sh pm done
+```
 
 ### Step 1：問候與環境資訊
 
@@ -68,7 +77,7 @@
    如果要在此建立新專案，請使用：/pm new
    ```
 
-> progress.md 位置：使用 Glob 搜尋 `**/memory/progress.md`，路徑格式 `~/.claude/projects/<project-key>/memory/progress.md`。
+> progress.md 位置：使用 Glob 搜尋 `~/.claude/projects/**/memory/progress.md`，路徑格式 `~/.claude/projects/<project-key>/memory/progress.md`。
 
 ---
 
@@ -132,7 +141,7 @@
 
 不做任何同步或互動，只顯示目前狀態：
 
-1. 使用 Glob 搜尋 `**/memory/progress.md`
+1. 使用 Glob 搜尋 `~/.claude/projects/**/memory/progress.md`
 2. 如果不存在：`⚠️ 尚未建立進度追蹤。使用 /pm new 初始化。`
 3. 如果存在，讀取並顯示：
    ```
@@ -159,19 +168,24 @@
 ## `/pm resume` — 接續上次 session
 
 1. 從 progress.md 的 `### Session` 區段讀取 session ID
-2. 如果找到：
-   - 顯示：`🔄 正在接續上次 session...`
-   - 執行：`claude --resume <sessionId>`
-   - **注意**：這會結束當前 session
-3. 如果找不到：
+2. 如果找到 → 顯示指令讓使用者自行複製執行（不可在 session 內執行 `claude --resume`）：
    ```
-   ⚠️ 找不到上次的 session ID。
-   💡 請使用 /pm 正常開工。
+   💡 請在終端機執行以下指令來接續上次 session：
+   claude --resume <sessionId>
    ```
+3. 如果找不到：`⚠️ 找不到上次的 session ID。請使用 /pm 正常開工。`
 
 ---
 
 ## `/pm sync` — 中期同步 + 動作選單
+
+### Step 0：Status Line
+
+```bash
+bash ~/.claude/pm-update.sh sync running
+```
+
+**結束前**也必須執行：`bash ~/.claude/pm-update.sh sync done`
 
 ### 自動偵測狀態
 
@@ -192,7 +206,7 @@
 
 ### 選單
 
-如果有 `2` 參數（`/pm sync 2`）→ 直接跳到選 2（同步進度），不顯示選單。
+如果有 `2` 參數（`/pm sync 2`）→ 直接跳到選 1（同步進度），不顯示選單。
 
 否則顯示：
 ```
@@ -214,7 +228,7 @@
 
 #### Step A：檢查 progress.md
 
-使用 Glob 搜尋 `**/memory/progress.md`。如果不存在：
+使用 Glob 搜尋 `~/.claude/projects/**/memory/progress.md`。如果不存在：
 ```
 ⚠️ 找不到 progress.md。
 💡 請先執行 /pm new 建立專案進度。
@@ -443,6 +457,14 @@ subagent 完成後：
 
 依序自動執行以下步驟，有問題才暫停：
 
+### Step 0：Status Line
+
+```bash
+bash ~/.claude/pm-update.sh bye running
+```
+
+**結束前**（告別之前）也必須執行：`bash ~/.claude/pm-update.sh bye done`
+
 ### Step 1：回顧本次對話
 
 回顧整個對話歷史，整理出：
@@ -471,8 +493,7 @@ git log @{u}..HEAD --oneline 2>/dev/null
 git remote -v
 ```
 
-1. 如果有 dirty files → 詢問：`💡 偵測到未 commit 的變更，要執行 smart-commit 嗎？`
-   - 同意 → 分析改動，產生合適的 commit message，執行 `git add` + `git commit`
+1. 如果有 dirty files → 自動 smart-commit（同 sync 的 Step 0，不問、不 push）
    - 完成後重新檢查 `git status` 和未 push commits
 2. 如果有未 push commits → 詢問：`📤 有 N 個 commit 尚未 push，要現在 push 嗎？`
    - 同意 → 執行 `git push`
