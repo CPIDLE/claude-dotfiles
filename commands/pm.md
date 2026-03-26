@@ -1,6 +1,6 @@
 # PM v2 — 專案管理統一入口
 
-統一管理開工、中期同步、收工的完整工作流程。整合 Code Review、QA 檢查、Retro to Memory 等進階功能。
+統一管理開工、中期同步、收工的完整工作流程。整合審核（easy/deep）、Retro to Memory 等進階功能。
 
 ## 快捷參數
 
@@ -8,9 +8,11 @@
 |---|---|
 | `/pm` | 開工（自動判斷首次/正常模式） |
 | `/pm new` | 首次開工（掃描專案 + 建立 progress.md） |
-| `/pm sync` | 中期選單（同步/review/QA/調整） |
+| `/pm sync` | 中期選單（同步/審核/調整） |
 | `/pm sync 2` | 直接同步 Canvas（跳過選單） |
-| `/pm bye` | 收工全流程（review + QA + git + sync + retro） |
+| `/pm bye` | 收工全流程（easy 審核 + git + sync + retro） |
+| `/pm review` | 獨立審核（預設 deep） |
+| `/pm review easy` | 快速審核（主 agent 直接跑，不產報告） |
 | `/pm status` | 快速查看進度（唯讀） |
 | `/pm resume` | 接續上次 session |
 
@@ -24,6 +26,8 @@
 | `/pm` 或 `/pm new` 完成 | `bash ~/.claude/pm-update.sh pm done` |
 | `/pm sync` 開始 | `bash ~/.claude/pm-update.sh sync running` |
 | `/pm sync` 完成 | `bash ~/.claude/pm-update.sh sync done` |
+| `/pm review` 開始 | `bash ~/.claude/pm-update.sh review running` |
+| `/pm review` 完成 | `bash ~/.claude/pm-update.sh review done` |
 | `/pm bye` 開始 | `bash ~/.claude/pm-update.sh bye running` |
 | `/pm bye` 完成 | `bash ~/.claude/pm-update.sh bye done` |
 
@@ -71,17 +75,14 @@
 ### 首次模式（`new` 參數）
 
 1. 告知使用者將進行首次專案掃描
-2. 掃描專案狀態：
-   ```bash
-   git log --oneline -20
-   git branch -a
-   git remote -v
-   ```
-3. 使用 Glob 快速掃描專案檔案結構
-4. 整理首次進度摘要（專案概述、目前 branch、建議下一步）
-5. 寫入 `progress.md`（memory 資料夾中）
-6. 顯示摘要讓使用者確認
-7. 如果是全新空目錄，額外詢問：目標、技術棧、參考範例
+2. 使用 **Explore agent**（thoroughness: `very thorough`）掃描專案，prompt 包含：
+   - 專案結構、技術棧、主要模組
+   - Git 歷史（最近 20 commits、branches、remotes）
+   - 入口點、設定檔、CI/CD
+3. 根據 Explore agent 回傳的結果，整理首次進度摘要（專案概述、目前 branch、建議下一步）
+4. 寫入 `progress.md`（memory 資料夾中）
+5. 顯示摘要讓使用者確認
+6. 如果是全新空目錄，額外詢問：目標、技術棧、參考範例
 
 ---
 
@@ -196,23 +197,20 @@
 否則顯示：
 ```
 你想做什麼？
-1. 繼續執行（預設，直接回到工作）
-2. 同步進度 → Slack Canvas + Channel
-3. Code Review — 審查目前所有改動
-4. QA 檢查 — 跑測試 + 安全掃描
-5. 調整計畫 — 修改 scope 或重新排序
+1. 同步進度 → Slack Canvas + Channel（預設）
+2. 審核 — 獨立 agent 跑測試 + lint + AI 審查
+3. 調整計畫 — 修改 scope 或重新排序
 ```
 
 ---
 
-### 選 1：繼續執行
+### 選 1：同步進度
 
-- 不做任何事，回到工作流程
-- 如果有 TodoWrite tasks，顯示下一個 pending task
+#### Step 0：自動 Smart-Commit
 
----
-
-### 選 2：同步進度
+如果在 git repo 中，執行 `git status --short`：
+- 有 dirty files → 自動分析改動、產生 commit message、執行 `git add` + `git commit`（不問、不 push）
+- 無改動 → 跳過
 
 #### Step A：檢查 progress.md
 
@@ -249,7 +247,14 @@
 - 選 2：詢問 Canvas ID（`F08XXXXXXXX`）或 URL，用 `slack_read_canvas` 驗證後寫回
 - 選 3：跳過
 
-#### Step C：發送摘要到 #all-cpidle（防洗版）
+#### Step C+D：發送 Channel 通知 + 更新 Dashboard（平行）
+
+SB 完成後，**同時執行**以下兩項（互不依賴，寫入不同的 Slack 目標）：
+
+> ⚠️ **硬依賴**：SB 必須在 C+D 之前完成。SB 可能建立新 Canvas，C 和 D 都需要 Canvas URL。
+> ⚠️ **部分失敗處理**：C 或 D 任一失敗，顯示 `⚠️ <Channel/Dashboard> 同步失敗：<原因>`，不影響另一項。
+
+**C — 發送摘要到 #all-cpidle（防洗版）**
 
 Channel ID: `C0AN35HJQ8L`
 
@@ -268,112 +273,169 @@ Channel ID: `C0AN35HJQ8L`
 
 擷取重點規則：優先已完成（✅）→ 進行中（🔄）→ 下一步，不超過 5 項。
 
-#### Step D：更新 Dashboard Canvas
+**D — 更新 Dashboard Canvas**
 
 Dashboard Canvas ID: `F0AMWD1GAD9`
 
-1. 用 `slack_read_canvas` 讀取 Dashboard
-2. 從 section_id_mapping 找當前專案的 `## 🔹` header
-3. 已存在 → 用 `slack_update_canvas`（action=replace, section_id）更新整個區段
-4. 不存在 → 用 `slack_update_canvas`（action=append）新增
-5. 單獨更新「最後更新」時間戳
+1. 用 `slack_read_canvas` 讀取 Dashboard，取得 `section_id_mapping`
+2. 在 mapping 中搜尋包含當前專案名稱的 `## :small_blue_diamond:` header
+3. **已存在** → 用 `slack_update_canvas`（action=replace, section_id=該 header 的 ID）替換區段。**替換內容不包含 `##` header 行**（header 是 section 本身，會被保留），只寫 header 以下的內容（狀態 + 項目 + 連結 + 時間戳）
+4. **不存在** → 用 `slack_update_canvas`（action=append）新增完整區段（含 `##` header）
+5. **不要**單獨寫「最後更新」— 時間戳必須包含在區段內容的最後一行
 
-每個專案區段格式：
+replace 時的內容格式（**不含** `##` header）：
 ```markdown
-## 🔹 <專案名稱>
 狀態：<開發中 / 規劃中 / 已完成 / 維護中>
-- ✅ <最近完成 1-2 項>
-- 🔄 <進行中 1-2 項>
-- 📌 <待辦 1-2 項>
-🔗 [完整進度](<Canvas URL>)
+- :white_check_mark: <最近完成 1-2 項>
+- :arrows_counterclockwise: <進行中 1-2 項>
+- :pushpin: <待辦 1-2 項>
+:link: [完整進度](<Canvas URL>)
+
+最後更新：YYYY-MM-DD HH:MM
 ```
 
----
+append 時的內容格式（**含** `##` header）：
+```markdown
+## :small_blue_diamond: <專案名稱>
+狀態：<開發中 / 規劃中 / 已完成 / 維護中>
+- :white_check_mark: <最近完成 1-2 項>
+- :arrows_counterclockwise: <進行中 1-2 項>
+- :pushpin: <待辦 1-2 項>
+:link: [完整進度](<Canvas URL>)
 
-### 選 3：Code Review
+最後更新：YYYY-MM-DD HH:MM
+```
 
-以**資深工程師**角色審查所有改動：
-
-1. 收集改動：
-   ```bash
-   git diff --staged
-   git diff
-   git log --oneline -5
-   ```
-   如果有未 staged 的改動也一併審查。
-
-2. 審查四個面向：
-   - **邏輯正確性**：是否有 bug、邊界條件遺漏、race condition
-   - **安全性**：OWASP top 10 常見問題（注入、XSS、敏感資料外洩等）
-   - **效能**：N+1 查詢、不必要的重複計算、記憶體洩漏風險
-   - **程式碼風格**：命名一致性、死碼、過度複雜的邏輯
-
-3. 產出審查報告：
-   ```
-   🔍 Code Review 報告
-
-   🔴 Critical（必須修正）：
-   - [檔案:行號] 問題描述
-
-   🟡 Warning（建議修正）：
-   - [檔案:行號] 問題描述
-
-   🔵 Info（參考）：
-   - [檔案:行號] 建議
-
-   📊 總結：X critical, Y warnings, Z info
-   ```
-
-4. 如果有 Critical 或 Warning → 詢問：`要自動修正這些問題嗎？`
-5. 如果使用者同意 → 逐一修正並顯示修正摘要
+> ⚠️ Canvas 使用 Slack emoji 語法（`:white_check_mark:` 非 `✅`），header 用 `:small_blue_diamond:` 非 `🔹`。
+> ⚠️ `replace` + `section_id` 時如果內容包含 `##` header 會產生重複！只有 `append` 時才加 header。
 
 ---
 
-### 選 4：QA 檢查
+### 選 2：審核
 
-1. **偵測測試框架**（依序檢查）：
-   - `jest.config.*` / `package.json` 含 jest → `npx jest`
-   - `vitest.config.*` → `npx vitest run`
-   - `pytest.ini` / `pyproject.toml` 含 `[tool.pytest]` → `pytest`
-   - `go.mod` → `go test ./...`
-   - `Cargo.toml` → `cargo test`
-   - 都沒有 → 顯示 `ℹ️ 未偵測到測試框架，跳過測試`
-
-2. **執行測試**（如果偵測到框架）
-
-3. **偵測 Linter**（依序檢查）：
-   - `.eslintrc*` / `eslint.config.*` → `npx eslint .`
-   - `biome.json` → `npx biome check .`
-   - `ruff.toml` / `pyproject.toml` 含 `[tool.ruff]` → `ruff check .`
-   - 都沒有 → 跳過
-
-4. **執行 Linter**（如果偵測到）
-
-5. **掃描 Debug 程式碼**：
-   - 在非測試檔案中搜尋：`console.log`、`console.debug`、`debugger`、`print(`（Python）、`fmt.Println`（Go debug）
-   - 排除：`console.error`、`console.warn`、測試檔案、node_modules
-   - 列出找到的項目
-
-6. **產出 QA 報告**：
-   ```
-   🧪 QA 檢查報告
-
-   測試：✅ 通過（X passed）/ ❌ 失敗（X passed, Y failed）/ ⏭️ 跳過
-   Lint：✅ 無問題 / ⚠️ N 個警告 / ⏭️ 跳過
-   Debug 程式碼：✅ 未發現 / ⚠️ 發現 N 處
-
-   📊 總結：<整體狀態>
-   ```
-
-7. 如果有測試失敗或 lint 錯誤 → 詢問：`要自動修正嗎？`
+執行 `/pm review easy`（見下方「獨立審核」區段）。
 
 ---
 
-### 選 5：調整計畫
+### 選 3：調整計畫
 
 - 進入 Plan Mode（`EnterPlanMode`）
 - 讓使用者重新規劃剩餘工作
 - 完成後更新 TodoWrite tasks
+
+---
+
+## `/pm review` — 獨立審核
+
+兩種深度：
+
+| 深度 | 觸發方式 | 執行者 | 產出 |
+|---|---|---|---|
+| **easy** | `/pm review easy`、sync 選 2、bye 自動 | 主 agent 直接跑 | 螢幕摘要（不寫檔） |
+| **deep**（預設） | `/pm review` | 獨立 subagent | `reviews/YYYY-MM-DD-HH-MM.md` |
+
+### Easy 模式
+
+主 agent 直接執行，不啟動 subagent，不產出檔案：
+
+1. **平行執行以下四項檢查**（同時發出，全部完成後再繼續）：
+
+   | 檢查項 | 方法 | 掃描範圍 |
+   |--------|------|----------|
+   | 測試 | 偵測 jest/vitest/pytest/go test/cargo test，執行之 | 測試框架 |
+   | Lint | 偵測 eslint/biome/ruff，執行之 | 原始碼 |
+   | Debug 掃描 | Grep 搜尋 `console.log`、`debugger`、`print(` | 排除測試檔、node_modules |
+   | Code Review | `git diff --staged` + `git diff`，掃描明顯 bug、安全漏洞、遺漏的錯誤處理 | git diff 範圍 |
+
+   > ⚠️ **去重規則**：Debug 掃描只報告 debug 語句的存在與位置。Code Review 負責判斷所有程式碼品質問題（含 debug 語句的影響）。同一行若同時被標記，以 Code Review 的描述為準。
+   > ⚠️ **部分失敗處理**：任一項檢查失敗（如指令不存在、timeout），標記為 `⚠️ 跳過`，不影響其他項的結果。全部完成或失敗後統一進入下一步。
+
+2. **輸出一行摘要**：
+   ```
+   🔍 審核：測試 ✅/❌/⚠️ | Lint ✅/⚠️ | Debug ✅/⚠️ | Code ✅/⚠️ N issues
+   ```
+   - 測試失敗（❌）→ 暫停，詢問是否修正
+   - 其餘只記錄，不暫停
+
+### Deep 模式（預設）
+
+啟動**完全獨立的 subagent**，以嚴格否定立場審查所有產出。
+
+#### Step 1：收集審核範圍
+
+```bash
+git diff --staged && git diff
+git log --oneline -10
+git status --short
+```
+
+同時用 Glob 掃描專案結構，列出所有變更檔案的完整路徑。
+
+#### Step 2：啟動審核 Agent
+
+使用 Agent tool 啟動獨立 subagent，prompt：
+
+```
+你是獨立紅隊審核員。預設否定，找出問題。
+
+## 身份
+- 不隸屬開發團隊，立場是懷疑與辯證
+- 不給建設性建議，只指出問題，修正是開發者的事
+- 不因「只是小專案」放水
+
+## 審核對象
+主 agent 產出的所有成果物：程式碼、文件、指令定義檔。
+
+## 審核方法
+1. **交叉驗證**：每個宣稱都回原始碼/原始文件核對
+2. **內部一致性**：文件 A 段說的和 B 段說的有沒有矛盾
+3. **可行性驗證**：建議的操作照做會不會壞掉
+4. **遺漏偵測**：缺少的邊界條件、未定義的預設行為、遺漏的連動修改
+
+## 自動檢查（先跑工具再做 AI 審查）
+1. 偵測並執行測試框架（jest/vitest/pytest/go test/cargo test）
+2. 偵測並執行 linter（eslint/biome/ruff）
+3. 掃描 debug 程式碼
+
+## 嚴重度
+- 🔴 阻塞：照做會壞 → MUST FIX
+- 🟠 中等：不完整或誤導 → SHOULD FIX
+- 🟡 輕微：不精確但不影響結論 → NICE TO FIX
+
+## 每項發現格式
+- **編號**：F-001
+- **位置**：檔案:行號 或 檔案:section
+- **嚴重度**：🔴/🟠/🟡
+- **問題**：一句話
+- **驗證**：交叉比對了什麼
+- **裁決**：MUST FIX / SHOULD FIX / NICE TO FIX
+
+## 報告
+寫入 `reviews/YYYY-MM-DD-HH-MM.md`，包含：
+1. 審核 metadata（日期、專案、branch、commit、範圍）
+2. 總評：🚫 REJECT / ⚠️ REVISE / ✅ PASS（一段話說明最大風險）
+3. 自動檢查結果（測試/lint/debug）
+4. 統計表（程式碼/文件 × 嚴重度）
+5. 發現清單（依嚴重度分組）
+6. 未覆蓋風險
+7. 評分（各面向 1-5 分 + 加權總分）
+```
+
+附上 Step 1 收集的 git diff、檔案清單作為審核素材。
+
+#### Step 3：顯示結果
+
+subagent 完成後：
+1. 讀取 `reviews/` 下最新報告
+2. 顯示摘要：
+   ```
+   🔍 審核完成
+
+   📋 報告：reviews/YYYY-MM-DD-HH-MM.md
+   📊 總評：<🚫 REJECT / ⚠️ REVISE / ✅ PASS>
+   🔴 N | 🟠 N | 🟡 N | ⭐ X.X/5
+   ```
+3. 🚫 REJECT → 詢問：`有阻塞問題，要查看詳情並修正嗎？`
 
 ---
 
@@ -389,33 +451,17 @@ Dashboard Canvas ID: `F0AMWD1GAD9`
 - **已知問題**：發現但未解決的問題
 - **下次建議**：建議下次優先處理的事項
 
-### Step 2：Code Review（自動，僅摘要）
+### Step 2：審核（review easy，自動）
 
-如果在 git repo 中且有改動：
-1. 執行與 `/pm sync` 選 3 相同的審查邏輯
-2. **僅顯示摘要**（不顯示完整報告）：
-   ```
-   🔍 Code Review：X critical, Y warnings, Z info
-   ```
-3. **只在有 Critical 問題時暫停**，詢問是否修正
-4. Warning 和 Info 只記錄，不暫停
+執行 review easy 流程（見上方「Easy 模式」）：
+- 測試 + lint + debug 掃描 + 快速 code review
+- 輸出一行摘要：`🔍 審核：測試 ✅/❌ | Lint ✅/⚠️ | Debug ✅/⚠️ | Code ✅/⚠️`
+- 測試失敗 → 暫停詢問，其餘只記錄
+- 額外：如果 `reviews/` 有今日 deep 報告 → 顯示 `🔴 Deep：<總評> | ⭐ X.X/5`
 
-如果不在 git repo 或無改動 → 跳過。
+無 git repo 或無改動 → 跳過。
 
-### Step 3：QA 快速檢查（自動）
-
-如果在 git repo 中：
-1. 執行與 `/pm sync` 選 4 相同的邏輯
-2. **僅顯示摘要**：
-   ```
-   🧪 QA：測試 ✅/❌ | Lint ✅/⚠️ | Debug ✅/⚠️
-   ```
-3. **只在測試失敗時暫停**，詢問是否修正
-4. Lint 警告和 debug 程式碼只記錄，不暫停
-
-如果無測試框架 → 跳過。
-
-### Step 4：Git 整理
+### Step 3：Git 整理
 
 ```bash
 git status --short
@@ -433,7 +479,7 @@ git remote -v
 3. 如果沒有 remote → 詢問：`🔗 要建立 GitHub private repo 嗎？`
    - 同意 → `gh repo create <folder-name> --private --source=. --push`
 
-### Step 5：寫入 progress.md（含 Session ID）
+### Step 4：寫入 progress.md（含 Session ID）
 
 將整理好的進度寫入 memory 資料夾中的 `progress.md`（覆寫，只保留最新狀態）。
 
@@ -443,7 +489,7 @@ git remote -v
 3. 讀取其中的 `sessionId` 欄位
 4. 找不到 → 跳過 Session 區段
 
-### Step 6：Slack 同步（自動，不需確認）
+### Step 5：Slack 同步（自動，不需確認）
 
 如果 progress.md 有 `### Slack Canvas` 區段且包含 Canvas ID：
 - 執行選 2 的完整流程（Canvas + Channel + Dashboard）
@@ -451,7 +497,7 @@ git remote -v
 
 如果沒有 Canvas ID → 跳過。
 
-### Step 7：Retro to Memory（自動）
+### Step 6：Retro to Memory（自動）
 
 回顧本次 session，檢查是否有值得記住的內容：
 
@@ -464,7 +510,7 @@ git remote -v
 - 如果有值得記住的內容 → 寫入 memory 檔案（依照標準 memory 格式含 frontmatter）
 - 如果沒有 → 跳過，不提示
 
-### Step 8：顯示進度摘要
+### Step 7：顯示進度摘要
 
 ```
 📋 本次工作摘要
@@ -483,11 +529,11 @@ git remote -v
 - next step 1
 
 🌿 Git：branch-name | N unpushed
-🔍 Review：X critical, Y warnings
-🧪 QA：tests ✅/❌ | lint ✅/⚠️
+🔍 審核：測試 ✅/❌ | Lint ✅/⚠️ | Code ✅/⚠️
+🔴 Deep：<總評> | ⭐ X.X/5（如有 deep 報告）
 ```
 
-### Step 9：告別並退出
+### Step 8：告別並退出
 
 ```
 👋 收工！進度已儲存。
@@ -548,9 +594,12 @@ git remote -v
 ### Dashboard 更新規則
 
 - Dashboard Canvas ID: `F0AMWD1GAD9`（固定值）
-- 每個專案只能有一個 `## 🔹` 區段
-- 更新時用 section_id 精確替換，不影響其他專案
-- 如果發現重複區段 → 先清理再更新
+- 每個專案只能有一個 `## :small_blue_diamond:` 區段
+- **replace 時不含 `##` header**（header 是 section 本身會被保留，內容含 header 會產生重複）
+- **append 時含 `##` header**（新增完整區段）
+- 區段內容必須完整自包含（狀態 + 項目 + 連結 + 時間戳），不可拆成多次 update
+- 如果 section_id_mapping 中發現同一專案有多個 header → 先用整個 Canvas replace（無 section_id）清理重複，再正常更新
+- Canvas 內容使用 Slack emoji 語法（`:small_blue_diamond:` `:white_check_mark:` `:arrows_counterclockwise:` `:pushpin:` `:link:`），不使用 Unicode emoji
 
 ---
 
