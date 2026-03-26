@@ -1,23 +1,25 @@
 # PM v2 — 統一專案管理入口設計
 
-> 設計日期：2026-03-24
-> 靈感來源：gstack 角色分工 + 現有 `/pm`、`/hello`、`/sc`、`/bye` 流程整合
+> 設計日期：2026-03-24（最後更新：2026-03-26）
 > 原始碼 Repo：https://github.com/CPIDLE/claude-dotfiles
-> gstack 參考：https://github.com/garrytan/gstack
+> 靈感來源：gstack 角色分工 + 現有 `/hello`、`/sc`、`/bye` 流程整合
 
 ---
 
 ## 設計目標
 
-將 `/hello`、`/sc`、`/bye` 以及 gstack 啟發的 review/QA/retro 能力，收斂成 **3 個指令**：
+將 `/hello`、`/sc`、`/bye` 以及 gstack 啟發的 review/QA/retro 能力，收斂成統一入口 `/pm`。
 
 | 指令 | 用途 | 取代 |
 |---|---|---|
-| `/pm` 或 `/pm new` | 開工 | `/hello`、`/hello new` |
-| `/pm sync` | 中期同步 + 動作選單 | `/sc`、`/sc 1`、`/sc 2` |
-| `/pm bye` | 收工 | `/bye` + `/sc 1` |
+| `/pm` 或 `/pm new` | 開工 | `/hello` |
+| `/pm sync` | 中期同步 + 動作選單 | `/sc` |
+| `/pm bye` | 收工 | `/bye` + `/sc` |
+| `/pm review` | 獨立審核（easy/deep） | — |
+| `/pm status` | 快速查看進度（唯讀） | — |
+| `/pm resume` | 顯示接續指令 | — |
 
-原有的 `/hello`、`/sc`、`/bye` **保留但標記為 legacy**，底層邏輯由 `/pm` 統一管理。
+原有的 `/hello`、`/sc`、`/bye` 保留但標記為 legacy。
 
 ---
 
@@ -30,241 +32,184 @@
 
 ---
 
-## `/pm` 或 `/pm new` — 開工
-
-### 自動判斷邏輯
+## 架構概覽
 
 ```
-使用者輸入 /pm
-  │
-  ├─ 有 `new` 參數？ → 首次模式（掃描 + 建立 progress.md）
-  ├─ 有 progress.md？ → 正常模式（顯示進度 + 問要做什麼）
-  └─ 都沒有？       → 提醒使用 /pm new
+/pm ──────→ 開工（判斷首次/正常模式）
+/pm sync ──→ 選單：同步 | 審核 | 調整計畫
+/pm bye ───→ 自動：回顧 → easy 審核 → smart-commit → push? → sync → retro → 告別
+/pm review → easy（主 agent）或 deep（獨立 subagent 紅隊）
 ```
 
-### 步驟
-
-1. **問候 + 環境資訊**
-   ```
-   👋 嗨！開工囉！
-   📅 2026-03-24（一）  ⏰ 14:30
-   📁 專案：my-project
-   ```
-
-2. **狀態判斷**（同現有 `/hello` 的模式 A / B 邏輯）
-
-3. **正常模式額外步驟** — 快速 context 掃描：
-   - 讀取 progress.md 顯示上次進度
-   - `git status --short` + 未 push commits
-   - 如有 dirty files 或未 push commits → 特別提醒
-
-4. **詢問使用者**
-   ```
-   要做什麼？
-   1. 繼續上次的工作（預設）
-   2. 開始新任務
-   3. 查看完整進度
-   ```
-
-5. **進入 Plan-Execute Workflow**（依 CLAUDE.md 的三階段流程）
-
-6. **更新 Status Line**
-   ```bash
-   bash ~/.claude/pm-update.sh pm running  # 開始
-   bash ~/.claude/pm-update.sh pm done     # 完成
-   ```
-
-### 首次模式（`/pm new`）
-
-同現有 `/hello new`：掃描專案 → 建立 progress.md → 詢問目標和技術棧。
-
----
-
-## `/pm sync` — 中期同步 + 動作選單
-
-### 設計理念
-
-`/pm sync` 不只是同步 Canvas，而是「工作中的萬用選單」。自動偵測目前狀態，提供最相關的動作。
-
-### 自動偵測 + 選單
+### 關鍵資料流
 
 ```
-📊 目前狀態
-├─ Tasks: 3/7 completed
-├─ Git: 2 modified, 1 untracked
-├─ 上次同步：30 分鐘前
-└─ Canvas: 已連結
-
-你想做什麼？
-1. 繼續執行（預設，直接回到工作）
-2. 同步進度 → Slack Canvas + Channel
-3. Code Review — 審查目前所有改動
-4. QA 檢查 — 跑測試 + 安全掃描
-5. 調整計畫 — 修改 scope 或重新排序
-```
-
-### 各選項行為
-
-#### 選 1：繼續執行
-- 不做任何事，回到工作流程
-- 如果有 TodoWrite tasks，顯示下一個 pending task
-
-#### 選 2：同步進度（= 現有 `/sc 1` 流程）
-- progress.md → Canvas（`slack_update_canvas`）
-- 發送/更新摘要到 `#all-cpidle`（防洗版機制）
-- 更新 Dashboard Canvas（`F0AMWD1GAD9`）
-- 如果 Canvas 尚未連結 → 自動進入連結/建立流程（= 現有 `/sc` 2B 模式）
-
-#### 選 3：Code Review（gstack 啟發）
-```
-執行審查流程：
-1. git diff --staged + git diff（收集所有改動）
-2. 以「資深工程師」角色審查：
-   - 邏輯正確性
-   - 安全性（OWASP top 10）
-   - 效能問題
-   - 程式碼風格一致性
-3. 產出審查報告（直接在終端顯示）
-4. 如有問題 → 詢問是否自動修正
-```
-
-#### 選 4：QA 檢查（gstack 啟發）
-```
-執行 QA 流程：
-1. 偵測測試框架（jest/vitest/pytest/go test 等）
-2. 執行測試套件
-3. 如有 lint 設定 → 執行 linter
-4. 檢查是否有遺漏的 console.log / debug 程式碼
-5. 產出 QA 報告
-6. 如有失敗 → 詢問是否自動修正
-```
-
-#### 選 5：調整計畫
-- 進入 Plan Mode（`EnterPlanMode`）
-- 讓使用者重新規劃剩餘工作
-- 更新 TodoWrite tasks
-
-### Status Line 更新
-```bash
-bash ~/.claude/pm-update.sh sync running  # 開始
-bash ~/.claude/pm-update.sh sync done     # 完成
+progress.md ←→ Slack Canvas（雙向同步）
+                ↓
+            #all-cpidle（Channel 摘要，防洗版）
+                ↓
+            Dashboard Canvas（F0AMWD1GAD9，各專案區段）
 ```
 
 ---
 
-## `/pm bye` — 收工
+## 審核系統（easy/deep 兩層）
 
-### 設計理念
+原本 Code Review、QA、紅隊審核是三個獨立功能，已合併為兩層：
 
-收工流程應最大程度自動化，減少互動。依序執行，有問題才停。
+| 深度 | 觸發方式 | 執行者 | 內容 | 產出 |
+|---|---|---|---|---|
+| **easy** | sync 選 2、bye 自動、`/pm review easy` | 主 agent | 測試 + lint + debug 掃描 + 快速 code review | 螢幕一行摘要 |
+| **deep** | `/pm review`（預設） | 獨立 subagent | easy 全部 + 紅隊 AI 交叉驗證（程式碼+文件） | `reviews/YYYY-MM-DD-HH-MM.md` |
 
-### 步驟（自動依序執行）
+### Deep 模式紅隊 Prompt 設計原則
 
+- 預設否定，找出問題
+- 交叉驗證：每個宣稱回原始碼核對
+- 內部一致性：文件各段是否矛盾
+- 可行性驗證：建議照做會不會壞
+- 遺漏偵測：沒寫的比寫了的更危險
+- 審查對象包含**程式碼和文件**（如 pm.md 本身）
+
+---
+
+## Status Line 系統
+
+### 顯示格式
 ```
-/pm bye
-  │
-  ├─ Step 1：回顧對話，整理完成/進行中/問題/建議
-  │
-  ├─ Step 2：Code Review（自動，僅顯示摘要）
-  │   └─ 有嚴重問題 → 暫停，詢問是否修正
-  │
-  ├─ Step 3：QA 快速檢查（自動）
-  │   └─ 測試失敗 → 暫停，詢問是否修正
-  │
-  ├─ Step 4：Git 整理
-  │   ├─ 有 dirty files → 詢問是否 smart-commit
-  │   ├─ 有未 push commits → 詢問是否 push
-  │   └─ 無 remote → 詢問是否建立 GitHub repo
-  │
-  ├─ Step 5：寫入 progress.md（含 Session ID）
-  │
-  ├─ Step 6：Slack 同步（自動，不需確認）
-  │   ├─ 更新 Canvas
-  │   ├─ 發送/更新 #all-cpidle 摘要
-  │   └─ 更新 Dashboard
-  │
-  ├─ Step 7：寫 Retro 到 memory（gstack 啟發）
-  │   └─ 如果本次 session 有值得記住的 feedback/pattern → 自動存 memory
-  │
-  ├─ Step 8：顯示進度摘要
-  │
-  └─ Step 9：告別 + /exit
+[Opus 4.6 (1M context)] 專案名 | pm▸sync▸bye | master | ctx:N%
 ```
 
-### 新增：Retro to Memory（Step 7）
-
-收工時自動回顧本次 session，如果發現以下情況就寫入 memory：
-
-| 類型 | 觸發條件 | 範例 |
+### 顏色狀態
+| 狀態 | ANSI | 顏色 |
 |---|---|---|
-| feedback | 使用者糾正了做法 | 「用戶偏好 X 而非 Y」 |
-| project | 學到新的專案背景 | 「API 限制每分鐘 100 次」 |
-| user | 發現使用者偏好 | 「偏好簡潔的 commit message」 |
+| `pending` | `\x1b[90m` | 暗灰 |
+| `running` | `\x1b[93m` | 亮黃 |
+| `done` | `\x1b[97m` | 亮白 |
 
-如果本次 session 沒有值得記住的內容，跳過此步驟。
+### 檔案架構
+| 檔案 | 用途 |
+|---|---|
+| `pm-update.sh` | 寫入 `pm-last.txt`（key:state 格式） |
+| `statusline.js` | 讀取 `pm-last.txt` + context JSON，輸出 ANSI status line |
+| `statusline.sh` | 呼叫 statusline.js + 注入 git branch |
 
-### Status Line 更新
-```bash
-bash ~/.claude/pm-update.sh bye running  # 開始
-bash ~/.claude/pm-update.sh bye done     # 完成
-```
+### 自動化機制
+| 機制 | 觸發 |
+|---|---|
+| `SessionStart` hook | 新 session 啟動 → `pm-update.sh reset`（全部回暗灰） |
+| pm.md Step 0 | 各子命令開始 → `pm-update.sh <key> running` |
+| pm.md 結束步驟 | 各子命令結束 → `pm-update.sh <key> done` |
+
+### 已知限制
+- Status line 只有 3 格（pm/sync/bye），review 不獨立顯示
+- pm.md 的 Step 0 bash code block 不保證 agent 會執行（已觀察到跳過的情況）
+- `pm-update.sh` 的 sed 替換只能更新已存在的 key
 
 ---
 
-## 快捷參數完整對照
+## `/pm sync` 同步流程
 
-| 指令 | 行為 | 等同舊指令 |
+### 選單（3 項）
+```
+1. 同步進度 → Slack Canvas + Channel（預設）
+2. 審核 — easy 模式
+3. 調整計畫
+```
+
+### 同步進度流程
+```
+Step 0: 自動 smart-commit（有 dirty files → 靜默 commit，不問不 push）
+Step A: 檢查 progress.md 存在
+Step B: Canvas 同步（已連結 → replace | 未連結 → 建立/連結/跳過）
+Step C: Channel 通知（防洗版：今日已發 → 跳過）
+Step D: Dashboard 更新（replace 不含 header / append 含 header）
+```
+
+### Dashboard 更新規則（關鍵防 bug）
+- `replace` + `section_id`：內容**不含** `##` header（header 是 section 本身，含則重複）
+- `append`：內容**含** `##` header（新增完整區段）
+- Canvas emoji 使用 Slack 語法（`:small_blue_diamond:` 非 `🔹`）
+
+---
+
+## `/pm bye` 收工流程
+
+```
+Step 0: Status Line → bye running
+Step 1: 回顧對話 → 整理完成/進行中/問題/建議
+Step 2: Easy 審核（自動，僅摘要，測試失敗才暫停）
+Step 3: Git 整理 → 自動 smart-commit + 問 push
+Step 4: 寫入 progress.md（含 Session ID）
+Step 5: Slack 同步（Canvas + Channel + Dashboard）
+Step 6: Retro to Memory（自動，有值得記的才寫）
+Step 7: 顯示摘要
+Step 8: 告別 + /exit
+```
+
+### Smart-commit 行為統一
+- sync 和 bye 都是**靜默 commit**（不問使用者）
+- push 只在 bye 時詢問
+
+---
+
+## 與 gstack 的對應
+
+| gstack | PM v2 | 備註 |
 |---|---|---|
-| `/pm` | 開工（自動判斷首次/正常） | `/hello` |
-| `/pm new` | 首次開工 | `/hello new` |
-| `/pm sync` | 中期選單（同步/review/QA/調整） | `/sc` |
-| `/pm sync 2` | 直接同步 Canvas（跳過選單） | `/sc 1` |
-| `/pm bye` | 收工全流程 | `/bye` + `/sc 1` |
-| `/pm status` | 快速查看進度（唯讀） | — |
-| `/pm resume` | 接續上次 session | — |
+| `/autoplan` | `/pm`（內建 Plan-Execute） | 已有三階段 workflow |
+| `/review` | `/pm review easy` 或 deep | easy = 快速，deep = 紅隊 subagent |
+| `/qa` | 整合在 review easy 中 | 測試 + lint + debug 掃描 |
+| `/ship` | `/pm bye` Step 3 | Git commit + push |
+| `/retro` | `/pm bye` Step 6 | 自動 retro to memory |
+| `/cso` | `/pm review deep` 涵蓋 | 安全審查整合在紅隊審查中 |
 
 ---
 
 ## 檔案結構
 
 ```
-~/.claude/commands/
-├── pm.md          ← v2 主檔（本設計的實作）
-├── hello.md       ← legacy，保留但加 deprecation notice
-├── sc.md          ← legacy，保留但加 deprecation notice
-└── bye.md         ← legacy，保留但加 deprecation notice
+~/.claude/
+├── commands/
+│   ├── pm.md          ← v2 主指令（~640 行）
+│   ├── hello.md       ← legacy（已 deprecated）
+│   ├── sc.md          ← legacy（已 deprecated）
+│   └── bye.md         ← legacy（已 deprecated）
+├── statusline.js      ← status line 渲染
+├── statusline.sh      ← status line 入口
+├── pm-update.sh       ← status line 狀態更新
+├── pm-last.txt        ← status line 狀態檔（runtime）
+└── settings.json      ← hooks（SessionStart reset、Stop beep、PreToolUse beep）
+
+GitHub Repo: CPIDLE/claude-dotfiles
+├── commands/pm.md     ← 主指令源碼
+├── reviews/           ← deep 審核報告
+├── pm-v2-design.md    ← 本文件
+├── install.ps1        ← Windows 安裝腳本
+└── install.sh         ← Linux/Mac 安裝腳本
 ```
 
 ---
 
-## 與 gstack 的對應
+## 開發歷程
 
-| gstack 指令 | PM v2 對應 | 備註 |
+| 日期 | 階段 | 內容 |
 |---|---|---|
-| `/autoplan` | `/pm`（內建 Plan-Execute） | 已有三階段 workflow |
-| `/review` | `/pm sync` → 選 3 | Code Review |
-| `/qa` | `/pm sync` → 選 4 | QA 檢查 |
-| `/ship` | `/pm bye` Step 4 | Git commit + push |
-| `/retro` | `/pm bye` Step 7 | 自動 retro to memory |
-| `/plan-ceo-review` | 不採用 | 個人/小團隊不需要 |
-| `/cso` | `/pm sync` → 選 3 涵蓋 | 安全審查整合在 review 中 |
-| `/land-and-deploy` | 不採用 | 視專案需求未來再加 |
+| 2026-03-24 | Phase 1 | 核心功能：開工/sync/bye 整合 |
+| 2026-03-24 | Phase 2 | Code Review + QA + 紅隊審核加入 sync |
+| 2026-03-24 | Phase 3 | Retro to Memory 加入 bye |
+| 2026-03-24 | Phase 4 | Legacy commands 標記 deprecated |
+| 2026-03-26 | Phase 5 | Code Review + QA + 紅隊合併為 easy/deep 兩層 |
+| 2026-03-26 | Phase 6 | 紅隊審核報告：修正 F-007/F-008/F-009 |
+| 2026-03-26 | Phase 7 | Status line 修正（SessionStart hook、顏色、Stop hook rm 移除） |
+| 2026-03-26 | Phase 8 | PM_v2 repo 合併回 claude-dotfiles，PM_v2 archived |
+| 2026-03-26 | Phase 9 | progress.md Glob 路徑修正 |
 
 ---
 
-## 實作優先順序
+## 已知限制與待辦
 
-1. **Phase 1**：改寫 `pm.md`，整合 `/hello`、`/sc`、`/bye` 核心邏輯
-2. **Phase 2**：加入 Code Review（選 3）和 QA（選 4）到 `/pm sync`
-3. **Phase 3**：加入 Retro to Memory 到 `/pm bye`
-4. **Phase 4**：標記舊 commands 為 legacy，加 redirect 提示
-
----
-
-## 不變的部分
-
-- progress.md 格式和位置不變
-- Slack Canvas / Dashboard 同步機制不變
-- Status Line（pm-update.sh）機制不變
-- Plan-Execute Workflow（CLAUDE.md 三階段）不變
-- 所有輸出使用繁體中文
+- Status line Step 0 的 bash code block 不保證 agent 執行（blockquote 和 Step 0 都試過，agent 可能跳過）
+- `/pm resume` 無法在 session 內執行 `claude --resume`，只能顯示指令
+- Session ID 撈取依賴 `~/.claude/sessions/` 的內部結構，無官方 API 保證
+- Deep review 的 subagent 尚未大量測試
