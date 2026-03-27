@@ -7,7 +7,7 @@
 | 指令 | 行為 |
 |---|---|
 | `/pm` | 開工（自動判斷首次/正常模式） |
-| `/pm new` | 首次開工（掃描專案 + 建立 progress.md） |
+| `/pm new` | 首次開工（掃描專案 + 建立 progress.md + README.md） |
 | `/pm sync` | 中期選單（同步/審核/調整） |
 | `/pm sync 2` | 直接同步進度（跳過選單，執行選 1） |
 | `/pm bye` | 收工全流程（easy 審核 + git + sync + retro） |
@@ -83,15 +83,74 @@ bash ~/.claude/pm-update.sh pm done
 
 ### 首次模式（`new` 參數）
 
+支援參數：`/pm new --lang=en`（指定 README 語言為英文，預設繁體中文）。
+
 1. 告知使用者將進行首次專案掃描
 2. 使用 **Explore agent**（thoroughness: `very thorough`）掃描專案，prompt 包含：
    - 專案結構、技術棧、主要模組
    - Git 歷史（最近 20 commits、branches、remotes）
    - 入口點、設定檔、CI/CD
 3. 根據 Explore agent 回傳的結果，整理首次進度摘要（專案概述、目前 branch、建議下一步）
-4. 寫入 `progress.md`（memory 資料夾中）
-5. 顯示摘要讓使用者確認
-6. 如果是全新空目錄，額外詢問：目標、技術棧、參考範例
+4. 產生文件（合併產出）：
+   - 寫入 `progress.md`（memory 資料夾中）
+   - 產生 `README.md`（專案根目錄，規則見下方）
+5. 顯示摘要（含 README 產生結果）讓使用者確認
+6. 如果是全新空目錄，額外詢問：目標、技術棧、參考範例 → 回到步驟 4 補寫 README + progress.md
+
+#### README.md 產生規則
+
+- **已存在** README.md → 跳過，顯示 `ℹ️ README.md 已存在，跳過產生`
+- **不存在** → 依 Explore 結果 + 固定範本產生
+- **語言**：預設繁體中文；使用者可用 `--lang=en` 指定英文
+
+#### README.md 固定範本
+
+```markdown
+# <專案名稱>
+
+<一段話專案簡述>
+
+## 功能特色
+
+- <主要功能 1>
+- <主要功能 2>
+
+## 技術棧
+
+- <語言/框架>
+- <主要依賴>
+
+## 開始使用
+
+### 前置需求
+
+- <必要工具/環境>
+
+### 安裝
+
+\`\`\`bash
+<安裝指令>
+\`\`\`
+
+### 使用方式
+
+\`\`\`bash
+<使用指令>
+\`\`\`
+
+## 專案結構
+
+\`\`\`
+<主要目錄/檔案樹，僅列重要項目>
+\`\`\`
+
+## 授權條款
+
+<偵測到的 LICENSE 類型，或省略此區段>
+```
+
+> AI 可依掃描結果省略不適用的區段（如無 LICENSE → 省略授權條款）。
+> 使用者可自行擴充區段（如 Contributing、Changelog），後續維護時會保留。
 
 ---
 
@@ -461,6 +520,29 @@ bash ~/.claude/pm-update.sh bye running
 - **進行中工作**：開始但未完成的事項
 - **已知問題**：發現但未解決的問題
 - **下次建議**：建議下次優先處理的事項
+
+### Step 1.5：README 新鮮度檢查（自動）
+
+如果專案根目錄有 `README.md`，檢查是否需要更新：
+
+1. 用 `git log -1 --format="%ai" -- README.md` 取得最後修改日期
+2. 用 `git diff --stat $(git log -1 --format="%H" -- README.md)..HEAD` 統計期間檔案變動數
+
+**觸發條件**（同時滿足）：
+- README 最後修改距今 ≥ 30 天
+- 期間檔案變動 ≥ 5 個
+
+**觸發時**：
+```
+📝 README.md 已 N 天未更新，期間有 M 個檔案變動，建議更新。
+   要現在更新嗎？
+```
+- 同意 → 讀取現有 README，**只更新固定範本區段**（功能特色、技術棧、專案結構等），非範本區段（使用者手動新增的 Contributing、Changelog 等）完整保留不動
+- 不同意 → 跳過
+
+**不觸發時**：靜默跳過。
+
+**無 README.md 或非 git repo** → 跳過。
 
 ### Step 2：審核（review easy，自動）
 
