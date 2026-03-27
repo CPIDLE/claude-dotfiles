@@ -264,7 +264,8 @@ bash ~/.claude/pm-update.sh sync running
 2. 使用 Apps Script Web App 寫入：
    - 構建 JSON payload：`{"header":"# 📋 <專案名稱>","content":"<Markdown 內容>"}`
    - Base64 編碼 payload
-   - 呼叫 `curl -s -L "<APPS_SCRIPT_URL>?action=replace_section&payload=<BASE64>"`
+   - URL encode Base64（`+` → `%2B`、`/` → `%2F`、`=` → `%3D`）
+   - 呼叫 `curl -s -L "<APPS_SCRIPT_URL>?action=replace_section&payload=<URL_ENCODED_BASE64>"`
    - `APPS_SCRIPT_URL` = `https://script.google.com/macros/s/<Apps Script Web App ID from CLAUDE.md>/exec`
 3. 如果 curl 回應不含 `"status":"ok"` → 顯示 `⚠️ Apps Script 寫入失敗，跳過 Doc 更新` 並繼續
 4. 更新 progress.md 中的「最後同步」時間
