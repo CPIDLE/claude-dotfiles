@@ -125,7 +125,7 @@ bash ~/.claude/pm-update.sh pm done
    git log @{u}..HEAD --oneline 2>/dev/null
    ```
 5. 如果有 dirty files 或未 push commits → 特別提醒
-6. 如果有 `### Slack Canvas` 區段 → 顯示：`💡 工作中可用 /pm sync 同步進度，收工用 /pm bye`
+6. 如果有 `### Google Doc` 區段 → 顯示：`💡 工作中可用 /pm sync 同步進度，收工用 /pm bye`
 7. 詢問使用者：
    ```
    要做什麼？
@@ -157,7 +157,7 @@ bash ~/.claude/pm-update.sh pm done
    - next step
 
    🌿 Branch: <branch-name>
-   🔗 Canvas: <Canvas URL 或「未連結」>
+   🔗 Google Doc: <Doc URL 或「未連結」>
    🕐 上次同步：<時間 或「—」>
    ```
 
@@ -195,14 +195,14 @@ bash ~/.claude/pm-update.sh sync running
 ├─ Tasks: N/M completed
 ├─ Git: X modified, Y untracked
 ├─ 上次同步：<時間 或「—」>
-└─ Canvas: <已連結 / 未連結>
+└─ Google Doc: <已連結 / 未連結>
 ```
 
 狀態資訊來源：
 - Tasks：從 TodoWrite 目前的 task 狀態計算
 - Git：執行 `git status --short` 統計
-- 上次同步：從 progress.md 的 `### Slack Canvas` 區段讀取
-- Canvas：檢查 progress.md 是否有 Canvas ID
+- 上次同步：從 progress.md 的 `### Google Doc` 區段讀取
+- Google Doc：檢查 progress.md 是否有 Doc ID
 
 ### 選單
 
@@ -211,7 +211,7 @@ bash ~/.claude/pm-update.sh sync running
 否則顯示：
 ```
 你想做什麼？
-1. 同步進度 → Slack Canvas + Channel（預設）
+1. 同步進度 → Google Doc + Chat Space（預設）
 2. 審核 — 獨立 agent 跑測試 + lint + AI 審查
 3. 調整計畫 — 修改 scope 或重新排序
 ```
@@ -235,44 +235,67 @@ bash ~/.claude/pm-update.sh sync running
 ```
 直接結束。
 
-#### Step B：判斷 Canvas 狀態
+#### Step PRE：Google 工具可用性檢查
 
-讀取 progress.md，檢查是否有 `### Slack Canvas` 區段且包含 Canvas ID。
+在執行 Step B/C/D 之前，先檢查 CLAUDE.md 中的關鍵 ID 是否已設定：
+- 讀取 CLAUDE.md 中的 `Google Chat Space` 和 `Dashboard Google Doc` ID
+- 如果任一 ID 仍為 placeholder（包含 `<` 字元，如 `<SPACE_ID>`）→ 視為未設定
 
-**已連結（有 Canvas ID）：**
-1. 使用 `slack_read_canvas` 讀取 Canvas 最新內容
-2. 將 progress.md 內容（排除 `### Slack Canvas` 區段和 frontmatter）轉為 Canvas Markdown
-3. 使用 `slack_update_canvas`（action=replace）更新 Canvas
-4. 更新 progress.md 中的「最後同步」時間
-5. 顯示：`✅ 已同步到 Canvas！🔗 <Canvas URL>`
+**若 ID 未設定：**
+```
+⚠️ Google Workspace 尚未完成設定。
+   缺少：<列出未設定的項目>
+💡 請先完成以下步驟：
+   1. 安裝 Google Workspace MCP（npm install -g @googleworkspace/cli）
+   2. 建立 Google Chat Space → 將 Space ID 填入 CLAUDE.md
+   3. 建立 Dashboard Google Doc → 將 Doc ID 填入 CLAUDE.md
+⏭️ 跳過 Google 同步，僅更新本地 progress.md。
+```
+更新 progress.md 中的「最後同步」時間，然後跳過 Step B/C/D。
 
-**未連結（無 Canvas ID）：**
+**若 ID 已設定 → 繼續 Step B。**
+
+#### Step B：判斷 Google Doc 狀態
+
+讀取 progress.md，檢查是否有 `### Google Doc` 區段且包含 Doc ID（非 placeholder）。
+
+**已連結（有 Doc ID）：**
+1. 使用 `google_drive_fetch` 讀取 Google Doc 最新內容
+2. 將 progress.md 內容（排除 `### Google Doc` 區段和 frontmatter）轉為 Markdown
+3. 使用 Google Workspace MCP 的 Docs 寫入工具更新 Doc 內容
+4. 如果寫入工具不可用 → 顯示 `⚠️ Google Docs 寫入工具不可用，跳過 Doc 更新` 並繼續
+5. 更新 progress.md 中的「最後同步」時間
+6. 顯示：`✅ 已同步到 Google Doc！🔗 <Doc URL>`
+
+**未連結（無 Doc ID）：**
 ```
 📋 專案：<資料夾名稱>
-🔗 尚未連結 Slack Canvas
+🔗 尚未連結 Google Doc
 
 請選擇：
-1. 🆕 建立新 Canvas
-2. 🔗 連結既有 Canvas（輸入 ID 或 URL）
+1. 🆕 建立新 Google Doc
+2. 🔗 連結既有 Google Doc（輸入 ID 或 URL）
 3. ⏭️ 跳過
 ```
 
-- 選 1：標題 `📋 <資料夾名稱> 進度追蹤`，用 `slack_create_canvas` 建立，寫回 Canvas ID
-- 選 2：詢問 Canvas ID（`F08XXXXXXXX`）或 URL，用 `slack_read_canvas` 驗證後寫回
+- 選 1：標題 `📋 <資料夾名稱> 進度追蹤`，用 Google Workspace MCP 建立，寫回 Doc ID 和 URL
+- 選 2：詢問 Doc ID 或 URL（`https://docs.google.com/document/d/<id>/edit`），用 `google_drive_fetch` 驗證後寫回
 - 選 3：跳過
 
-#### Step C+D：發送 Channel 通知 + 更新 Dashboard（平行）
+> ⚠️ 如果 Google Docs 建立/寫入工具不可用，顯示 `⚠️ Google Docs MCP 工具不可用，請確認已安裝 Google Workspace MCP` 並跳過。
 
-SB 完成後，**同時執行**以下兩項（互不依賴，寫入不同的 Slack 目標）：
+#### Step C+D：發送 Chat 通知 + 更新 Dashboard（平行）
 
-> ⚠️ **硬依賴**：SB 必須在 C+D 之前完成。SB 可能建立新 Canvas，C 和 D 都需要 Canvas URL。
-> ⚠️ **部分失敗處理**：C 或 D 任一失敗，顯示 `⚠️ <Channel/Dashboard> 同步失敗：<原因>`，不影響另一項。
+Step B 完成後，**同時執行**以下兩項（互不依賴）：
 
-**C — 發送摘要到 #all-cpidle（防洗版）**
+> ⚠️ **硬依賴**：Step B 必須在 C+D 之前完成。Step B 可能建立新 Doc，C 和 D 都需要 Doc URL。
+> ⚠️ **部分失敗處理**：C 或 D 任一失敗（含工具不可用），顯示 `⚠️ <Chat/Dashboard> 同步失敗：<原因>`，不影響另一項。
 
-Channel ID: `C0AN35HJQ8L`
+**C — 發送摘要到 Google Chat Space（防洗版）**
 
-1. 用 `slack_search_public` 搜尋 `from:<@U0AMZHMH3HQ> in:<#C0AN35HJQ8L> <專案名稱>` 找今天是否已有摘要
+Google Chat Space ID：從 CLAUDE.md 的關鍵 ID 表讀取。
+
+1. 使用 Google Chat MCP 工具搜尋 Space 中今天是否已有該專案的摘要訊息
 2. 已有 → 跳過，顯示 `ℹ️ 今日已發送過摘要，跳過`
 3. 沒有 → 發送新訊息，格式：
    ```
@@ -282,46 +305,37 @@ Channel ID: `C0AN35HJQ8L`
    • <重點 2>
    • <重點 3>
 
-   🔗 <Canvas URL|完整進度>
+   🔗 <Doc URL|完整進度>
    ```
 
 擷取重點規則：優先已完成（✅）→ 進行中（🔄）→ 下一步，不超過 5 項。
 
-**D — 更新 Dashboard Canvas**
+> ⚠️ 如果 Google Chat MCP 工具不可用 → 顯示 `⚠️ Google Chat 工具不可用，跳過 Chat 通知` 並繼續。
 
-Dashboard Canvas ID: `F0AMWD1GAD9`
+**D — 更新 Dashboard Google Doc**
 
-1. 用 `slack_read_canvas` 讀取 Dashboard，取得 `section_id_mapping`
-2. 在 mapping 中搜尋包含當前專案名稱的 `## :small_blue_diamond:` header
-3. **已存在** → 用 `slack_update_canvas`（action=replace, section_id=該 header 的 ID）替換區段。**替換內容不包含 `##` header 行**（header 是 section 本身，會被保留），只寫 header 以下的內容（狀態 + 項目 + 連結 + 時間戳）
-4. **不存在** → 用 `slack_update_canvas`（action=append）新增完整區段（含 `##` header）
-5. **不要**單獨寫「最後更新」— 時間戳必須包含在區段內容的最後一行
+Dashboard Doc ID：從 CLAUDE.md 的關鍵 ID 表讀取。
 
-replace 時的內容格式（**不含** `##` header）：
+1. 用 `google_drive_fetch` 讀取 Dashboard Doc 內容
+2. 搜尋包含當前專案名稱的 `## 🔹` header
+3. **已存在** → 替換該段落（從 `## 🔹 <專案名稱>` 到下一個 `## 🔹` 或文件結尾）
+4. **不存在** → 在文件末尾新增該專案區段
+5. 使用 Google Workspace MCP 的 Docs 寫入工具寫回
+
+區段格式：
 ```markdown
+## 🔹 <專案名稱>
 狀態：<開發中 / 規劃中 / 已完成 / 維護中>
-- :white_check_mark: <最近完成 1-2 項>
-- :arrows_counterclockwise: <進行中 1-2 項>
-- :pushpin: <待辦 1-2 項>
-:link: [完整進度](<Canvas URL>)
+- ✅ <最近完成 1-2 項>
+- 🔄 <進行中 1-2 項>
+- 📌 <待辦 1-2 項>
+🔗 [完整進度](<Doc URL>)
 
 最後更新：YYYY-MM-DD HH:MM
 ```
 
-append 時的內容格式（**含** `##` header）：
-```markdown
-## :small_blue_diamond: <專案名稱>
-狀態：<開發中 / 規劃中 / 已完成 / 維護中>
-- :white_check_mark: <最近完成 1-2 項>
-- :arrows_counterclockwise: <進行中 1-2 項>
-- :pushpin: <待辦 1-2 項>
-:link: [完整進度](<Canvas URL>)
-
-最後更新：YYYY-MM-DD HH:MM
-```
-
-> ⚠️ Canvas 使用 Slack emoji 語法（`:white_check_mark:` 非 `✅`），header 用 `:small_blue_diamond:` 非 `🔹`。
-> ⚠️ `replace` + `section_id` 時如果內容包含 `##` header 會產生重複！只有 `append` 時才加 header。
+> ⚠️ Dashboard 使用標準 Unicode emoji（✅ 🔄 📌 🔹 🔗），不使用平台特定語法。
+> ⚠️ 如果 Google Docs 寫入工具不可用 → 顯示 `⚠️ Dashboard 更新失敗：Docs 寫入工具不可用` 並繼續。
 
 ---
 
@@ -510,13 +524,13 @@ git remote -v
 3. 讀取其中的 `sessionId` 欄位
 4. 找不到 → 跳過 Session 區段
 
-### Step 5：Slack 同步（自動，不需確認）
+### Step 5：Google 同步（自動，不需確認）
 
-如果 progress.md 有 `### Slack Canvas` 區段且包含 Canvas ID：
-- 執行選 2 的完整流程（Canvas + Channel + Dashboard）
-- 顯示：`📤 已同步 Canvas、Channel、Dashboard！`
+如果 progress.md 有 `### Google Doc` 區段且包含 Doc ID：
+- 執行選 1 的完整流程（Google Doc + Chat Space + Dashboard）
+- 顯示：`📤 已同步 Google Doc、Chat Space、Dashboard！`
 
-如果沒有 Canvas ID → 跳過。
+如果沒有 Doc ID → 跳過。
 
 ### Step 6：Retro to Memory（自動）
 
@@ -594,33 +608,41 @@ git remote -v
 - Resume: `claude --resume <sessionId>`
 ```
 
-### progress.md 擴充格式 — Slack Canvas
+### progress.md 擴充格式 — Google Doc
 
 ```markdown
-### Slack Canvas
-- Canvas ID: F08XXXXXXXX
-- Canvas URL: https://xxx.slack.com/canvas/...
+### Google Doc
+- Doc ID: <Google Doc ID>
+- Doc URL: https://docs.google.com/document/d/<id>/edit
 - 最後同步：YYYY-MM-DD HH:MM
 ```
 
-### Canvas 內容格式轉換
+### Google Doc 內容格式轉換
 
-將 progress.md 轉為 Canvas 時：
+將 progress.md 轉為 Google Doc 時：
 - 移除 frontmatter（`---` 包圍的 YAML 區塊）
-- 移除 `### Slack Canvas` 區段
-- 移除與 Canvas 標題重複的頂層標題
-- emoji（✅ 🔄 等）保留原樣
+- 移除 `### Google Doc` 區段
+- 移除與 Doc 標題重複的頂層標題
+- emoji（✅ 🔄 等）保留原樣（使用標準 Unicode emoji）
 - Headers 不超過 3 層（`###`）
 
 ### Dashboard 更新規則
 
-- Dashboard Canvas ID: `F0AMWD1GAD9`（固定值）
-- 每個專案只能有一個 `## :small_blue_diamond:` 區段
-- **replace 時不含 `##` header**（header 是 section 本身會被保留，內容含 header 會產生重複）
-- **append 時含 `##` header**（新增完整區段）
-- 區段內容必須完整自包含（狀態 + 項目 + 連結 + 時間戳），不可拆成多次 update
-- 如果 section_id_mapping 中發現同一專案有多個 header → 先用整個 Canvas replace（無 section_id）清理重複，再正常更新
-- Canvas 內容使用 Slack emoji 語法（`:small_blue_diamond:` `:white_check_mark:` `:arrows_counterclockwise:` `:pushpin:` `:link:`），不使用 Unicode emoji
+- Dashboard Doc ID：從 CLAUDE.md 的關鍵 ID 表讀取（固定值）
+- 每個專案只能有一個 `## 🔹` 區段
+- 更新時以 `## 🔹 <專案名稱>` 定位段落，替換到下一個 `## 🔹` 或文件結尾
+- 新增時在文件末尾 append 完整區段
+- 區段內容必須完整自包含（狀態 + 項目 + 連結 + 時間戳）
+- 使用標準 Unicode emoji（✅ 🔄 📌 🔹 🔗）
+
+### Google 工具可用性
+
+Google 同步功能需要 Google Workspace MCP。如果工具不可用：
+- 所有 Google 相關步驟（Doc 更新、Chat 通知、Dashboard 更新）graceful skip
+- 本地 progress.md 照常更新
+- 顯示一次性提示引導使用者設定 MCP
+
+安裝方式：`npm install -g @googleworkspace/cli`，完成 OAuth 認證後在 Claude Code settings 中加入 MCP server。
 
 ---
 
@@ -629,5 +651,6 @@ git remote -v
 - 所有輸出使用繁體中文
 - 預設自動 — 每個階段有 happy path，不選就能走完
 - 需要時才問 — 只在分歧點或風險點才跳選單
-- 關鍵 ID：Channel `C0AN35HJQ8L`、Dashboard `F0AMWD1GAD9`
+- 關鍵 ID 設定於 CLAUDE.md：Google Chat Space ID、Dashboard Doc ID
+- ID 為 placeholder（含 `<` 字元）時，Google 同步自動跳過
 - `/pm` 是 `/hello`、`/sc`、`/bye` 的升級版，舊指令仍可獨立使用

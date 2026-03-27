@@ -8,8 +8,8 @@ Custom commands（`/hello`、`/sc`、`/bye`、`/pm` 等）的原始碼：
 
 | 項目 | ID |
 |---|---|
-| Slack Channel `#all-cpidle` | `C0AN35HJQ8L` |
-| Dashboard Canvas | `F0AMWD1GAD9` |
+| Google Chat Space | `<SPACE_ID>` |
+| Dashboard Google Doc | `<DASHBOARD_DOC_ID>` |
 
 ---
 

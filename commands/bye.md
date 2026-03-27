@@ -48,15 +48,12 @@ git remote -v
 
 將 git 狀態資訊補充到 Step 1 的整理結果中（例如：有未追蹤的新檔案、有未 commit 的變更等）。
 
-### Step 3：提醒 Smart Commit
+### Step 3：Smart Commit
 
-如果有未 commit 的變更（dirty files），提醒使用者：
-```
-💡 偵測到未 commit 的變更，要執行 /smart-commit 嗎？
-```
-
-如果使用者同意，執行 `/smart-commit`。
+如果有未 commit 的變更（dirty files），自動分析改動、產生 commit message、執行 `git add` + `git commit`（不問、不 push）。
 完成後重新執行 `git status --short` 和 `git log @{u}..HEAD --oneline` 更新狀態。
+
+無改動 → 跳過。
 
 ### Step 4：檢查未 Push Commits
 
@@ -125,13 +122,13 @@ gh repo create <folder-name> --private --source=. --push
 - Resume: `claude --resume <sessionId>`
 ```
 
-### Step 7：自動執行 /sc 1 完整同步
+### Step 7：自動 Google 同步
 
-如果 progress.md 中有 `### Slack Canvas` 區段且包含 `Canvas ID`：
-- 執行 `/sc 1` 的完整流程（Canvas 同步 + Channel 摘要 + Dashboard 更新）
-- 顯示：`📤 已同步 Canvas、Channel、Dashboard！`
+如果 progress.md 中有 `### Google Doc` 區段且包含 Doc ID：
+- 執行 `/pm sync` 選 1 的完整流程（Google Doc + Chat Space + Dashboard）
+- 顯示：`📤 已同步 Google Doc、Chat Space、Dashboard！`
 
-如果沒有 Canvas ID → 跳過此步驟，不提示。
+如果沒有 Doc ID → 跳過此步驟，不提示。
 
 > 注意：此步驟自動執行，不需要使用者確認（收工時減少互動）。
 
@@ -177,6 +174,6 @@ gh repo create <folder-name> --private --source=. --push
 - 所有輸出使用繁體中文
 - progress.md 覆寫而非 append（只保留最新狀態，歷史由 git 管理）
 - 如果不在 git repo 中，跳過所有 git 相關步驟
-- Step 3-5 需要使用者確認才執行，不要自動執行
-- Step 7（/sc 1 完整同步）自動執行，不需確認
+- Step 3（smart-commit）自動執行，Step 4-5 需要使用者確認
+- Step 7（Google 同步）自動執行，不需確認
 - `/bye` 完成後一律自動退出 Claude Code
