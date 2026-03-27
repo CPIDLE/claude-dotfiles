@@ -286,6 +286,7 @@ bash ~/.claude/pm-update.sh sync running
 - 選 3：跳過
 
 > ⚠️ 如果 Apps Script Web App ID 未設定於 CLAUDE.md → 顯示 `⚠️ Apps Script 未設定，跳過 Doc 更新` 並跳過。
+> ⚠️ **URL 長度限制**：Base64 payload 透過 GET query string 傳送，URL 長度上限約 8KB。如果 progress.md 內容過大（約 6KB 以上），應截斷或分段傳送，避免 URL 超長導致請求失敗。
 
 #### Step C+D：發送 Chat 通知 + 更新 Dashboard（平行）
 
@@ -299,10 +300,10 @@ Step B 完成後，**同時執行**以下兩項（互不依賴）：
 Chat Email：從 CLAUDE.md 的關鍵 ID 表讀取 `Chat Email (email-to-chat)`。
 
 1. 使用 `gmail-work` 的 `gmail_list_emails` 搜尋今天是否已寄過同主題的信：
-   - query: `to:cpidle-project-report@gyro.com.tw subject:"<專案名稱> — 進度更新" after:<today YYYY/MM/DD>`
+   - query: `to:<Chat Email> subject:"<專案名稱> — 進度更新" after:<today YYYY/MM/DD>`
 2. 已有 → 跳過，顯示 `ℹ️ 今日已發送過摘要，跳過`
 3. 沒有 → 使用 `gmail-work` 的 `gmail_send_email` 發送：
-   - to: `cpidle-project-report@gyro.com.tw`（Chat Email from CLAUDE.md）
+   - to: `<Chat Email>`（從 CLAUDE.md 關鍵 ID 表讀取）
    - subject: `📋 <專案名稱> — 進度更新`
    - body:
    ```
@@ -533,6 +534,9 @@ git remote -v
 
 ### Step 5：Google 同步（自動，不需確認）
 
+先執行 Step PRE 檢查（CLAUDE.md 中的 Dashboard Doc、Chat Email、Apps Script Web App ID 是否已設定）。
+如果 ID 未設定或為 placeholder → 跳過 Google 同步。
+
 如果 progress.md 有 `### Google Doc` 區段且包含 Doc ID：
 - 執行選 1 的完整流程（Google Doc + Chat Space + Dashboard）
 - 顯示：`📤 已同步 Google Doc、Chat Space、Dashboard！`
@@ -646,7 +650,7 @@ git remote -v
 
 Google 同步功能依賴以下工具，任一不可用時 graceful skip：
 - **Google Doc 讀寫**：Apps Script Web App（CLAUDE.md 中的 `Apps Script Web App` ID）
-- **Chat 通知**：`gmail-work` MCP 寄信到 Chat Email（CLAUDE.md 中的 `Chat Email (email-to-chat)`）
+- **Chat 通知**：`gmail-work` MCP 的 `gmail_send_email` 寄信到 Chat Email + `gmail_list_emails` 防洗版查詢（CLAUDE.md 中的 `Chat Email (email-to-chat)`）
 - **Drive 讀取**：`google_drive_fetch` MCP（用於驗證 Doc ID）
 
 如果工具不可用：
@@ -661,6 +665,6 @@ Google 同步功能依賴以下工具，任一不可用時 graceful skip：
 - 所有輸出使用繁體中文
 - 預設自動 — 每個階段有 happy path，不選就能走完
 - 需要時才問 — 只在分歧點或風險點才跳選單
-- 關鍵 ID 設定於 CLAUDE.md：Google Chat Space ID、Dashboard Doc ID
-- ID 為 placeholder（含 `<` 字元）時，Google 同步自動跳過
+- 關鍵 ID 設定於 CLAUDE.md：Dashboard Google Doc、Chat Email (email-to-chat)、Apps Script Web App
+- ID 為 placeholder（含 `<` 字元）或缺少時，Google 同步自動跳過
 - `/pm` 是 `/hello`、`/sc`、`/bye` 的升級版，舊指令仍可獨立使用
