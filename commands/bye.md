@@ -124,7 +124,7 @@ gh repo create <folder-name> --private --source=. --push
 
 ### Step 7：自動 Google 同步
 
-先執行 Step PRE 檢查（CLAUDE.md 中的 Dashboard Sheet、Chat Email、Apps Script Web App ID 是否已設定）。
+先執行 Step PRE 檢查（CLAUDE.md 中的 Dashboard Sheet、Chat Webhook、Apps Script Web App ID 是否已設定）。
 如果 ID 未設定或為 placeholder → 跳過 Google 同步。
 
 執行 `/pm sync` 選 1 的完整流程（Dashboard Sheet + Chat Space）：

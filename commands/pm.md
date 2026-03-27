@@ -237,7 +237,7 @@ bash ~/.claude/pm-update.sh sync running
 #### Step PRE：Google 工具可用性檢查
 
 在執行 Step C/D 之前，先檢查 CLAUDE.md 中的關鍵 ID 是否已設定：
-- 讀取 CLAUDE.md 中的 `Dashboard Sheet`、`Chat Email (email-to-chat)`、`Apps Script Web App` ID
+- 讀取 CLAUDE.md 中的 `Dashboard Sheet`、`Chat Webhook`、`Apps Script Web App` ID
 - 如果任一 ID 仍為 placeholder（包含 `<` 字元）或缺少 → 視為未設定
 
 **若 ID 未設定：**
@@ -247,7 +247,7 @@ bash ~/.claude/pm-update.sh sync running
 💡 請先完成以下步驟：
    1. 建立 Dashboard Google Sheet → 將 Sheet ID 填入 CLAUDE.md
    2. 在 Sheet 中建立 Apps Script Web App → 將部署 ID 填入 CLAUDE.md
-   3. 設定 Google Chat Space 的 email-to-chat → 將 Email 填入 CLAUDE.md
+   3. 在 Google Chat Space 建立 Webhook → 將 Webhook URL 填入 CLAUDE.md
 ⏭️ 跳過 Google 同步，僅更新本地 progress.md。
 ```
 更新 progress.md 中的「最後同步」時間，然後跳過 Step C/D。
@@ -264,26 +264,28 @@ bash ~/.claude/pm-update.sh sync running
 
 > ⚠️ **部分失敗處理**：C 或 D 任一失敗（含工具不可用），顯示 `⚠️ <Chat/Dashboard> 同步失敗：<原因>`，不影響另一項。
 
-**C — 發送摘要到 Google Chat Space（via email-to-chat，防洗版）**
+**C — 發送摘要到 Google Chat Space（via Webhook）**
 
-Chat Email：從 CLAUDE.md 的關鍵 ID 表讀取 `Chat Email (email-to-chat)`。
+Chat Webhook URL：從 CLAUDE.md 的關鍵 ID 表讀取 `Chat Webhook`。
 
-1. 使用 **`mcp__gmail-work__gmail_list_emails`**（注意：必須使用 `gmail-work` MCP，不是 Google Workspace Gmail MCP）搜尋今天是否已寄過同主題的信：
-   - query: `to:<Chat Email> subject:"<專案名稱> — 進度更新" after:<today YYYY/MM/DD>`
-2. 已有 → 跳過，顯示 `ℹ️ 今日已發送過摘要，跳過`
-3. 沒有 → 使用 **`mcp__gmail-work__gmail_send_email`**（必須用此 tool，不是 `gmail_create_draft`）發送：
-   - to: `<Chat Email>`（從 CLAUDE.md 關鍵 ID 表讀取）
-   - subject: `📋 <專案名稱> — 進度更新`
-   - body:
+1. 構建 JSON body：
+   ```json
+   {"text":"📋 *<專案名稱> — 進度更新*\n\n• <重點 1>\n• <重點 2>\n• <重點 3>"}
    ```
-   • <重點 1>
-   • <重點 2>
-   • <重點 3>
+2. 使用 Bash curl 發送（必須用 heredoc + printf 確保 UTF-8）：
+   ```bash
+   BODY=$(cat <<'ENDJSON'
+   {"text":"📋 *<專案名稱> — 進度更新*\n\n• <重點 1>\n• <重點 2>"}
+   ENDJSON
+   )
+   printf '%s' "$BODY" | curl -s -X POST '<Chat Webhook URL>' \
+     -H 'Content-Type: application/json; charset=UTF-8' -d @-
    ```
+3. 如果 curl 回應不含 `"name":"spaces/` → 顯示 `⚠️ Chat 通知失敗` 並繼續
 
 擷取重點規則：優先已完成（✅）→ 進行中（🔄）→ 下一步，不超過 5 項。
 
-> ⚠️ 如果 `gmail-work` MCP 不可用 → 顯示 `⚠️ Gmail 工具不可用，跳過 Chat 通知` 並繼續。
+> ⚠️ 如果 Chat Webhook URL 未設定於 CLAUDE.md → 顯示 `⚠️ Chat Webhook 未設定，跳過通知` 並繼續。
 
 **D — 更新 Dashboard Sheet（via Apps Script）**
 
@@ -594,7 +596,7 @@ git remote -v
 
 Google 同步功能依賴以下工具，任一不可用時 graceful skip：
 - **Dashboard Sheet 讀寫**：Apps Script Web App（CLAUDE.md 中的 `Apps Script Web App` ID）
-- **Chat 通知**：**必須使用 `mcp__gmail-work__gmail_send_email`**（不是 Google Workspace Gmail MCP 的 `gmail_create_draft`）寄信到 Chat Email + `mcp__gmail-work__gmail_list_emails` 防洗版查詢（CLAUDE.md 中的 `Chat Email (email-to-chat)`）
+- **Chat 通知**：Bash curl POST 到 Google Chat Webhook URL（CLAUDE.md 中的 `Chat Webhook`），不依賴任何 MCP
 
 如果工具不可用：
 - 所有 Google 相關步驟（Chat 通知、Dashboard 更新）graceful skip
@@ -608,6 +610,6 @@ Google 同步功能依賴以下工具，任一不可用時 graceful skip：
 - 所有輸出使用繁體中文
 - 預設自動 — 每個階段有 happy path，不選就能走完
 - 需要時才問 — 只在分歧點或風險點才跳選單
-- 關鍵 ID 設定於 CLAUDE.md：Dashboard Sheet、Chat Email (email-to-chat)、Apps Script Web App
+- 關鍵 ID 設定於 CLAUDE.md：Dashboard Sheet、Chat Webhook、Apps Script Web App
 - ID 為 placeholder（含 `<` 字元）或缺少時，Google 同步自動跳過
 - `/pm` 是 `/hello`、`/sc`、`/bye` 的升級版，舊指令仍可獨立使用

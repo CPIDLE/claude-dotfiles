@@ -8,7 +8,7 @@ Custom commands（`/hello`、`/sc`、`/bye`、`/pm` 等）的原始碼：
 
 | 項目 | ID |
 |---|---|
-| Chat Email (email-to-chat) | `cpidle-project-report@gyro.com.tw` |
+| Chat Webhook | `https://chat.googleapis.com/v1/spaces/AAQAYB_uT0M/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=WnDNMALPegG-JGsZjqeBpil0-BnwdgAimDvgJKP_0uQ` |
 | Dashboard Sheet | `19Wn3U4kbQw712SZGN7eKJDYGa5JYUUYofDi-zuakuPI` |
 | Apps Script Web App | `AKfycbz-a6vGaQ1bucB4MGtCZ80ICnkCqHWQ2VFbL2yM8B_dGK8_HLlVURDpNKI1OvUjdTONnw` |
 
