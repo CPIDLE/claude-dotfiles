@@ -1,6 +1,6 @@
 # PM v2 — 統一專案管理入口設計
 
-> 設計日期：2026-03-24（最後更新：2026-03-26）
+> 設計日期：2026-03-24（最後更新：2026-03-27）
 > 原始碼 Repo：https://github.com/CPIDLE/claude-dotfiles
 > 靈感來源：gstack 角色分工 + 現有 `/hello`、`/sc`、`/bye` 流程整合
 
@@ -44,11 +44,11 @@
 ### 關鍵資料流
 
 ```
-progress.md ←→ Slack Canvas（雙向同步）
+progress.md ──→ Google Doc（單向同步：本地→Doc）
                 ↓
-            #all-cpidle（Channel 摘要，防洗版）
+            Google Chat Space（摘要通知，防洗版）
                 ↓
-            Dashboard Canvas（F0AMWD1GAD9，各專案區段）
+            Dashboard Google Doc（各專案區段）
 ```
 
 ---
@@ -112,7 +112,7 @@ progress.md ←→ Slack Canvas（雙向同步）
 
 ### 選單（3 項）
 ```
-1. 同步進度 → Slack Canvas + Channel（預設）
+1. 同步進度 → Google Doc + Chat Space（預設）
 2. 審核 — easy 模式
 3. 調整計畫
 ```
@@ -121,15 +121,16 @@ progress.md ←→ Slack Canvas（雙向同步）
 ```
 Step 0: 自動 smart-commit（有 dirty files → 靜默 commit，不問不 push）
 Step A: 檢查 progress.md 存在
-Step B: Canvas 同步（已連結 → replace | 未連結 → 建立/連結/跳過）
-Step C: Channel 通知（防洗版：今日已發 → 跳過）
-Step D: Dashboard 更新（replace 不含 header / append 含 header）
+Step PRE: Google 工具可用性檢查（ID 為 placeholder → 跳過 Google 同步）
+Step B: Google Doc 同步（已連結 → 更新 | 未連結 → 建立/連結/跳過）
+Step C: Chat Space 通知（防洗版：今日已發 → 跳過）
+Step D: Dashboard 更新（以 `## 🔹` header 定位段落替換）
 ```
 
-### Dashboard 更新規則（關鍵防 bug）
-- `replace` + `section_id`：內容**不含** `##` header（header 是 section 本身，含則重複）
-- `append`：內容**含** `##` header（新增完整區段）
-- Canvas emoji 使用 Slack 語法（`:small_blue_diamond:` 非 `🔹`）
+### Dashboard 更新規則
+- 以 `## 🔹 <專案名稱>` 定位段落，替換到下一個 `## 🔹` 或文件結尾
+- 新增時在文件末尾 append 完整區段（含 `## 🔹` header）
+- 使用標準 Unicode emoji（✅ 🔄 📌 🔹 🔗）
 
 ---
 
@@ -141,7 +142,7 @@ Step 1: 回顧對話 → 整理完成/進行中/問題/建議
 Step 2: Easy 審核（自動，僅摘要，測試失敗才暫停）
 Step 3: Git 整理 → 自動 smart-commit + 問 push
 Step 4: 寫入 progress.md（含 Session ID）
-Step 5: Slack 同步（Canvas + Channel + Dashboard）
+Step 5: Google 同步（Google Doc + Chat Space + Dashboard）
 Step 6: Retro to Memory（自動，有值得記的才寫）
 Step 7: 顯示摘要
 Step 8: 告別 + /exit
@@ -171,7 +172,7 @@ Step 8: 告別 + /exit
 ```
 ~/.claude/
 ├── commands/
-│   ├── pm.md          ← v2 主指令（~640 行）
+│   ├── pm.md          ← v2 主指令（~660 行）
 │   ├── hello.md       ← legacy（已 deprecated）
 │   ├── sc.md          ← legacy（已 deprecated）
 │   └── bye.md         ← legacy（已 deprecated）
@@ -204,6 +205,7 @@ GitHub Repo: CPIDLE/claude-dotfiles
 | 2026-03-26 | Phase 7 | Status line 修正（SessionStart hook、顏色、Stop hook rm 移除） |
 | 2026-03-26 | Phase 8 | PM_v2 repo 合併回 claude-dotfiles，PM_v2 archived |
 | 2026-03-26 | Phase 9 | progress.md Glob 路徑修正 |
+| 2026-03-27 | Phase 10 | Slack → Google Workspace 遷移 + Coding Discipline 規則合併 |
 
 ---
 
@@ -212,4 +214,4 @@ GitHub Repo: CPIDLE/claude-dotfiles
 - Status line Step 0 的 bash code block 不保證 agent 執行（blockquote 和 Step 0 都試過，agent 可能跳過）
 - `/pm resume` 無法在 session 內執行 `claude --resume`，只能顯示指令
 - Session ID 撈取依賴 `~/.claude/sessions/` 的內部結構，無官方 API 保證
-- Deep review 的 subagent 尚未大量測試
+- Deep review 的 subagent 已測試數次，但樣本仍有限

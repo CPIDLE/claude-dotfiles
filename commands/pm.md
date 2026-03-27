@@ -246,7 +246,7 @@ bash ~/.claude/pm-update.sh sync running
 ⚠️ Google Workspace 尚未完成設定。
    缺少：<列出未設定的項目>
 💡 請先完成以下步驟：
-   1. 安裝 Google Workspace MCP（npm install -g @googleworkspace/cli）
+   1. 安裝並設定 Google Workspace MCP server（參照 MCP 官方文件）
    2. 建立 Google Chat Space → 將 Space ID 填入 CLAUDE.md
    3. 建立 Dashboard Google Doc → 將 Doc ID 填入 CLAUDE.md
 ⏭️ 跳過 Google 同步，僅更新本地 progress.md。
@@ -642,7 +642,7 @@ Google 同步功能需要 Google Workspace MCP。如果工具不可用：
 - 本地 progress.md 照常更新
 - 顯示一次性提示引導使用者設定 MCP
 
-安裝方式：`npm install -g @googleworkspace/cli`，完成 OAuth 認證後在 Claude Code settings 中加入 MCP server。
+安裝方式：依照 Google Workspace MCP 官方文件安裝並設定，完成 OAuth 認證後在 Claude Code settings 中加入 MCP server。
 
 ---
 

@@ -124,11 +124,13 @@ gh repo create <folder-name> --private --source=. --push
 
 ### Step 7：自動 Google 同步
 
-如果 progress.md 中有 `### Google Doc` 區段且包含 Doc ID：
+先檢查 CLAUDE.md 中的 Google ID 是否為 placeholder（含 `<` 字元）→ 若是，跳過 Google 同步。
+
+如果 ID 已設定，且 progress.md 中有 `### Google Doc` 區段且包含 Doc ID：
 - 執行 `/pm sync` 選 1 的完整流程（Google Doc + Chat Space + Dashboard）
 - 顯示：`📤 已同步 Google Doc、Chat Space、Dashboard！`
 
-如果沒有 Doc ID → 跳過此步驟，不提示。
+如果沒有 Doc ID 或 ID 為 placeholder → 跳過此步驟，不提示。
 
 > 注意：此步驟自動執行，不需要使用者確認（收工時減少互動）。
 
