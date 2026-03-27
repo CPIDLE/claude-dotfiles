@@ -8,8 +8,8 @@ Custom commands（`/hello`、`/sc`、`/bye`、`/pm` 等）的原始碼：
 
 | 項目 | ID |
 |---|---|
-| Google Chat Space | `<SPACE_ID>` |
-| Dashboard Google Doc | `<DASHBOARD_DOC_ID>` |
+| Google Chat Space | `AAQAYB_uT0M` |
+| Dashboard Google Doc | `11tbJwLPyohEXhNTKUI9jvJFiD-U3tCjYwNjfvbsmomM` |
 
 ---
 
