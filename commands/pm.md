@@ -238,17 +238,17 @@ bash ~/.claude/pm-update.sh sync running
 #### Step PRE：Google 工具可用性檢查
 
 在執行 Step B/C/D 之前，先檢查 CLAUDE.md 中的關鍵 ID 是否已設定：
-- 讀取 CLAUDE.md 中的 `Google Chat Space` 和 `Dashboard Google Doc` ID
-- 如果任一 ID 仍為 placeholder（包含 `<` 字元，如 `<SPACE_ID>`）→ 視為未設定
+- 讀取 CLAUDE.md 中的 `Dashboard Google Doc`、`Chat Email (email-to-chat)`、`Apps Script Web App` ID
+- 如果任一 ID 仍為 placeholder（包含 `<` 字元，如 `<DOC_ID>`）或缺少 → 視為未設定
 
 **若 ID 未設定：**
 ```
 ⚠️ Google Workspace 尚未完成設定。
    缺少：<列出未設定的項目>
 💡 請先完成以下步驟：
-   1. 安裝並設定 Google Workspace MCP server（參照 MCP 官方文件）
-   2. 建立 Google Chat Space → 將 Space ID 填入 CLAUDE.md
-   3. 建立 Dashboard Google Doc → 將 Doc ID 填入 CLAUDE.md
+   1. 建立 Dashboard Google Doc → 將 Doc ID 填入 CLAUDE.md
+   2. 在 Doc 中建立 Apps Script Web App → 將部署 ID 填入 CLAUDE.md
+   3. 設定 Google Chat Space 的 email-to-chat → 將 Email 填入 CLAUDE.md
 ⏭️ 跳過 Google 同步，僅更新本地 progress.md。
 ```
 更新 progress.md 中的「最後同步」時間，然後跳過 Step B/C/D。
@@ -260,12 +260,15 @@ bash ~/.claude/pm-update.sh sync running
 讀取 progress.md，檢查是否有 `### Google Doc` 區段且包含 Doc ID（非 placeholder）。
 
 **已連結（有 Doc ID）：**
-1. 使用 `google_drive_fetch` 讀取 Google Doc 最新內容
-2. 將 progress.md 內容（排除 `### Google Doc` 區段和 frontmatter）轉為 Markdown
-3. 使用 Google Workspace MCP 的 Docs 寫入工具更新 Doc 內容
-4. 如果寫入工具不可用 → 顯示 `⚠️ Google Docs 寫入工具不可用，跳過 Doc 更新` 並繼續
-5. 更新 progress.md 中的「最後同步」時間
-6. 顯示：`✅ 已同步到 Google Doc！🔗 <Doc URL>`
+1. 將 progress.md 內容（排除 `### Google Doc` 區段和 frontmatter）轉為 Markdown
+2. 使用 Apps Script Web App 寫入：
+   - 構建 JSON payload：`{"header":"# 📋 <專案名稱>","content":"<Markdown 內容>"}`
+   - Base64 編碼 payload
+   - 呼叫 `curl -s -L "<APPS_SCRIPT_URL>?action=replace_section&payload=<BASE64>"`
+   - `APPS_SCRIPT_URL` = `https://script.google.com/macros/s/<Apps Script Web App ID from CLAUDE.md>/exec`
+3. 如果 curl 回應不含 `"status":"ok"` → 顯示 `⚠️ Apps Script 寫入失敗，跳過 Doc 更新` 並繼續
+4. 更新 progress.md 中的「最後同步」時間
+5. 顯示：`✅ 已同步到 Google Doc！🔗 <Doc URL>`
 
 **未連結（無 Doc ID）：**
 ```
@@ -273,16 +276,16 @@ bash ~/.claude/pm-update.sh sync running
 🔗 尚未連結 Google Doc
 
 請選擇：
-1. 🆕 建立新 Google Doc
+1. 🆕 建立新 Google Doc（手動建立後貼上 ID）
 2. 🔗 連結既有 Google Doc（輸入 ID 或 URL）
 3. ⏭️ 跳過
 ```
 
-- 選 1：標題 `📋 <資料夾名稱> 進度追蹤`，用 Google Workspace MCP 建立，寫回 Doc ID 和 URL
+- 選 1：引導使用者到 Google Drive 手動建立 Doc，建議標題 `📋 <資料夾名稱> 進度追蹤`，使用者貼回 Doc ID 或 URL 後寫回 progress.md
 - 選 2：詢問 Doc ID 或 URL（`https://docs.google.com/document/d/<id>/edit`），用 `google_drive_fetch` 驗證後寫回
 - 選 3：跳過
 
-> ⚠️ 如果 Google Docs 建立/寫入工具不可用，顯示 `⚠️ Google Docs MCP 工具不可用，請確認已安裝 Google Workspace MCP` 並跳過。
+> ⚠️ 如果 Apps Script Web App ID 未設定於 CLAUDE.md → 顯示 `⚠️ Apps Script 未設定，跳過 Doc 更新` 並跳過。
 
 #### Step C+D：發送 Chat 通知 + 更新 Dashboard（平行）
 
@@ -291,36 +294,40 @@ Step B 完成後，**同時執行**以下兩項（互不依賴）：
 > ⚠️ **硬依賴**：Step B 必須在 C+D 之前完成。Step B 可能建立新 Doc，C 和 D 都需要 Doc URL。
 > ⚠️ **部分失敗處理**：C 或 D 任一失敗（含工具不可用），顯示 `⚠️ <Chat/Dashboard> 同步失敗：<原因>`，不影響另一項。
 
-**C — 發送摘要到 Google Chat Space（防洗版）**
+**C — 發送摘要到 Google Chat Space（via email-to-chat，防洗版）**
 
-Google Chat Space ID：從 CLAUDE.md 的關鍵 ID 表讀取。
+Chat Email：從 CLAUDE.md 的關鍵 ID 表讀取 `Chat Email (email-to-chat)`。
 
-1. 使用 Google Chat MCP 工具搜尋 Space 中今天是否已有該專案的摘要訊息
+1. 使用 `gmail-work` 的 `gmail_list_emails` 搜尋今天是否已寄過同主題的信：
+   - query: `to:cpidle-project-report@gyro.com.tw subject:"<專案名稱> — 進度更新" after:<today YYYY/MM/DD>`
 2. 已有 → 跳過，顯示 `ℹ️ 今日已發送過摘要，跳過`
-3. 沒有 → 發送新訊息，格式：
+3. 沒有 → 使用 `gmail-work` 的 `gmail_send_email` 發送：
+   - to: `cpidle-project-report@gyro.com.tw`（Chat Email from CLAUDE.md）
+   - subject: `📋 <專案名稱> — 進度更新`
+   - body:
    ```
-   📋 *<專案名稱> — 進度更新*
-
    • <重點 1>
    • <重點 2>
    • <重點 3>
 
-   🔗 <Doc URL|完整進度>
+   🔗 <Doc URL>
    ```
 
 擷取重點規則：優先已完成（✅）→ 進行中（🔄）→ 下一步，不超過 5 項。
 
-> ⚠️ 如果 Google Chat MCP 工具不可用 → 顯示 `⚠️ Google Chat 工具不可用，跳過 Chat 通知` 並繼續。
+> ⚠️ 如果 `gmail-work` MCP 不可用 → 顯示 `⚠️ Gmail 工具不可用，跳過 Chat 通知` 並繼續。
 
-**D — 更新 Dashboard Google Doc**
+**D — 更新 Dashboard Google Doc（via Apps Script）**
 
-Dashboard Doc ID：從 CLAUDE.md 的關鍵 ID 表讀取。
+Dashboard Doc ID 和 Apps Script Web App ID：從 CLAUDE.md 的關鍵 ID 表讀取。
 
-1. 用 `google_drive_fetch` 讀取 Dashboard Doc 內容
-2. 搜尋包含當前專案名稱的 `## 🔹` header
-3. **已存在** → 替換該段落（從 `## 🔹 <專案名稱>` 到下一個 `## 🔹` 或文件結尾）
-4. **不存在** → 在文件末尾新增該專案區段
-5. 使用 Google Workspace MCP 的 Docs 寫入工具寫回
+1. 準備該專案的 Dashboard 區段內容（格式見下方）
+2. 使用 Apps Script Web App 寫入：
+   - 構建 JSON payload：`{"header":"## 🔹 <專案名稱>","content":"<區段內容>"}`
+   - Base64 編碼 payload
+   - 呼叫 `curl -s -L "<APPS_SCRIPT_URL>?action=replace_section&payload=<BASE64>"`
+3. Apps Script 會自動處理：已存在 → 替換該段落；不存在 → 在文件末尾新增
+4. 如果 curl 回應不含 `"status":"ok"` → 顯示 `⚠️ Dashboard 更新失敗` 並繼續
 
 區段格式：
 ```markdown
@@ -335,7 +342,7 @@ Dashboard Doc ID：從 CLAUDE.md 的關鍵 ID 表讀取。
 ```
 
 > ⚠️ Dashboard 使用標準 Unicode emoji（✅ 🔄 📌 🔹 🔗），不使用平台特定語法。
-> ⚠️ 如果 Google Docs 寫入工具不可用 → 顯示 `⚠️ Dashboard 更新失敗：Docs 寫入工具不可用` 並繼續。
+> ⚠️ 如果 Apps Script Web App ID 未設定 → 顯示 `⚠️ Apps Script 未設定，跳過 Dashboard 更新` 並繼續。
 
 ---
 
@@ -637,12 +644,15 @@ git remote -v
 
 ### Google 工具可用性
 
-Google 同步功能需要 Google Workspace MCP。如果工具不可用：
+Google 同步功能依賴以下工具，任一不可用時 graceful skip：
+- **Google Doc 讀寫**：Apps Script Web App（CLAUDE.md 中的 `Apps Script Web App` ID）
+- **Chat 通知**：`gmail-work` MCP 寄信到 Chat Email（CLAUDE.md 中的 `Chat Email (email-to-chat)`）
+- **Drive 讀取**：`google_drive_fetch` MCP（用於驗證 Doc ID）
+
+如果工具不可用：
 - 所有 Google 相關步驟（Doc 更新、Chat 通知、Dashboard 更新）graceful skip
 - 本地 progress.md 照常更新
-- 顯示一次性提示引導使用者設定 MCP
-
-安裝方式：依照 Google Workspace MCP 官方文件安裝並設定，完成 OAuth 認證後在 Claude Code settings 中加入 MCP server。
+- 顯示一次性提示引導使用者設定
 
 ---
 

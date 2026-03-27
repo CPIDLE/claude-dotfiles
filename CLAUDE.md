@@ -9,7 +9,9 @@ Custom commands（`/hello`、`/sc`、`/bye`、`/pm` 等）的原始碼：
 | 項目 | ID |
 |---|---|
 | Google Chat Space | `AAQAYB_uT0M` |
+| Chat Email (email-to-chat) | `cpidle-project-report@gyro.com.tw` |
 | Dashboard Google Doc | `11tbJwLPyohEXhNTKUI9jvJFiD-U3tCjYwNjfvbsmomM` |
+| Apps Script Web App | `AKfycbzARHKlpsBRXt6Urky3xugj4OyffrNA9STlpDAVVBgqbRlAb6TZgwonMWMklCiDdzuehg` |
 
 ---
 
