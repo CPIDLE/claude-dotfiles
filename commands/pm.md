@@ -299,10 +299,10 @@ Step B 完成後，**同時執行**以下兩項（互不依賴）：
 
 Chat Email：從 CLAUDE.md 的關鍵 ID 表讀取 `Chat Email (email-to-chat)`。
 
-1. 使用 `gmail-work` 的 `gmail_list_emails` 搜尋今天是否已寄過同主題的信：
+1. 使用 **`mcp__gmail-work__gmail_list_emails`**（注意：必須使用 `gmail-work` MCP，不是 Google Workspace Gmail MCP）搜尋今天是否已寄過同主題的信：
    - query: `to:<Chat Email> subject:"<專案名稱> — 進度更新" after:<today YYYY/MM/DD>`
 2. 已有 → 跳過，顯示 `ℹ️ 今日已發送過摘要，跳過`
-3. 沒有 → 使用 `gmail-work` 的 `gmail_send_email` 發送：
+3. 沒有 → 使用 **`mcp__gmail-work__gmail_send_email`**（必須用此 tool，不是 `gmail_create_draft`）發送：
    - to: `<Chat Email>`（從 CLAUDE.md 關鍵 ID 表讀取）
    - subject: `📋 <專案名稱> — 進度更新`
    - body:
@@ -650,7 +650,7 @@ git remote -v
 
 Google 同步功能依賴以下工具，任一不可用時 graceful skip：
 - **Google Doc 讀寫**：Apps Script Web App（CLAUDE.md 中的 `Apps Script Web App` ID）
-- **Chat 通知**：`gmail-work` MCP 的 `gmail_send_email` 寄信到 Chat Email + `gmail_list_emails` 防洗版查詢（CLAUDE.md 中的 `Chat Email (email-to-chat)`）
+- **Chat 通知**：**必須使用 `mcp__gmail-work__gmail_send_email`**（不是 Google Workspace Gmail MCP 的 `gmail_create_draft`）寄信到 Chat Email + `mcp__gmail-work__gmail_list_emails` 防洗版查詢（CLAUDE.md 中的 `Chat Email (email-to-chat)`）
 - **Drive 讀取**：`google_drive_fetch` MCP（用於驗證 Doc ID）
 
 如果工具不可用：
