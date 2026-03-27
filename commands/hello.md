@@ -111,7 +111,7 @@
    git log @{u}..HEAD --oneline 2>/dev/null  # 未 push 的 commits
    ```
 4. 如果有 dirty files 或未 push commits，特別提醒
-5. 如果 progress.md 有 `### Google Doc` 區段，顯示提示：
+5. 顯示提示：
    ```
    💡 工作中可用 /pm sync 同步進度，收工用 /pm bye
    ```
