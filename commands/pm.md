@@ -630,10 +630,8 @@ git remote -v
 ```
 👋 收工！進度已儲存。
    💡 續回本次：claude --resume <sessionId>
-   下次開工用 /pm 👋
+   👉 按 /exit 離開 或 /clear + /pm 接續執行
 ```
-
-然後立即輸出 `/exit` 讓 Claude Code 結束。
 
 ---
 
