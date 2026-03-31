@@ -49,13 +49,18 @@ function fetchUsage() {
   });
 }
 
+function ansiColor(pct) {
+  if (pct >= 80) return '\x1b[31m'; // red
+  if (pct >= 50) return '\x1b[93m'; // yellow
+  return '\x1b[32m'; // green
+}
+
 function quotaTag(cache) {
   if (!cache) return '';
   const s = Math.round(cache.session?.utilization || 0);
   const w = Math.round(cache.week?.utilization || 0);
-  const worst = Math.max(s, w);
-  const icon = worst >= 80 ? '🔴' : worst >= 50 ? '🟡' : '🟢';
-  return ` | ${icon} 5h:${s}% 7d:${w}%`;
+  const RESET = '\x1b[0m';
+  return ` \u2502 ${ansiColor(s)}5h ${s}%${RESET}  ${ansiColor(w)}7d ${w}%${RESET}`;
 }
 
 let data = '';
@@ -68,7 +73,8 @@ process.stdin.on('end', async () => {
   try {
     const sanitized = data.replace(/\\(?!["\\/bfnrtu])/g, '/');
     const j = JSON.parse(sanitized);
-    const model = j.model?.display_name || 'Claude';
+    const modelRaw = j.model?.display_name || 'Claude';
+    const model = modelRaw.replace(/\s*\(.*?\)\s*$/, ''); // strip "(1M context)" etc.
     const dir = (j.workspace?.current_dir || '').replace(/\\/g, '/').split('/').pop() || '?';
     const pct = Math.round(j.context_window?.used_percentage || 0);
 
@@ -103,9 +109,9 @@ process.stdin.on('end', async () => {
       + `${DIM}\u25b8${RESET}`
       + colorize('bye', pmState.bye);
 
-    const ctxIcon = pct >= 80 ? '🔴' : pct >= 50 ? '🟡' : '🟢';
-    process.stdout.write(`[${model}] ${dir} | ${pmTag} | ${ctxIcon} ctx:${pct}%${quotaTag(cache)}`);
+    const ctxColor = ansiColor(pct);
+    process.stdout.write(`${DIM}${model}${RESET}  ${BRIGHT}${dir}${RESET}  ${DIM}__BRANCH__${RESET} \u2502 ${pmTag} \u2502 ${ctxColor}ctx ${pct}%${RESET}${quotaTag(cache)}`);
   } catch {
-    process.stdout.write(`[Claude] ? | pm | 🟢 ctx:0%${quotaTag(cache)}`);
+    process.stdout.write(`\x1b[90mClaude\x1b[0m  \x1b[97m?\x1b[0m \u2502 pm \u2502 \x1b[32mctx 0%\x1b[0m${quotaTag(cache)}`);
   }
 });
