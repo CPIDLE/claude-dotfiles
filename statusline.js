@@ -59,8 +59,14 @@ function quotaTag(cache) {
   if (!cache) return '';
   const s = Math.round(cache.session?.utilization || 0);
   const w = Math.round(cache.week?.utilization || 0);
+  const DIM = '\x1b[90m';
   const RESET = '\x1b[0m';
-  return ` \u2502 ${ansiColor(s)}5h ${s}%${RESET}  ${ansiColor(w)}7d ${w}%${RESET}`;
+  let tag = ` ${ansiColor(s)}5h-${s}%${RESET} ${ansiColor(w)}7d-${w}%${RESET}`;
+  if (cache.week?.resets_at) {
+    const d = new Date(cache.week.resets_at);
+    tag += ` ${DIM}${d.getMonth() + 1}/${d.getDate()}${RESET}`;
+  }
+  return tag;
 }
 
 let data = '';
@@ -110,7 +116,7 @@ process.stdin.on('end', async () => {
       + colorize('bye', pmState.bye);
 
     const ctxColor = ansiColor(pct);
-    process.stdout.write(`${DIM}${model}${RESET}  ${BRIGHT}${dir}${RESET}  ${DIM}__BRANCH__${RESET} \u2502 ${pmTag} \u2502 ${ctxColor}ctx ${pct}%${RESET}${quotaTag(cache)}`);
+    process.stdout.write(`${DIM}${model}${RESET}  ${BRIGHT}${dir}${RESET}  ${DIM}__BRANCH__${RESET} \u2502 ${pmTag} \u2502 ${ctxColor}ctx-${pct}%${RESET}${quotaTag(cache)}`);
   } catch {
     process.stdout.write(`\x1b[90mClaude\x1b[0m  \x1b[97m?\x1b[0m \u2502 pm \u2502 \x1b[32mctx 0%\x1b[0m${quotaTag(cache)}`);
   }
