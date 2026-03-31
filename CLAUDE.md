@@ -17,14 +17,6 @@ bash install.sh
 
 > **重要**：修改 `commands/`、`CLAUDE.md`、`settings.json` 等原始碼後，**必須重新執行 install script**，否則 `~/.claude/` 下的檔案不會更新，Claude Code 讀取的仍是舊版。
 
-## 關鍵 ID
-
-| 項目 | ID |
-|---|---|
-| Chat Webhook | `https://chat.googleapis.com/v1/spaces/AAQAYB_uT0M/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=WnDNMALPegG-JGsZjqeBpil0-BnwdgAimDvgJKP_0uQ` |
-| Dashboard Sheet | `19Wn3U4kbQw712SZGN7eKJDYGa5JYUUYofDi-zuakuPI` |
-| Apps Script Web App | `AKfycbz-a6vGaQ1bucB4MGtCZ80ICnkCqHWQ2VFbL2yM8B_dGK8_HLlVURDpNKI1OvUjdTONnw` |
-
 ---
 
 # User Preferences

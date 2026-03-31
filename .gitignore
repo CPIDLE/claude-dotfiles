@@ -1,4 +1,5 @@
-# OAuth credentials (sensitive)
+# Secrets
+.env
 **/token.json
 **/client_secret.json
 
