@@ -103,8 +103,9 @@ process.stdin.on('end', async () => {
       + `${DIM}\u25b8${RESET}`
       + colorize('bye', pmState.bye);
 
-    process.stdout.write(`[${model}] ${dir} | ${pmTag} | ctx:${pct}%${quotaTag(cache)}`);
+    const ctxIcon = pct >= 80 ? '🔴' : pct >= 50 ? '🟡' : '🟢';
+    process.stdout.write(`[${model}] ${dir} | ${pmTag} | ${ctxIcon} ctx:${pct}%${quotaTag(cache)}`);
   } catch {
-    process.stdout.write(`[Claude] ? | pm | ctx:0%${quotaTag(cache)}`);
+    process.stdout.write(`[Claude] ? | pm | 🟢 ctx:0%${quotaTag(cache)}`);
   }
 });
