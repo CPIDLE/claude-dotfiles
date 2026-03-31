@@ -61,10 +61,15 @@ function quotaTag(cache) {
   const w = Math.round(cache.week?.utilization || 0);
   const DIM = '\x1b[90m';
   const RESET = '\x1b[0m';
-  let tag = ` ${DIM}5h:${RESET}${ansiColor(s)}${s}%${RESET} ${DIM}7d:${RESET}${ansiColor(w)}${w}%${RESET}`;
+  let tag = ` ${DIM}5h:${RESET}${ansiColor(s)}${s}%${RESET}`;
+  if (cache.session?.resets_at) {
+    const sd = new Date(cache.session.resets_at);
+    tag += `${DIM}@${String(sd.getHours()).padStart(2,'0')}:${String(sd.getMinutes()).padStart(2,'0')}${RESET}`;
+  }
+  tag += ` ${DIM}7d:${RESET}${ansiColor(w)}${w}%${RESET}`;
   if (cache.week?.resets_at) {
     const d = new Date(cache.week.resets_at);
-    tag += ` ${ansiColor(w)}@${d.getMonth() + 1}/${d.getDate()}${RESET}`;
+    tag += `${DIM}@${d.getMonth() + 1}/${d.getDate()}${RESET}`;
   }
   return tag;
 }
