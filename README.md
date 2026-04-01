@@ -26,17 +26,35 @@ claude-dotfiles │ master │ pm▸sync▸bye     Opus 4.6 │ ctx:6% 5h:2%▸0
 
 數字顏色依用量自動變化：綠（<50%，安全）→ 黃（50-80%，注意）→ 紅（>80%，警告）。
 
-### /pm 專案管理指令
+### 專案管理指令
 
 | 指令 | 說明 |
 |------|------|
 | `/pm` | 開工 — 自動偵測專案狀態，顯示上次進度，進入工作模式 |
 | `/pm new` | 首次開工 — 掃描專案結構，建立 progress.md + README |
-| `/pm sync` | 中期同步 — 儲存進度、自動 commit、同步到外部服務 |
-| `/pm bye` | 收工 — 自動審核（測試+lint+code review）+ git 整理 + 進度儲存 |
 | `/pm status` | 快速查看目前進度（唯讀） |
 | `/pm resume` | 接續上次 session |
-| `/pm review` | 獨立程式碼審核（啟動 AI 紅隊審核員） |
+| `/pm-sync` | 中期同步 — 儲存進度、自動 commit、同步到外部服務 |
+| `/pm-bye` | 收工 — 自動審核（測試+lint+code review）+ git 整理 + 進度儲存 |
+| `/pm-review` | 獨立程式碼審核（啟動 AI 紅隊審核員） |
+
+### 建議工作流程
+
+```
+/pm                          # 開工，看上次進度
+  ↓
+  工作
+  ├─ 完成一個功能 → /smart-commit
+  ├─ 完成一個功能 → /smart-commit
+  ├─ ctx ≈ 60% → /pm-bye → /clear → /pm → 繼續
+  ↓
+/pm-bye                      # 收工（review + commit 殘餘 + Google sync + push）
+```
+
+- `/smart-commit` 取代中途 sync，只 commit 不同步
+- Google sync 集中在 `/pm-bye`，一天一次夠用
+- 中途需要即時同步例外 → `/pm-sync 2`
+- 隔天接續 → `claude --resume`，ctx 已大則 `/pm`
 
 ## 安裝
 
@@ -56,12 +74,13 @@ bash install.sh
 ## 專案結構
 
 ```
-├── CLAUDE.md            # 全域指令（Plan-Execute workflow、通知 hooks）
+├── CLAUDE.md            # 專案指令（安裝說明）
+├── global-claude.md     # 全域指令（→ ~/.claude/CLAUDE.md）
 ├── settings.json        # Hooks、plugins、permissions
 ├── statusline.sh        # Status line 主腳本
 ├── statusline.js        # Status line quota 查詢
 ├── pm-update.sh         # /pm 狀態更新腳本
-├── commands/            # Slash commands（pm.md、hello.md、bye.md、sc.md）
+├── commands/            # Slash commands（pm.md、pm-sync.md、pm-bye.md、pm-review.md 等）
 ├── docs/                # 設定指南
 │   └── google-workspace-setup.md
 ├── install.ps1          # Windows 安裝腳本
@@ -70,7 +89,7 @@ bash install.sh
 
 ## Google Workspace 整合（選用）
 
-`/pm sync` 和 `/pm bye` 可額外同步進度到：
+`/pm-sync` 和 `/pm-bye` 可額外同步進度到：
 
 - **Google Chat Space** — 自動發送進度通知到指定頻道（via Webhook）
 - **Google Sheet Dashboard** — 自動更新專案總覽表（via Apps Script）

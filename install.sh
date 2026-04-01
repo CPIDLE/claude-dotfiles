@@ -23,10 +23,10 @@ backup_and_copy() {
     echo "  [OK]  $dest"
 }
 
-# 1. CLAUDE.md
+# 1. Global CLAUDE.md (global-claude.md -> ~/.claude/CLAUDE.md)
 echo ""
-echo "--- CLAUDE.md ---"
-backup_and_copy "$SCRIPT_DIR/CLAUDE.md" "$CLAUDE_DIR/CLAUDE.md"
+echo "--- CLAUDE.md (global) ---"
+backup_and_copy "$SCRIPT_DIR/global-claude.md" "$CLAUDE_DIR/CLAUDE.md"
 
 # 2. settings.json
 echo ""

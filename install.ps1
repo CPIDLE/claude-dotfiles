@@ -25,10 +25,10 @@ function Backup-And-Copy {
     Write-Host "  [OK]  $Dest" -ForegroundColor Green
 }
 
-# 1. CLAUDE.md
+# 1. Global CLAUDE.md (global-claude.md -> ~/.claude/CLAUDE.md)
 Write-Host ""
-Write-Host "--- CLAUDE.md ---"
-Backup-And-Copy "$ScriptDir\CLAUDE.md" "$ClaudeDir\CLAUDE.md"
+Write-Host "--- CLAUDE.md (global) ---"
+Backup-And-Copy "$ScriptDir\global-claude.md" "$ClaudeDir\CLAUDE.md"
 
 # 2. settings.json
 Write-Host ""
