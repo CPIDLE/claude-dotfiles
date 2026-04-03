@@ -120,7 +120,8 @@ Chat Webhook URL：從 CLAUDE.md 的關鍵 ID 表讀取。
    }
    ```
 2. Base64 編碼 payload，URL encode（`+`→`%2B`、`/`→`%2F`、`=`→`%3D`）
-3. 呼叫 `curl -s -L "<APPS_SCRIPT_URL>?action=upsert&project=<專案名稱>&payload=<URL_ENCODED_BASE64>"`
+3. 將 `<專案名稱>` 進行 URL encode（`printf '%s' "<專案名稱>" | jq -sRr @uri`），然後呼叫：
+   `curl -s -L "<APPS_SCRIPT_URL>?action=upsert&project=<URL_ENCODED_專案名稱>&payload=<URL_ENCODED_BASE64>"`
 4. 如果 curl 回應不含 `"status":"ok"` → 顯示 `⚠️ Dashboard 更新失敗` 並繼續
 
 > ⚠️ Dashboard 是總覽，每個欄位用最短的詞描述，不寫完整句子。

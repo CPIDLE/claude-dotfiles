@@ -33,6 +33,13 @@ echo ""
 echo "--- settings.json ---"
 backup_and_copy "$SCRIPT_DIR/settings.json" "$CLAUDE_DIR/settings.json"
 
+# 2.5. settings.local.json (permissions whitelist)
+echo ""
+echo "--- settings.local.json ---"
+if [ -e "$SCRIPT_DIR/settings.local.json" ]; then
+    backup_and_copy "$SCRIPT_DIR/settings.local.json" "$CLAUDE_DIR/settings.local.json"
+fi
+
 # 3. Status Line
 echo ""
 echo "--- Status Line ---"

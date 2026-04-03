@@ -35,6 +35,13 @@ Write-Host ""
 Write-Host "--- settings.json ---"
 Backup-And-Copy "$ScriptDir\settings.json" "$ClaudeDir\settings.json"
 
+# 2.5. settings.local.json (permissions whitelist)
+Write-Host ""
+Write-Host "--- settings.local.json ---"
+if (Test-Path "$ScriptDir\settings.local.json") {
+    Backup-And-Copy "$ScriptDir\settings.local.json" "$ClaudeDir\settings.local.json"
+}
+
 # 3. Status Line
 Write-Host ""
 Write-Host "--- Status Line ---"
