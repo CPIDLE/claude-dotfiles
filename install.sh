@@ -56,5 +56,23 @@ for f in "$SCRIPT_DIR/commands/"*.md; do
     backup_and_copy "$f" "$CLAUDE_DIR/commands/$(basename "$f")"
 done
 
+# 5. opencode Commands (if opencode is installed)
+echo ""
+echo "--- opencode Commands ---"
+if command -v opencode &>/dev/null; then
+    OPENCODE_DIR="$HOME/.config/opencode/commands"
+    mkdir -p "$OPENCODE_DIR"
+    if [ -d "$SCRIPT_DIR/commands-opencode" ]; then
+        for f in "$SCRIPT_DIR/commands-opencode/"*.md; do
+            [ -e "$f" ] || continue
+            backup_and_copy "$f" "$OPENCODE_DIR/$(basename "$f")"
+        done
+    else
+        echo "  [SKIP] commands-opencode/ not found"
+    fi
+else
+    echo "  [SKIP] opencode not installed"
+fi
+
 echo ""
 echo "=== Done! ==="
