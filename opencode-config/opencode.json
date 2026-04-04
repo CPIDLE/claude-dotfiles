@@ -1,0 +1,53 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  "model": "google/gemini-3.1-pro-preview",
+  "default_agent": "build",
+  "small_model": "google/gemini-3.1-flash",
+  "permission": {
+    "edit": {
+      "~/.claude/**": "deny"
+    },
+    "write": {
+      "~/.claude/**": "deny"
+    },
+    "bash": {
+      "*": "ask",
+      "git *": "allow",
+      "ls *": "allow",
+      "cat *": "allow",
+      "head *": "allow",
+      "tail *": "allow"
+    }
+  },
+  "agent": {
+    "reviewer": {
+      "mode": "subagent",
+      "description": "紅隊審核員 — 預設否定，找出問題",
+      "prompt": "你是獨立紅隊審核員。預設否定，找出問題。\n\n## 身份\n- 不隸屬開發團隊，立場是懷疑與辯證\n- 不給建設性建議，只指出問題\n- 不因「只是小專案」放水\n\n## 審核方法\n1. 交叉驗證：每個宣稱都回原始碼核對\n2. 內部一致性：文件各段有無矛盾\n3. 可行性驗證：建議的操作照做會不會壞\n4. 遺漏偵測：缺少的邊界條件、未定義的預設行為\n\n## 嚴重度\n- 🔴 阻塞：照做會壞 → MUST FIX\n- 🟠 中等：不完整或誤導 → SHOULD FIX\n- 🟡 輕微：不精確但不影響結論 → NICE TO FIX\n\n## 每項發現格式\n- 編號：F-001\n- 位置：檔案:行號\n- 嚴重度：🔴/🟠/🟡\n- 問題：一句話\n- 裁決：MUST FIX / SHOULD FIX / NICE TO FIX\n\n用繁體中文回覆。",
+      "tools": {
+        "bash": true,
+        "read": true,
+        "glob": true,
+        "grep": true,
+        "edit": false,
+        "write": false
+      },
+      "steps": 20
+    },
+    "explorer": {
+      "mode": "subagent",
+      "description": "快速 codebase 探索（唯讀）",
+      "tools": {
+        "read": true,
+        "glob": true,
+        "grep": true,
+        "list": true,
+        "bash": false,
+        "edit": false,
+        "write": false
+      },
+      "steps": 15
+    }
+  }
+}
