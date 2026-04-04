@@ -27,7 +27,7 @@ bash ~/.claude/pm-update.sh bye running
 1. 用 `git log -1 --format="%ai" -- README.md` 取得最後修改日期
 2. 用 `git diff --stat $(git log -1 --format="%H" -- README.md)..HEAD` 統計期間檔案變動數
 
-**觸發條件**（同時滿足）：README 最後修改距今 ≥ 30 天 且 期間檔案變動 ≥ 5 個
+**觸發條件**（同時滿足）：README 最後修改距今 ≥ 1 天 且 期間檔案變動 ≥ 5 個
 
 **觸發時**：
 ```
