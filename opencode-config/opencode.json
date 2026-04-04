@@ -12,12 +12,7 @@
       "~/.claude/**": "deny"
     },
     "bash": {
-      "*": "ask",
-      "git *": "allow",
-      "ls *": "allow",
-      "cat *": "allow",
-      "head *": "allow",
-      "tail *": "allow"
+      "*": "allow"
     }
   },
   "agent": {
