@@ -56,13 +56,22 @@ Non-trivial tasks follow 3 phases：
 
 ## /do 委派規則
 
-遇到以下情形，主動使用 `/do` 委派給外部 LLM 執行：
-- 新增獨立模組/工具/腳本（不依賴現有程式碼）→ `/do easy`
-- 重複性的檔案建立（批次產生類似結構）→ `/do easy`
-- 簡單的 utility function 實作 → `/do easy`
-- 複雜邏輯、多函式、需要審核的程式碼 → `/do deep`
+### Quota-aware 自動切換（deep 任務）
 
-不要委派：
+執行 deep 等級任務前，讀取 `~/.claude/usage-cache.json`：
+- `session.utilization >= 80` **或** `week.utilization >= 80`（紅區）→ 委派給 `/do deep`
+- 否則（綠/黃區）→ Claude Code 自己處理（更快 4x、品質一次到位）
+- cache 不存在或讀取失敗 → 視為綠區（不委派）
+
+### Easy 任務（永遠委派）
+
+遇到以下情形，主動使用 `/do easy` 委派：
+- 新增獨立模組/工具/腳本（不依賴現有程式碼）
+- 重複性的檔案建立（批次產生類似結構）
+- 簡單的 utility function 實作
+
+### 不要委派
+
 - 修改現有核心程式碼
 - 需要理解上下文的 bug fix
 - 架構設計相關
