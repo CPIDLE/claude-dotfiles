@@ -1,0 +1,10 @@
+{
+  "1a": {"correctness": 5, "completeness": 5, "quality": 4, "composite": 4.7},
+  "1b": {"correctness": 5, "completeness": 5, "quality": 5, "composite": 5.0},
+  "2a": {"correctness": 5, "completeness": 5, "quality": 5, "composite": 5.0},
+  "2b": {"correctness": 5, "completeness": 5, "quality": 5, "composite": 5.0},
+  "3a": {"correctness": 5, "completeness": 4, "quality": 4, "composite": 4.4},
+  "3b": {"correctness": 5, "completeness": 5, "quality": 5, "composite": 5.0},
+  "4a": {"correctness": 5, "completeness": 5, "quality": 5, "composite": 5.0},
+  "4b": {"correctness": 5, "completeness": 5, "quality": 4, "composite": 4.7}
+}

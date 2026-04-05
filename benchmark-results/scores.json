@@ -1,0 +1,98 @@
+{
+  "1a-gemini": {
+    "correctness": 5,
+    "completeness": "?",
+    "quality": "?",
+    "composite": "?"
+  },
+  "1a-opencode": {
+    "correctness": 3,
+    "completeness": "?",
+    "quality": "?",
+    "composite": "?"
+  },
+  "1b-gemini": {
+    "correctness": 5,
+    "completeness": "?",
+    "quality": "?",
+    "composite": "?"
+  },
+  "1b-opencode": {
+    "correctness": 5,
+    "completeness": "?",
+    "quality": "?",
+    "composite": "?"
+  },
+  "2a-gemini": {
+    "correctness": 5,
+    "completeness": "?",
+    "quality": "?",
+    "composite": "?"
+  },
+  "2a-opencode": {
+    "correctness": 1,
+    "completeness": "?",
+    "quality": "?",
+    "composite": "?"
+  },
+  "2b-gemini": {
+    "correctness": 5,
+    "completeness": "?",
+    "quality": "?",
+    "composite": "?"
+  },
+  "2b-opencode": {
+    "correctness": 5,
+    "completeness": "?",
+    "quality": "?",
+    "composite": "?"
+  },
+  "3a-gemini": {
+    "correctness": "?",
+    "completeness": "?",
+    "quality": "?",
+    "composite": "?"
+  },
+  "3a-opencode": {
+    "correctness": "?",
+    "completeness": "?",
+    "quality": "?",
+    "composite": "?"
+  },
+  "3b-gemini": {
+    "correctness": "?",
+    "completeness": "?",
+    "quality": "?",
+    "composite": "?"
+  },
+  "3b-opencode": {
+    "correctness": "?",
+    "completeness": "?",
+    "quality": "?",
+    "composite": "?"
+  },
+  "4a-gemini": {
+    "correctness": "?",
+    "completeness": "?",
+    "quality": "?",
+    "composite": "?"
+  },
+  "4a-opencode": {
+    "correctness": "?",
+    "completeness": "?",
+    "quality": "?",
+    "composite": "?"
+  },
+  "4b-gemini": {
+    "correctness": "?",
+    "completeness": "?",
+    "quality": "?",
+    "composite": "?"
+  },
+  "4b-opencode": {
+    "correctness": "?",
+    "completeness": "?",
+    "quality": "?",
+    "composite": "?"
+  }
+}
