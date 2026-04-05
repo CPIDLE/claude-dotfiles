@@ -1,12 +1,12 @@
 # Claude Code Dotfiles
 
-Claude Code + opencode 個人設定框架 — 一次安裝，完整配置所有 commands、skills、MCP、plugins。提供 `/pm` 專案管理指令與即時 Status Line，自動化開工→同步→收工的完整工作流程。
+Claude Code 個人設定框架 — 一次安裝，完整配置所有 commands、skills、MCP、plugins。提供 `/pm` 專案管理指令、`/do` Gemini API 委派、即時 Status Line，自動化開工→同步→收工的完整工作流程。
 
 ## 功能特色
 
 ### One-Stop Install
 
-一個 repo 管理所有 Claude Code 和 opencode 的設定：
+一個 repo 管理所有 Claude Code 設定：
 
 | 安裝項目 | 目標位置 |
 |---|---|
@@ -15,7 +15,6 @@ Claude Code + opencode 個人設定框架 — 一次安裝，完整配置所有 
 | 8 個 custom skills | `~/.claude/skills/` |
 | MCP server config | `~/.claude/.mcp.json` |
 | Status Line 腳本 | `~/.claude/` |
-| opencode config + commands | `~/.config/opencode/` |
 | Docs | `~/.claude/docs/` |
 
 ### Status Line
@@ -46,16 +45,25 @@ claude-dotfiles │ master │ pm▸sync▸bye     Opus 4.6 │ ctx:6% 5h:2%▸0
 | `/pm-sync` | 中期同步 — 儲存進度、自動 commit、同步到外部服務 |
 | `/pm-bye` | 收工 — 自動審核 + git 整理 + 進度儲存 |
 | `/pm-review` | 獨立程式碼審核（AI 紅隊審核員） |
-| `/opencode-do` | 委派任務給 opencode（auto 模式支援 inline spec） |
+| `/do easy` | 委派簡單任務給 Gemini API（flash-lite，快速便宜） |
+| `/do deep` | 委派複雜任務給 Gemini API（flash，多輪生成→審核→修正） |
 | `/smart-commit` | 智慧 commit |
 
-### Dual Engine（Claude Code + opencode）
+### 任務委派（`/do`）
 
-透過 `/opencode-do` 指令，Claude Code 可自動產 spec 並委派給 opencode 執行：
+透過 `/do` 指令，Claude Code 自動產 spec 並委派給 Gemini API 執行，減少 Claude Code 用量：
 
-- **快速模式**（`/opencode-do auto`）：pipe inline spec，零檔案 I/O
-- **持久模式**（`/opencode-do auto --persist`）：寫檔案，支援並行監控
-- 自動審核交付物，結果記錄到 `opencode_history.md`
+| 模式 | Model | 適用 | 價格 |
+|---|---|---|---|
+| `/do easy` | gemini-3.1-flash-lite | L1 新模組、簡單文件 | $0.25/$1.50 per 1M |
+| `/do deep` | gemini-3-flash-preview | 複雜模組、L2 修改 | $0.50/$3.00 per 1M |
+
+支援三種引擎（`DO_ENGINE` 環境變數切換）：
+- `gemini`（預設）— Google Gemini API
+- `ollama` — 本地 Ollama（DGX Spark）
+- `ollama` — 本地 Ollama（DGX Spark 離線部署）
+
+Benchmark 驗證：Gemini API 品質 5.0/5.0，flash-lite 4.85/5.0。
 
 ### 建議工作流程
 
@@ -64,7 +72,8 @@ claude-dotfiles │ master │ pm▸sync▸bye     Opus 4.6 │ ctx:6% 5h:2%▸0
   ↓
   工作
   ├─ 完成功能 → /smart-commit
-  ├─ 簡單任務 → /opencode-do auto <任務>
+  ├─ 簡單任務 → /do easy <任務>
+  ├─ 複雜任務 → /do deep <任務>
   ├─ ctx ≈ 60% → /pm-bye → /clear → /pm
   ↓
 /pm-bye                      # 收工
@@ -95,13 +104,11 @@ bash install.sh
 ├── mcp.json                 # MCP server config（→ ~/.claude/.mcp.json）
 ├── statusline.sh / .js      # Status Line 腳本
 ├── pm-update.sh             # /pm 狀態更新
-├── commands/                # Claude Code slash commands（8 個）
-├── commands-opencode/       # opencode slash commands（7 個）
+├── commands/                # Claude Code slash commands
 ├── skills/                  # Custom skills（8 個）
-├── opencode-config/         # opencode 全域設定
-│   ├── opencode.json        # Model + MCP + permissions
-│   ├── AGENTS.md            # opencode 行為指引
-│   └── tui.json             # 主題設定
+├── benchmark.py             # Gemini API 品質評測
+├── benchmark-results/       # 評測結果 + 產出檔案
+├── langgraph-migration.md   # LangGraph 遷移計畫（參考）
 ├── dual-engine/             # Dual Engine SOP + 範例
 ├── docs/                    # 設定指南
 │   ├── google-workspace-setup.md
@@ -137,4 +144,4 @@ bash install.sh                                        # macOS / Linux
 - 安裝時已存在的同名檔案會備份為 `.bak`
 - Marketplace plugins 在 `settings.json` 中設定，首次啟動自動安裝（見 [docs/plugins.md](docs/plugins.md)）
 - Status line 的配額資訊需要 Anthropic OAuth token（首次使用時自動取得）
-- opencode 相關設定在 opencode CLI 未安裝時自動跳過
+- `/do` 委派需要 `GEMINI_API_KEY` 環境變數 + `pip install google-genai`
