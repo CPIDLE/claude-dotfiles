@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { background: #1e1e1e; padding: 40px; font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace; }
+  .line { font-size: 14px; line-height: 2.4; white-space: nowrap; }
+  .label { color: #888; font-size: 12px; margin-bottom: 2px; }
+  .dim { color: #6a6a6a; }
+  .bright { color: #e0e0e0; }
+  .yellow { color: #e5c07b; }
+  .green { color: #98c379; }
+  .red { color: #e06c75; }
+  .sep { color: #4a4a4a; }
+  h2 { color: #aaa; font-size: 13px; font-weight: normal; letter-spacing: 1px; margin: 20px 0 8px; }
+  h3 { color: #666; font-size: 11px; font-weight: normal; letter-spacing: 2px; margin: 30px 0 12px; text-transform: uppercase; }
+  .compare { background: #252525; border-radius: 6px; padding: 16px 20px; margin: 8px 0; }
+  .bar-bg { color: #333; }
+  .bar-green { color: #98c379; }
+  .bar-yellow { color: #e5c07b; }
+  .bar-red { color: #e06c75; }
+</style>
+</head>
+<body>
+
+<h2>BEFORE (current)</h2>
+<div class="compare">
+<div class="line">
+  <span class="bright">[Opus 4.6 (1M context)]</span>
+  <span class="bright"> claude-dotfiles</span>
+  <span class="sep"> | </span>
+  <span class="bright">pm</span><span class="dim">▸</span><span class="dim">sync</span><span class="dim">▸</span><span class="dim">bye</span>
+  <span class="sep"> | </span>
+  <span class="bright">master</span>
+  <span class="sep"> | </span>
+  <span>🟢</span> <span class="bright">ctx:6%</span>
+  <span class="sep"> | </span>
+  <span>🟡</span> <span class="bright">5h:66% 7d:60%</span>
+</div>
+</div>
+
+<h3>Option G — Dimmed Hierarchy (text color)</h3>
+
+<div class="compare">
+<div class="label">pm done, sync/bye pending</div>
+<div class="line">
+  <span class="dim">Opus 4.6</span>&nbsp;&nbsp;<span class="bright">claude-dotfiles</span>&nbsp;&nbsp;<span class="dim">master</span>
+  <span class="sep"> │ </span>
+  <span class="bright">pm</span><span class="dim">▸sync▸bye</span>
+  <span class="sep"> │ </span>
+  <span class="green">ctx 6%</span>
+  <span class="sep"> │ </span>
+  <span class="yellow">5h 66%</span>&nbsp;<span class="yellow">7d 60%</span>
+</div>
+</div>
+
+<h3>Option G2 — Bar gauge (block chars)</h3>
+
+<!--
+  Using Unicode block elements to make a mini bar:
+  █ = filled, ░ = empty
+  5 chars total = 20% each tick
+
+  ctx 6%   = ░░░░░  (all empty-ish, ~0 blocks)
+  5h 66%   = ███░░  (3.3 blocks)
+  7d 60%   = ███░░  (3 blocks)
+  ctx 52%  = ██▌░░  (2.6 blocks)
+  ctx 85%  = ████▌  (4.25 blocks)
+  5h 92%   = ████▌  (4.6 blocks)
+  5h 30%   = █▌░░░  (1.5 blocks)
+-->
+
+<div class="compare">
+<div class="label">pm done — ctx low, quota mid</div>
+<div class="line">
+  <span class="dim">Opus 4.6</span>&nbsp;&nbsp;<span class="bright">claude-dotfiles</span>&nbsp;&nbsp;<span class="dim">master</span>
+  <span class="sep"> │ </span>
+  <span class="bright">pm</span><span class="dim">▸sync▸bye</span>
+  <span class="sep"> │ </span>
+  <span class="dim">ctx </span><span class="bar-green">▎</span><span class="bar-bg">░░░░</span><span class="dim"> 6</span>
+  <span class="sep"> │ </span>
+  <span class="dim">5h </span><span class="bar-yellow">███▎</span><span class="bar-bg">░</span><span class="dim"> 66</span>
+  &nbsp;
+  <span class="dim">7d </span><span class="bar-yellow">███</span><span class="bar-bg">░░</span><span class="dim"> 60</span>
+</div>
+</div>
+
+<div class="compare">
+<div class="label">pm+sync done, bye running — ctx mid, quota low</div>
+<div class="line">
+  <span class="dim">Opus 4.6</span>&nbsp;&nbsp;<span class="bright">claude-dotfiles</span>&nbsp;&nbsp;<span class="dim">master</span>
+  <span class="sep"> │ </span>
+  <span class="bright">pm</span><span class="dim">▸</span><span class="bright">sync</span><span class="dim">▸</span><span class="yellow">bye</span>
+  <span class="sep"> │ </span>
+  <span class="dim">ctx </span><span class="bar-yellow">██▌</span><span class="bar-bg">░░</span><span class="dim"> 52</span>
+  <span class="sep"> │ </span>
+  <span class="dim">5h </span><span class="bar-green">█▌</span><span class="bar-bg">░░░</span><span class="dim"> 30</span>
+  &nbsp;
+  <span class="dim">7d </span><span class="bar-green">█▎</span><span class="bar-bg">░░░</span><span class="dim"> 25</span>
+</div>
+</div>
+
+<div class="compare">
+<div class="label">All done — ctx + 5h critical</div>
+<div class="line">
+  <span class="dim">Opus 4.6</span>&nbsp;&nbsp;<span class="bright">claude-dotfiles</span>&nbsp;&nbsp;<span class="dim">master</span>
+  <span class="sep"> │ </span>
+  <span class="bright">pm</span><span class="dim">▸</span><span class="bright">sync</span><span class="dim">▸</span><span class="bright">bye</span>
+  <span class="sep"> │ </span>
+  <span class="dim">ctx </span><span class="bar-red">████▎</span><span class="dim"> 85</span>
+  <span class="sep"> │ </span>
+  <span class="dim">5h </span><span class="bar-red">████▌</span><span class="dim"> 92</span>
+  &nbsp;
+  <span class="dim">7d </span><span class="bar-yellow">███</span><span class="bar-bg">░░</span><span class="dim"> 60</span>
+</div>
+</div>
+
+<h3>Option G3 — Number inside bar, inverted when submerged</h3>
+
+<div class="compare">
+<div class="label">ctx low, quota mid — number NOT submerged (dim on dark)</div>
+<div class="line">
+  <span class="dim">Opus 4.6</span>&nbsp;&nbsp;<span class="bright">claude-dotfiles</span>&nbsp;&nbsp;<span class="dim">master</span>
+  <span class="sep"> │ </span>
+  <span class="bright">pm</span><span class="dim">▸sync▸bye</span>
+  <span class="sep"> │ </span>
+  <span class="dim">ctx </span><span style="display:inline-block;position:relative;width:7.2em;height:1.2em;background:#2a2a2a;border-radius:2px;vertical-align:middle;overflow:hidden;"><span style="position:absolute;left:0;top:0;bottom:0;width:6%;background:#98c379;border-radius:2px 0 0 2px;"></span><span style="position:absolute;right:4px;top:0;line-height:1.2em;color:#6a6a6a;font-size:13px;">6%</span></span>
+  <span class="sep"> │ </span>
+  <span class="dim">5h </span><span style="display:inline-block;position:relative;width:7.2em;height:1.2em;background:#2a2a2a;border-radius:2px;vertical-align:middle;overflow:hidden;"><span style="position:absolute;left:0;top:0;bottom:0;width:66%;background:#e5c07b;border-radius:2px 0 0 2px;"></span><span style="position:absolute;right:4px;top:0;line-height:1.2em;color:#1e1e1e;font-weight:bold;font-size:13px;text-shadow:0 0 1px rgba(0,0,0,0.5);">66%</span></span>
+  &nbsp;
+  <span class="dim">7d </span><span style="display:inline-block;position:relative;width:7.2em;height:1.2em;background:#2a2a2a;border-radius:2px;vertical-align:middle;overflow:hidden;"><span style="position:absolute;left:0;top:0;bottom:0;width:60%;background:#e5c07b;border-radius:2px 0 0 2px;"></span><span style="position:absolute;right:4px;top:0;line-height:1.2em;color:#1e1e1e;font-weight:bold;font-size:13px;text-shadow:0 0 1px rgba(0,0,0,0.5);">60%</span></span>
+</div>
+</div>
+
+<div class="compare">
+<div class="label">pm+sync done, bye running — ctx mid, quota low — number partially submerged</div>
+<div class="line">
+  <span class="dim">Opus 4.6</span>&nbsp;&nbsp;<span class="bright">claude-dotfiles</span>&nbsp;&nbsp;<span class="dim">master</span>
+  <span class="sep"> │ </span>
+  <span class="bright">pm</span><span class="dim">▸</span><span class="bright">sync</span><span class="dim">▸</span><span class="yellow">bye</span>
+  <span class="sep"> │ </span>
+  <span class="dim">ctx </span><span style="display:inline-block;position:relative;width:7.2em;height:1.2em;background:#2a2a2a;border-radius:2px;vertical-align:middle;overflow:hidden;"><span style="position:absolute;left:0;top:0;bottom:0;width:52%;background:#e5c07b;border-radius:2px 0 0 2px;"></span><span style="position:absolute;right:4px;top:0;line-height:1.2em;color:#6a6a6a;font-size:13px;">52%</span></span>
+  <span class="sep"> │ </span>
+  <span class="dim">5h </span><span style="display:inline-block;position:relative;width:7.2em;height:1.2em;background:#2a2a2a;border-radius:2px;vertical-align:middle;overflow:hidden;"><span style="position:absolute;left:0;top:0;bottom:0;width:30%;background:#98c379;border-radius:2px 0 0 2px;"></span><span style="position:absolute;right:4px;top:0;line-height:1.2em;color:#6a6a6a;font-size:13px;">30%</span></span>
+  &nbsp;
+  <span class="dim">7d </span><span style="display:inline-block;position:relative;width:7.2em;height:1.2em;background:#2a2a2a;border-radius:2px;vertical-align:middle;overflow:hidden;"><span style="position:absolute;left:0;top:0;bottom:0;width:25%;background:#98c379;border-radius:2px 0 0 2px;"></span><span style="position:absolute;right:4px;top:0;line-height:1.2em;color:#6a6a6a;font-size:13px;">25%</span></span>
+</div>
+</div>
+
+<div class="compare">
+<div class="label">All done — ctx + 5h critical — number fully submerged (white on color)</div>
+<div class="line">
+  <span class="dim">Opus 4.6</span>&nbsp;&nbsp;<span class="bright">claude-dotfiles</span>&nbsp;&nbsp;<span class="dim">master</span>
+  <span class="sep"> │ </span>
+  <span class="bright">pm</span><span class="dim">▸</span><span class="bright">sync</span><span class="dim">▸</span><span class="bright">bye</span>
+  <span class="sep"> │ </span>
+  <span class="dim">ctx </span><span style="display:inline-block;position:relative;width:7.2em;height:1.2em;background:#2a2a2a;border-radius:2px;vertical-align:middle;overflow:hidden;"><span style="position:absolute;left:0;top:0;bottom:0;width:85%;background:#e06c75;border-radius:2px 0 0 2px;"></span><span style="position:absolute;right:4px;top:0;line-height:1.2em;color:#fff;font-weight:bold;font-size:13px;">85%</span></span>
+  <span class="sep"> │ </span>
+  <span class="dim">5h </span><span style="display:inline-block;position:relative;width:7.2em;height:1.2em;background:#2a2a2a;border-radius:2px;vertical-align:middle;overflow:hidden;"><span style="position:absolute;left:0;top:0;bottom:0;width:92%;background:#e06c75;border-radius:2px 0 0 2px;"></span><span style="position:absolute;right:4px;top:0;line-height:1.2em;color:#fff;font-weight:bold;font-size:13px;">92%</span></span>
+  &nbsp;
+  <span class="dim">7d </span><span style="display:inline-block;position:relative;width:7.2em;height:1.2em;background:#2a2a2a;border-radius:2px;vertical-align:middle;overflow:hidden;"><span style="position:absolute;left:0;top:0;bottom:0;width:60%;background:#e5c07b;border-radius:2px 0 0 2px;"></span><span style="position:absolute;right:4px;top:0;line-height:1.2em;color:#1e1e1e;font-weight:bold;font-size:13px;text-shadow:0 0 1px rgba(0,0,0,0.5);">60%</span></span>
+</div>
+</div>
+
+</body>
+</html>

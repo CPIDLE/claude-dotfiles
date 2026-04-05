@@ -22,3 +22,4 @@ Thumbs.db
 .opencode-agents/
 .opencode-task*.md
 *.bak
+settings.local.json
