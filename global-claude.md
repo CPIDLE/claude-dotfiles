@@ -54,12 +54,13 @@ Non-trivial tasks follow 3 phases：
 在核准範圍內自主執行，不逐步問。用 TodoWrite 追蹤進度。
 - **STOP** only when：超出 scope、步驟失敗無法自修、未核准的破壞性操作、需大幅修改計畫
 
-## opencode 委派規則
+## /do 委派規則
 
-遇到以下情形，主動使用 `/opencode-do auto` 委派給 opencode 執行：
-- 新增獨立模組/工具/腳本（不依賴現有程式碼）
-- 重複性的檔案建立（批次產生類似結構）
-- 簡單的 utility function 實作
+遇到以下情形，主動使用 `/do` 委派給外部 LLM 執行：
+- 新增獨立模組/工具/腳本（不依賴現有程式碼）→ `/do easy`
+- 重複性的檔案建立（批次產生類似結構）→ `/do easy`
+- 簡單的 utility function 實作 → `/do easy`
+- 複雜邏輯、多函式、需要審核的程式碼 → `/do deep`
 
 不要委派：
 - 修改現有核心程式碼
@@ -67,7 +68,7 @@ Non-trivial tasks follow 3 phases：
 - 架構設計相關
 - 安全敏感操作、CLAUDE.md/AGENTS.md 修改
 
-前提：`opencode` CLI 已安裝。未安裝時跳過，不報錯。
+前提：`GEMINI_API_KEY` 環境變數已設定（預設引擎 gemini）。未設定時跳過，不報錯。
 
 ## Coding Discipline
 
