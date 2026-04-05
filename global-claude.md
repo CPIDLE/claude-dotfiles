@@ -58,14 +58,21 @@ Non-trivial tasks follow 3 phases：
 
 ### Quota-aware 自動切換（deep 任務）
 
-執行 deep 等級任務前，讀取 `~/.claude/usage-cache.json`：
-- `session.utilization >= 80` **或** `week.utilization >= 80`（紅區）→ 委派給 `/do deep`
-- 否則（綠/黃區）→ Claude Code 自己處理（更快 4x、品質一次到位）
-- cache 不存在或讀取失敗 → 視為綠區（不委派）
+執行 deep 等級任務前，**必須**執行以下指令判斷 quota 狀態：
 
-### Easy 任務（永遠委派）
+```bash
+python -c "import json,time,pathlib; f=pathlib.Path.home()/'.claude'/'usage-cache.json'; c=json.loads(f.read_text()) if f.exists() else {}; ts=c.get('ts',0); stale=time.time()-ts/1000>600; s=c.get('session',{}).get('utilization',0); w=c.get('week',{}).get('utilization',0); red=not stale and (s>=80 or w>=80); print(f'QUOTA:{'RED' if red else 'GREEN'} 5h={s}% 7d={w}%{' STALE' if stale else ''}')"
+```
 
-遇到以下情形，主動使用 `/do easy` 委派：
+- 輸出 `QUOTA:RED` → 委派給 `/do deep`（省 quota）
+- 輸出 `QUOTA:GREEN` → Claude Code 自己處理（deep 任務快 ~4x）
+- 指令失敗 → 視為 GREEN（不委派）
+
+> **門檻 80%**：與 statusline 紅字門檻一致（`statusline.js:53`）。Cache 超過 10 分鐘視為過期（STALE），預設 GREEN。
+
+### Easy 任務（永遠委派，省 quota）
+
+遇到以下情形，主動使用 `/do easy` 委派（不需檢查 quota，因為 /do easy 成本極低且不消耗 Claude quota）：
 - 新增獨立模組/工具/腳本（不依賴現有程式碼）
 - 重複性的檔案建立（批次產生類似結構）
 - 簡單的 utility function 實作
