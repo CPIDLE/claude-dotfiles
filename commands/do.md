@@ -42,7 +42,7 @@ Claude Code 產 spec，外部 LLM 引擎執行。用 `$ARGUMENTS` 接收參數�
 ### gemini 引擎
 
 ```bash
-python -c "
+PYTHONIOENCODING=utf-8 python -c "
 import sys, os
 from google import genai
 client = genai.Client(api_key=os.environ['GEMINI_API_KEY'])
@@ -59,7 +59,7 @@ SPEC_EOF
 ### ollama 引擎
 
 ```bash
-python -c "
+PYTHONIOENCODING=utf-8 python -c "
 import sys, os, json, urllib.request
 url = os.environ.get('OLLAMA_URL', 'http://localhost:11434')
 model = os.environ.get('DO_MODEL_EASY', 'qwen3:8b')  # easy 用此; deep 用 DO_MODEL_DEEP
@@ -92,7 +92,7 @@ echo '<指令前綴 + spec 全文>' | opencode run --format json 2>&1
 
 | 引擎 | 檢查方式 | 失敗訊息 |
 |---|---|---|
-| gemini | `python -c "from google import genai"` + `GEMINI_API_KEY` 存在 | `⚠️ 缺少 google-genai 或 GEMINI_API_KEY` |
+| gemini | `PYTHONIOENCODING=utf-8 python -c "from google import genai"` + `GEMINI_API_KEY` 存在 | `⚠️ 缺少 google-genai 或 GEMINI_API_KEY` |
 | ollama | `curl -s <OLLAMA_URL>/api/tags` 回應包含 model 名稱 | `⚠️ Ollama 未啟動或 model 未下載` |
 | opencode | `which opencode` 成功 | `⚠️ opencode CLI 未安裝` |
 
