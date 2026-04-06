@@ -56,29 +56,36 @@ Non-trivial tasks follow 3 phases：
 
 ## /do 委派規則
 
-### Quota-aware 自動切換（deep 任務）
+### Hook 驅動強制委派
 
-執行 deep 等級任務前，**必須**執行以下指令判斷 quota 狀態：
+`UserPromptSubmit` hook 每次使用者送訊息時自動檢查 `~/.claude/usage-cache.json`：
+- **GREEN（< 80%）**：靜默，不輸出
+- **RED（≥ 80%）**：注入 `⚠️ QUOTA RED` 提醒到對話中
 
-```bash
-python -c "import json,time,pathlib; f=pathlib.Path.home()/'.claude'/'usage-cache.json'; c=json.loads(f.read_text()) if f.exists() else {}; ts=c.get('ts',0); stale=time.time()-ts/1000>600; s=c.get('session',{}).get('utilization',0); w=c.get('week',{}).get('utilization',0); red=not stale and (s>=80 or w>=80); print(f'QUOTA:{'RED' if red else 'GREEN'} 5h={s}% 7d={w}%{' STALE' if stale else ''}')"
-```
+**收到 QUOTA RED 提醒時，必須遵守：**
+1. 評估當前任務是否適合委派（見下方條件）
+2. 適合 → **強制**使用 `/do easy` 或 `/do deep`，不可自己做
+3. 不適合 → 自己處理，但盡量精簡 token 用量
 
-- 輸出 `QUOTA:RED` → 委派給 `/do deep`（省 quota）
-- 輸出 `QUOTA:GREEN` → Claude Code 自己處理（deep 任務快 ~4x）
-- 指令失敗 → 視為 GREEN（不委派）
+> 門檻 80% 與 statusline 紅字一致。Cache 超過 10 分鐘視為過期，預設 GREEN。
 
-> **門檻 80%**：與 statusline 紅字門檻一致（`statusline.js:53`）。Cache 超過 10 分鐘視為過期（STALE），預設 GREEN。
+### 適合委派（easy）
 
-### Easy 任務（永遠委派，省 quota）
-
-遇到以下情形，主動使用 `/do easy` 委派（不需檢查 quota，因為 /do easy 成本極低且不消耗 Claude quota）：
+不論 quota 狀態，以下任務**永遠**用 `/do easy`（成本極低、不消耗 Claude quota）：
 - 新增獨立模組/工具/腳本（不依賴現有程式碼）
 - 重複性的檔案建立（批次產生類似結構）
 - 簡單的 utility function 實作
 
+### 適合委派（deep）— 僅 QUOTA RED 時
+
+收到 QUOTA RED 提醒時，以下任務**必須**用 `/do deep`：
+- 新增含複雜邏輯的模組（多函式、threading、async）
+- 可以用 spec 完整描述的獨立功能
+- 文件撰寫（README、CHANGELOG、docs）
+
 ### 不要委派
 
+無論 quota 狀態，以下任務**永遠不委派**：
 - 修改現有核心程式碼
 - 需要理解上下文的 bug fix
 - 架構設計相關
