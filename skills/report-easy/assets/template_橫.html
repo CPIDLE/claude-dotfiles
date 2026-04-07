@@ -4,62 +4,127 @@
 <meta charset="utf-8">
 <title>{{TITLE}}</title>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
+/* ===== GYRO Brand ===== */
+:root{
+  --brand:#BD442C; --brand-d:#9A3723; --brand-l:#D4563E;
+  --bg-soft:#FDF5F3; --card:#F7F8FA; --border:#E2E5EA;
+  --ink:#2D2D2D; --ink2:#3A3A3A; --muted:#44546A; --faint:#8B95A5;
+}
 @page { size: A4 landscape; margin: 14mm; }
 html, body { margin: 0; padding: 0; }
 body {
-  font-family: "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 11pt; line-height: 1.55; color: #1f2937; background: #f8fafc;
+  font-family: "Inter","Noto Sans TC","Microsoft JhengHei","PingFang TC",-apple-system,"Segoe UI",sans-serif;
+  font-size: 11pt; line-height: 1.6; color: var(--ink2); background: #f1f1f1;
+  letter-spacing: 0.01em;
 }
 .page {
   max-width: 270mm; margin: 0 auto; padding: 18mm 20mm;
-  background: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  background: #ffffff; box-shadow: 0 1px 6px rgba(0,0,0,0.10);
+  position: relative;
+}
+.page::before{
+  content:""; position:absolute; top:0; left:0; right:0; height:6px;
+  background: linear-gradient(90deg,var(--brand-d) 0%,var(--brand) 50%,var(--brand-l) 100%);
 }
 @media print {
   body { background: #ffffff; }
   .page { box-shadow: none; max-width: none; padding: 0; }
 }
-h1 { font-size: 22pt; border-bottom: 3px solid #0ea5e9; padding-bottom: 6px; margin-top: 0; color: #0c4a6e; }
-h2 { font-size: 16pt; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; color: #0c4a6e; margin-top: 1.6em; page-break-after: avoid; }
-h3 { font-size: 13pt; color: #1e40af; margin-top: 1.4em; page-break-after: avoid; }
-h4 { font-size: 11.5pt; color: #334155; page-break-after: avoid; }
-p { margin: 0.5em 0; }
+h1 { font-size: 22pt; font-weight: 800; color: var(--ink); border-bottom: 3px solid var(--brand); padding-bottom: 8px; margin-top: 0.4em; }
+h2 { font-size: 16pt; font-weight: 700; color: var(--ink); border-bottom: 1px solid var(--border); padding-bottom: 4px; margin-top: 1.6em; page-break-after: avoid; }
+h3 { font-size: 13pt; font-weight: 700; color: var(--brand); margin-top: 1.4em; page-break-after: avoid; }
+h4 { font-size: 11.5pt; font-weight: 600; color: var(--brand); page-break-after: avoid; }
+p  { margin: 0.5em 0; }
 ul, ol { margin: 0.4em 0; padding-left: 1.4em; }
-li { margin: 0.15em 0; }
-blockquote { border-left: 4px solid #0ea5e9; background: #f0f9ff; margin: 0.8em 0; padding: 0.6em 1em; color: #0c4a6e; page-break-inside: avoid; }
-code { background: #f1f5f9; padding: 1px 5px; border-radius: 3px; font-family: "JetBrains Mono", Consolas, monospace; font-size: 0.92em; color: #be185d; }
-pre { background: #0f172a; color: #e2e8f0; padding: 10px 14px; border-radius: 6px; overflow-x: auto; font-size: 9.5pt; line-height: 1.4; page-break-inside: avoid; }
+li { margin: 0.18em 0; }
+li::marker { color: var(--brand); }
+strong { color: var(--brand); }
+em { color: var(--muted); font-style: normal; }
+blockquote { border-left: 4px solid var(--brand); background: var(--bg-soft); border-radius: 0 8px 8px 0; margin: 0.9em 0; padding: 0.7em 1em; color: var(--ink2); page-break-inside: avoid; }
+code { background: var(--card); padding: 2px 6px; border-radius: 3px; font-family: "JetBrains Mono",Consolas,monospace; font-size: 0.88em; color: var(--brand); }
+pre { background: #1f1410; color: #f5e8e3; padding: 12px 16px; border-radius: 6px; border-left: 4px solid var(--brand); overflow-x: auto; font-size: 9.5pt; line-height: 1.45; page-break-inside: avoid; }
 pre code { background: transparent; color: inherit; padding: 0; }
-table { border-collapse: collapse; margin: 0.8em 0; width: 100%; font-size: 10pt; page-break-inside: avoid; }
-th, td { border: 1px solid #cbd5e1; padding: 6px 10px; vertical-align: top; text-align: left; }
-th { background: #e0f2fe; color: #0c4a6e; font-weight: 600; }
-tr:nth-child(even) td { background: #f8fafc; }
-img {
-  display: block;
-  margin: 0.8em auto;
-  width: 100%;
-  max-width: 250mm;
-  height: auto;
-  max-height: 78vh;
-  object-fit: contain;
-  page-break-inside: avoid;
-}
-@media print {
-  img { width: 100%; max-width: 250mm; max-height: 150mm; }
-}
-hr { border: none; border-top: 1px dashed #cbd5e1; margin: 1.6em 0; }
-details { margin: 0.6em 0; }
-summary { cursor: pointer; color: #0369a1; font-size: 0.95em; }
-a { color: #0369a1; text-decoration: none; }
+table { border-collapse: collapse; margin: 0.9em 0; width: 100%; font-size: 10pt; page-break-inside: avoid; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; vertical-align: top; text-align: left; }
+thead th { background: var(--brand); color: #fff; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 9pt; border-color: var(--brand); }
+tbody tr:nth-child(even) td { background: var(--card); }
+img { display: block; margin: 0.9em auto; width: 100%; max-width: 250mm; height: auto; max-height: 78vh; object-fit: contain; border-radius: 6px; page-break-inside: avoid; }
+@media print { img { max-height: 150mm; } }
+hr { border: none; border-top: 1px dashed var(--border); margin: 1.6em 0; }
+a  { color: var(--brand-d); text-decoration: none; }
 a:hover { text-decoration: underline; }
+details { margin: 0.6em 0; }
+summary { cursor: pointer; color: var(--brand); font-weight: 600; }
+.mermaid { display: block; margin: 0.9em auto; text-align: center; page-break-inside: avoid; }
 </style>
 </head>
 <body>
 <div class="page" id="content">Loading...</div>
 <script id="md" type="text/markdown">{{MARKDOWN_CONTENT}}</script>
-<script>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+mermaid.initialize({
+  startOnLoad: false,
+  theme: "base",
+  themeVariables: {
+    fontFamily: "Inter, Noto Sans TC, sans-serif",
+    primaryColor: "#FDF5F3",
+    primaryTextColor: "#2D2D2D",
+    primaryBorderColor: "#BD442C",
+    lineColor: "#9A3723",
+    secondaryColor: "#F7F8FA",
+    tertiaryColor: "#FFFFFF",
+    actorBkg: "#FDF5F3",
+    actorBorder: "#BD442C",
+    actorTextColor: "#2D2D2D",
+    actorLineColor: "#C9B8B3",
+    signalColor: "#44546A",
+    signalTextColor: "#2D2D2D",
+    messageTextColor: "#2D2D2D",
+    sequenceMessageBkgColor: "#FFFFFF",
+    labelBoxBkgColor: "#BD442C",
+    labelBoxBorderColor: "#9A3723",
+    labelTextColor: "#FFFFFF",
+    loopTextColor: "#2D2D2D",
+    noteBkgColor: "#FEF7E0",
+    noteBorderColor: "#ED7D31",
+    noteTextColor: "#7c2d12",
+    activationBkgColor: "#F7F8FA",
+    activationBorderColor: "#BD442C",
+    pie1: "#e0f2fe", pie2: "#f0fdf4", pie3: "#fef3c7", pie4: "#dbeafe",
+    pie5: "#ffedd5", pie6: "#eef2ff", pie7: "#f1f5f9", pie8: "#fafaf9",
+    pieStrokeColor: "#475569", pieStrokeWidth: "1px",
+    pieTitleTextColor: "#2D2D2D", pieSectionTextColor: "#2D2D2D", pieLegendTextColor: "#3A3A3A"
+  }
+});
+
+// Shared semantic classDefs (mirror of assets/d2_common.d2)
+const MERMAID_CLASSDEFS = `
+  classDef trigger   fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0c4a6e
+  classDef reasoning fill:#fef3c7,stroke:#d97706,stroke-width:3px,color:#7c2d12,font-weight:bold
+  classDef logic     fill:#eef2ff,stroke:#6366f1,stroke-width:2px,color:#1e1b4b
+  classDef db        fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#0c2d6b
+  classDef human     fill:#ffedd5,stroke:#ea580c,stroke-width:2px,color:#7c2d12
+  classDef legacy    fill:#f1f5f9,stroke:#64748b,stroke-width:2px,color:#334155,stroke-dasharray:4
+  classDef zone      fill:#fafaf9,stroke:#475569,stroke-width:2px,color:#0f172a,font-weight:bold
+  classDef step      fill:#f0fdf4,stroke:#16a34a,stroke-width:2px,color:#14532d
+`.trim();
+const SUPPORTS_CLASSDEF = /^\s*(flowchart|graph|classDiagram|stateDiagram)/;
+
 marked.setOptions({ gfm: true, breaks: false });
-document.getElementById("content").innerHTML = marked.parse(document.getElementById("md").textContent);
+const root = document.getElementById("content");
+root.innerHTML = marked.parse(document.getElementById("md").textContent);
+root.querySelectorAll('pre > code.language-mermaid').forEach(code => {
+  const div = document.createElement('div');
+  div.className = 'mermaid';
+  let src = code.textContent;
+  if (SUPPORTS_CLASSDEF.test(src)) src = src.trimEnd() + "\n" + MERMAID_CLASSDEFS + "\n";
+  div.textContent = src;
+  code.parentElement.replaceWith(div);
+});
+await mermaid.run({ querySelector: '.mermaid' });
 </script>
 </body>
 </html>
