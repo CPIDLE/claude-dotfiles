@@ -42,13 +42,20 @@ DEEP_R1_PROMPT = (
 
 DEEP_R2_PROMPT = (
     "你是嚴格的 code reviewer。審核以下程式碼/文件是否符合 spec。\n\n"
+    "另外列出 spec 沒提到但你注意到的潛在問題（advisory_notes），例如：\n"
+    "- 時鐘選擇是否合適（wall-clock vs monotonic）\n"
+    "- import 是否重複\n"
+    "- docstring 是否與實作不一致\n"
+    "- 是否殘留 dead code\n"
+    "advisory_notes 不影響 verdict — 即使有 advisory，只要符合 spec 仍應 pass。\n\n"
     '回應格式（JSON）：\n'
     '{\n'
     '  "verdict": "pass" | "fail",\n'
     '  "issues": [\n'
     '    {"severity": "high|medium|low", "line": N, "description": "..."}\n'
     '  ],\n'
-    '  "fix_instructions": "如果 fail，描述如何修正（供下一輪 LLM 使用）"\n'
+    '  "fix_instructions": "如果 fail，描述如何修正（供下一輪 LLM 使用）",\n'
+    '  "advisory_notes": ["spec 外觀察 1", "spec 外觀察 2"]\n'
     '}\n\n'
     "只輸出 JSON，不要其他文字。"
 )
@@ -161,13 +168,22 @@ def parse_review(text):
     if m:
         text = m.group(1).strip()
     try:
-        return json.loads(text)
+        parsed = json.loads(text)
+        parsed.setdefault("advisory_notes", [])
+        return parsed
     except json.JSONDecodeError:
         return {
             "verdict": "fail",
             "issues": [{"severity": "high", "line": 0, "description": "Review JSON parse failed — triggering Round 3 as safety fallback"}],
             "fix_instructions": "Review response was malformed. Re-check the code against the spec.",
+            "advisory_notes": [],
         }
+
+
+def strip_full_fence(text):
+    """Strip fence only if entire response is exactly one fenced block. CRLF-safe."""
+    m = re.match(r"^\s*```[\w+-]*\r?\n(.*)\r?\n```\s*$", text, re.DOTALL)
+    return m.group(1) if m else text
 
 
 # ---------------------------------------------------------------------------
@@ -187,7 +203,7 @@ def cmd_check(engine_name):
 def cmd_easy(engine, model, spec):
     """Single-shot generation."""
     prompt = EASY_SYSTEM_PROMPT + "\n\n" + spec
-    result = engine.call(model, prompt)
+    result = strip_full_fence(engine.call(model, prompt))
     emit({"status": "ok", "result": result})
 
 
@@ -195,7 +211,7 @@ def cmd_deep(engine, model, spec):
     """Multi-round: generate -> review -> fix (max 3 rounds)."""
     # Round 1: Generate
     r1_prompt = DEEP_R1_PROMPT + "\n\n" + spec
-    r1 = engine.call(model, r1_prompt)
+    r1 = strip_full_fence(engine.call(model, r1_prompt))
     emit({"round": 1, "status": "done", "result": r1})
 
     # Round 2: Review
@@ -206,10 +222,12 @@ def cmd_deep(engine, model, spec):
     review = parse_review(r2)
     verdict = review.get("verdict", "pass")
     issues = review.get("issues", [])
+    advisory_notes = review.get("advisory_notes", [])
 
     if verdict == "pass":
         emit({
-            "final": r1, "rounds": 2, "verdict": "pass", "issues": issues,
+            "final": r1, "rounds": 2, "verdict": "pass",
+            "issues": issues, "advisory_notes": advisory_notes,
         })
         return
 
@@ -221,11 +239,13 @@ def cmd_deep(engine, model, spec):
         + "\n\n## Review Issues:\n" + json.dumps(issues, ensure_ascii=False)
         + "\n\n## Fix Instructions:\n" + fix_instructions
     )
-    r3 = engine.call(model, r3_prompt)
+    r3 = strip_full_fence(engine.call(model, r3_prompt))
     emit({"round": 3, "status": "done", "result": r3})
 
+    # advisory_notes always sourced from R2 review, even when R3 runs.
     emit({
-        "final": r3, "rounds": 3, "verdict": "fixed", "issues": issues,
+        "final": r3, "rounds": 3, "verdict": "fixed",
+        "issues": issues, "advisory_notes": advisory_notes,
     })
 
 

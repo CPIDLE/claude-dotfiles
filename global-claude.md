@@ -58,16 +58,16 @@ Non-trivial tasks follow 3 phases：
 
 ### Hook 驅動強制委派
 
-`UserPromptSubmit` hook 每次使用者送訊息時自動檢查 `~/.claude/usage-cache.json`：
-- **GREEN（< 80%）**：靜默，不輸出
-- **RED（≥ 80%）**：注入 `⚠️ QUOTA RED` 提醒到對話中
+`UserPromptSubmit` hook 每次使用者送訊息時自動檢查 `~/.claude/usage-cache.json`（僅看 5h session）：
+- **GREEN（< 50%）**：靜默，不輸出
+- **WARN（≥ 50%）**：注入 `⚠️ QUOTA WARN` 提醒到對話中
 
-**收到 QUOTA RED 提醒時，必須遵守：**
+**收到 QUOTA WARN 提醒時，必須遵守：**
 1. 評估當前任務是否適合委派（見下方條件）
 2. 適合 → **強制**使用 `/do easy` 或 `/do deep`，不可自己做
 3. 不適合 → 自己處理，但盡量精簡 token 用量
 
-> 門檻 80% 與 statusline 紅字一致。Cache 超過 10 分鐘視為過期，預設 GREEN。
+> 門檻 50%（5h session 中段觸發，留時間反應）。Weekly 不警告（用量低不卡）。Cache 超過 10 分鐘視為過期，預設 GREEN。
 
 ### 適合委派（easy）
 
@@ -76,9 +76,9 @@ Non-trivial tasks follow 3 phases：
 - 重複性的檔案建立（批次產生類似結構）
 - 簡單的 utility function 實作
 
-### 適合委派（deep）— 僅 QUOTA RED 時
+### 適合委派（deep）— 僅 QUOTA WARN 時
 
-收到 QUOTA RED 提醒時，以下任務**必須**用 `/do deep`：
+收到 QUOTA WARN 提醒時，以下任務**必須**用 `/do deep`：
 - 新增含複雜邏輯的模組（多函式、threading、async）
 - 可以用 spec 完整描述的獨立功能
 - 文件撰寫（README、CHANGELOG、docs）
@@ -90,6 +90,7 @@ Non-trivial tasks follow 3 phases：
 - 需要理解上下文的 bug fix
 - 架構設計相關
 - 安全敏感操作、CLAUDE.md/AGENTS.md 修改
+- `commands/*.md`、`skills/**` 的 prompt engineering 修改（Gemini 沒上下文，失敗成本高）
 
 前提：`GEMINI_API_KEY` 環境變數已設定（預設引擎 gemini）。未設定時跳過，不報錯。
 

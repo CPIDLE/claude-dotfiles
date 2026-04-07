@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python -c \"import json,time,pathlib,sys; f=pathlib.Path.home()/'.claude'/'usage-cache.json'; c=json.loads(f.read_text()) if f.exists() else {}; ts=c.get('ts',0); stale=time.time()-ts/1000>600; s=c.get('session',{}).get('utilization',0); w=c.get('week',{}).get('utilization',0); red=not stale and (s>=80 or w>=80); print(f'⚠️ QUOTA RED (5h={s}% 7d={w}%) — 適合委派的任務必須用 /do（easy 或 deep）。不符合委派條件的才自己處理。') if red else sys.exit(0)\""
+            "command": "python -c \"import json,time,pathlib,sys; f=pathlib.Path.home()/'.claude'/'usage-cache.json'; c=json.loads(f.read_text()) if f.exists() else {}; ts=c.get('ts',0); stale=time.time()-ts/1000>600; s=c.get('session',{}).get('utilization',0); warn=not stale and s>=50; print(f'⚠️ QUOTA WARN (5h={s}%) — 適合委派的任務必須用 /do（easy 或 deep）。不符合委派條件的才自己處理。') if warn else sys.exit(0)\""
           }
         ]
       }

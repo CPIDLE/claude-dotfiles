@@ -50,8 +50,8 @@ function fetchUsage() {
 }
 
 function ansiColor(pct) {
-  if (pct >= 80) return '\x1b[31m'; // red
-  if (pct >= 50) return '\x1b[93m'; // yellow
+  if (pct >= 50) return '\x1b[31m'; // red (warn threshold)
+  if (pct >= 30) return '\x1b[93m'; // yellow
   return '\x1b[32m'; // green
 }
 

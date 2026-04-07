@@ -70,7 +70,7 @@ deep 輸出多行（每輪一行 + 最終結果）：
 {"final":"<最終程式碼>","rounds":2,"verdict":"pass","issues":[]}
 ```
 
-Claude Code 解析最後一行取 `final`（程式碼）、`rounds`（輪數）、`verdict`（pass/fixed）、`issues`。
+Claude Code 解析最後一行取 `final`（程式碼）、`rounds`（輪數）、`verdict`（pass/fixed）、`issues`、`advisory_notes`（R2 觀察到 spec 外的潛在問題，永遠取自 R2，即使 R3 觸發）。
 
 > 優勢：deep 模式省去多次 Python 啟動 + Claude Code round-trip，加速約 4-8 秒。
 
@@ -288,10 +288,13 @@ easy 和 deep 共用前 4 步：
    🔄 輪次：<N> rounds（生成 → 審核 → 修正）
    🔍 審核：✅ pass / ⚠️ partial / ❌ fail
    📊 Issues：🔴 N | 🟠 N | 🟡 N
+   💡 Advisory：N notes（若 advisory_notes 非空則列出，否則省略此行）
    備註：<具體發現>
 
    ✅ 已記錄到 do_history.md
    ```
+
+   > **Advisory 顯示**：若 final JSON 的 `advisory_notes` 非空則顯示此行並列出每條。這是 R2 觀察到 spec 外的潛在問題（不影響 verdict），best effort 顯示，唯一保證是 JSON-lines 內有資料。
 
    追加到 `do_history.md`：
    ```markdown
