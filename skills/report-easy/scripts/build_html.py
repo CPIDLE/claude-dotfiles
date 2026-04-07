@@ -33,7 +33,9 @@ def build(src_md: str, title: str | None = None) -> None:
         m = re.search(r"^#\s+(.+)$", md, re.MULTILINE)
         title = m.group(1).strip() if m else stem
 
-    for kind, suffix in [("直", "_直"), ("橫", "_橫")]:
+    # 直 版本暫時停用
+    # for kind, suffix in [("直", "_直"), ("橫", "_橫")]:
+    for kind, suffix in [("橫", "_橫")]:
         tpl_path = os.path.join(assets, f"template_{kind}.html")
         tpl = open(tpl_path, encoding="utf-8").read()
         out = (tpl

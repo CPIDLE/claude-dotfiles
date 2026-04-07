@@ -1,11 +1,11 @@
 使用者需求：$ARGUMENTS
 
-請使用 **report-easy** skill 將指定的 ASCII Markdown 報告轉為印刷就緒的雙版 HTML（A4 直 + 橫）。
+請使用 **report-easy** skill 將指定的 ASCII Markdown 報告轉為印刷就緒的 HTML（A4 橫）。
 
 ## 三階段流程
 
 1. **圖表化** — 掃描來源 `.md`，將適合視覺化的段落轉為 D2 (`--layout=elk`) 圖；不適合 D2 的圖（圓餅、甘特、序列、ER、心智圖等）才用 Mermaid。把結果寫入 `<stem>_elk.md`，新圖存放於 `assets/*.d2` + `assets/*_elk.png`。
-2. **產生 直 HTML** — 套用 skill 內建的 `template_直.html`（A4 portrait，已強化 img sizing）。
+2. <!-- **產生 直 HTML** — 套用 skill 內建的 `template_直.html`（A4 portrait，已強化 img sizing）。暫時停用 -->
 3. **產生 橫 HTML** — 套用 skill 內建的 `template_橫.html`（A4 landscape）。
 
 ## 用法
