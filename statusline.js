@@ -128,7 +128,7 @@ process.stdin.on('end', async () => {
       + `${DIM}\u25b8${RESET}`
       + colorize('bye', pmState.bye);
 
-    const ctxColor = ansiColor(pct);
+    const ctxColor = sessionColor(pct);
     const GREEN = '\x1b[32m';
     process.stdout.write(`${BRIGHT}${dir}${RESET} ${DIM}\u2502${RESET} ${DIM}__BRANCH__${RESET} ${DIM}\u2502${RESET} ${pmTag}     ${DIM}Opus ${RESET}${GREEN}${model.replace(/^.*\s/, '')}${RESET} ${DIM}\u2502 ctx:${RESET}${ctxColor}${pct}%${RESET}${quotaTag(cache)}`);
   } catch {
