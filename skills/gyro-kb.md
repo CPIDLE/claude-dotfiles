@@ -12,11 +12,11 @@ user_invocable: true
   │
   │  產出 .md 報告
   ▼
-/gyro-report ── 負責「排版呈現」── MD → HTML 簡報 + PDF + Excel 驗算
+/report-gyro ── 負責「排版呈現」── MD → HTML 簡報 + PDF + Excel 驗算
 ```
 
-> **典型工作流**: `/gyro-kb <客戶需求>` → 產出 `.md` → `/gyro-report <.md> <.html>` → 產出簡報
-> `/gyro-kb` 只寫內容不做排版。`/gyro-report` 只做排版不寫內容。
+> **典型工作流**: `/gyro-kb <客戶需求>` → 產出 `.md` → `/report-gyro <.md> <.html>` → 產出簡報
+> `/gyro-kb` 只寫內容不做排版。`/report-gyro` 只做排版不寫內容。
 
 ---
 
@@ -323,7 +323,7 @@ data = {
 | **確認** | 逐項確認參數、釐清疑問 | `params.json` 定案 |
 | **計算** | 數值分析（Python，非 AI） | `results.json` |
 | **撰寫** | 套模板 + AI 生成文案 | `.md` 定稿 |
-| **排版** | `/gyro-report` 轉 HTML | `.html` |
+| **排版** | `/report-gyro` 轉 HTML | `.html` |
 
 ### 深度研究版流程（report_workflow_v1.md）
 

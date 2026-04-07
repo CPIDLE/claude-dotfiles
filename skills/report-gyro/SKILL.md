@@ -1,5 +1,5 @@
 ---
-name: gyro-report
+name: report-gyro
 description: >
   Generate GYRO Systems presentation drafts from Markdown source.
   Two output paths: (A) Marp CLI for quick local PDF/PPTX drafts,
@@ -19,7 +19,7 @@ argument-hint: <source.md> [output.pptx|output.pdf|gamma]
   │
   │  產出 .md 報告
   ▼
-/gyro-report ── 負責「排版呈現」── 三條路線
+/report-gyro ── 負責「排版呈現」── 三條路線
                  ↑ 你在這裡
 ```
 
@@ -40,17 +40,17 @@ argument-hint: <source.md> [output.pptx|output.pdf|gamma]
 ```bash
 # PPTX
 marp --no-stdin input.md --html --allow-local-files \
-  --theme "C:/Users/benth/.claude/skills/gyro-report/assets/gyro-marp-theme.css" \
+  --theme "$CLAUDE_SKILL_DIR/assets/gyro-marp-theme.css" \
   --pptx -o output.pptx
 
 # PDF
 marp --no-stdin input.md --html --allow-local-files \
-  --theme "C:/Users/benth/.claude/skills/gyro-report/assets/gyro-marp-theme.css" \
+  --theme "$CLAUDE_SKILL_DIR/assets/gyro-marp-theme.css" \
   --pdf --pdf-outlines -o output.pdf
 
 # HTML 預覽
 marp --no-stdin input.md --html --allow-local-files \
-  --theme "C:/Users/benth/.claude/skills/gyro-report/assets/gyro-marp-theme.css" \
+  --theme "$CLAUDE_SKILL_DIR/assets/gyro-marp-theme.css" \
   -o output.html
 ```
 
@@ -136,10 +136,20 @@ footer: ''
 
 ---
 
+## 流程圖規範（D2/ELK 優先）
+
+需要嵌入流程圖、架構圖、決策樹時，**優先用 D2 + ELK layout** 渲染 PNG，僅在 D2 無法表達語意（gantt、sequence、ER、pie 等）時退回 Mermaid。詳細對應表與 D2 reserved keywords 注意事項見 `report-easy` skill 的 SKILL.md 第 1 節。
+
+```bash
+d2 --layout=elk in.d2 out.png
+```
+
+---
+
 ## 檔案結構
 
 ```
-skills/gyro-report/
+skills/report-gyro/
 ├── SKILL.md                          ← 本檔案
 ├── README_載入SOP.md
 ├── assets/
