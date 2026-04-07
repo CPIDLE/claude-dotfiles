@@ -49,9 +49,17 @@ function fetchUsage() {
   });
 }
 
-function ansiColor(pct) {
-  if (pct >= 50) return '\x1b[31m'; // red (warn threshold)
+// 5h session is the bottleneck — use aggressive thresholds matching the hook
+function sessionColor(pct) {
+  if (pct >= 50) return '\x1b[31m'; // red (matches hook WARN threshold)
   if (pct >= 30) return '\x1b[93m'; // yellow
+  return '\x1b[32m'; // green
+}
+
+// 7d weekly is not the bottleneck — use loose thresholds so it stays green in normal use
+function weekColor(pct) {
+  if (pct >= 90) return '\x1b[31m'; // red (only if really close to limit)
+  if (pct >= 75) return '\x1b[93m'; // yellow
   return '\x1b[32m'; // green
 }
 
@@ -61,12 +69,12 @@ function quotaTag(cache) {
   const w = Math.round(cache.week?.utilization || 0);
   const DIM = '\x1b[90m';
   const RESET = '\x1b[0m';
-  let tag = ` ${DIM}5h:${RESET}${ansiColor(s)}${s}%${RESET}`;
+  let tag = ` ${DIM}5h:${RESET}${sessionColor(s)}${s}%${RESET}`;
   if (cache.session?.resets_at) {
     const sd = new Date(cache.session.resets_at);
     tag += `${DIM}\u25b8${String(sd.getHours()).padStart(2,'0')}:${String(sd.getMinutes()).padStart(2,'0')}${RESET}`;
   }
-  tag += ` ${DIM}7d:${RESET}${ansiColor(w)}${w}%${RESET}`;
+  tag += ` ${DIM}7d:${RESET}${weekColor(w)}${w}%${RESET}`;
   if (cache.week?.resets_at) {
     const d = new Date(cache.week.resets_at);
     tag += `${DIM}\u25b8${d.getMonth() + 1}/${d.getDate()}${RESET}`;
