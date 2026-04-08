@@ -11,8 +11,8 @@ Claude Code 個人設定框架 — 一次安裝，完整配置所有 commands、
 | 安裝項目 | 目標位置 |
 |---|---|
 | CLAUDE.md、settings.json | `~/.claude/` |
-| 8 個 slash commands | `~/.claude/commands/` |
-| 8 個 custom skills | `~/.claude/skills/` |
+| 11 個 slash commands | `~/.claude/commands/` |
+| 9 個 custom skills | `~/.claude/skills/` |
 | MCP server config | `~/.claude/.mcp.json` |
 | Status Line 腳本 | `~/.claude/` |
 | Docs | `~/.claude/docs/` |
@@ -48,6 +48,9 @@ claude-dotfiles │ master │ pm▸sync▸bye     Opus 4.6 │ ctx:6% 5h:2%▸0
 | `/do easy` | 委派簡單任務給 Gemini API（flash-lite，快速便宜） |
 | `/do deep` | 委派複雜任務給 Gemini API（flash，多輪生成→審核→修正） |
 | `/smart-commit` | 智慧 commit |
+| `/report-gyro` | 產生 GYRO 報告（Marp/Gamma） |
+| `/report-easy` | Markdown → A4 列印就緒 HTML（含 D2/Mermaid 圖表） |
+| `/clip` | 剪貼簿截圖分析 |
 
 ### 任務委派（`/do`）
 
@@ -60,8 +63,10 @@ claude-dotfiles │ master │ pm▸sync▸bye     Opus 4.6 │ ctx:6% 5h:2%▸0
 
 支援三種引擎（`DO_ENGINE` 環境變數切換）：
 - `gemini`（預設）— Google Gemini API
-- `ollama` — 本地 Ollama（DGX Spark）
 - `ollama` — 本地 Ollama（DGX Spark 離線部署）
+- `opencode` — OpenCode CLI
+
+Quota-aware 自動委派：UserPromptSubmit hook 偵測 5h session 用量 ≥ 50% 時注入 `⚠️ QUOTA WARN`，Claude 收到後強制委派適合的任務。
 
 Benchmark 驗證：Gemini API 品質 5.0/5.0，flash-lite 4.85/5.0。
 
