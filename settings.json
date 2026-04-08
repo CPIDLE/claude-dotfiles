@@ -36,7 +36,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell -c \"[console]::beep(800,500); Start-Sleep -Milliseconds 300; [console]::beep(800,500); Start-Sleep -Milliseconds 300; [console]::beep(800,500)\""
+            "command": "powershell -c \"(New-Object System.Media.SoundPlayer \\\"$env:USERPROFILE\\.claude\\sfx_mario_1up.wav\\\").PlaySync()\""
           }
         ]
       }

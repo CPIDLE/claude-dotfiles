@@ -34,6 +34,7 @@ Backup-And-Copy "$ScriptDir\global-claude.md" "$ClaudeDir\CLAUDE.md"
 Write-Host ""
 Write-Host "--- settings.json ---"
 Backup-And-Copy "$ScriptDir\settings.json" "$ClaudeDir\settings.json"
+Backup-And-Copy "$ScriptDir\sfx_mario_1up.wav" "$ClaudeDir\sfx_mario_1up.wav"
 
 # 2.5. settings.local.json (permissions whitelist)
 Write-Host ""
