@@ -14,30 +14,18 @@ Usage:
 
 from __future__ import annotations
 
-import os
 import re
 import sys
 import unicodedata
 from pathlib import Path
 
+from sarasa_widths import WIDE_OVERRIDES, NARROW_OVERRIDES
+
 # ---------------------------------------------------------------------------
-# Width engine
+# Width engine — lookup table, no fontTools needed at runtime
 # ---------------------------------------------------------------------------
 
-# Candidate font paths (first match wins)
-_FONT_CANDIDATES = [
-    "C:/Windows/Fonts/SarasaMonoTC-Regular.ttf",
-    "/Library/Fonts/SarasaMonoTC-Regular.ttf",
-    os.path.expanduser("~/.local/share/fonts/SarasaMonoTC-Regular.ttf"),
-]
-
-_hmtx = None
-_cmap = None
 _cache: dict[int, int] = {}
-
-# Glyph advance width threshold: half-width=500, full-width=1000 in typical
-# CJK monospace fonts. 750 is the midpoint used to classify ambiguous glyphs.
-_FULLWIDTH_THRESHOLD = 750
 
 RIGHT_BORDER = set("│┐┘┤")
 HORIZONTAL_CORNERS = set("┐┘")
@@ -46,43 +34,24 @@ HORIZONTAL_RULE = "─"
 HORIZONTAL_LEFT = set("├┬┴┼")
 
 
-def _load_font() -> bool:
-    """Load font tables lazily. Returns True if font is available."""
-    global _hmtx, _cmap
-    if _hmtx is not None:
-        return True
-    try:
-        from fontTools.ttLib import TTFont
-    except ImportError:
-        print("ERROR: fonttools not installed. Run: pip install fonttools", file=sys.stderr)
-        sys.exit(1)
-    for path in _FONT_CANDIDATES:
-        if os.path.isfile(path):
-            font = TTFont(path)
-            _hmtx = font["hmtx"]
-            _cmap = font.getBestCmap()
-            return True
-    print("WARNING: Sarasa Mono TC not found; falling back to EAW heuristics", file=sys.stderr)
-    return False
-
-
 def char_cols(c: str) -> int:
-    """Return display column count for a single character."""
+    """Return display column count for a single character.
+
+    Priority: override table → EAW → default 1.
+    The override table captures Sarasa Mono TC glyphs that disagree with EAW.
+    """
     cp = ord(c)
     if cp in _cache:
         return _cache[cp]
 
-    cols = 1  # default
-    if _cmap is not None and _hmtx is not None:
-        glyph = _cmap.get(cp)
-        if glyph and _hmtx[glyph][0] >= _FULLWIDTH_THRESHOLD:
-            cols = 2
-        elif unicodedata.east_asian_width(c) in ("F", "W"):
-            cols = 2
+    if cp in WIDE_OVERRIDES:
+        cols = 2
+    elif cp in NARROW_OVERRIDES:
+        cols = 1
+    elif unicodedata.east_asian_width(c) in ("F", "W"):
+        cols = 2
     else:
-        # Pure EAW fallback (less accurate)
-        if unicodedata.east_asian_width(c) in ("F", "W"):
-            cols = 2
+        cols = 1
 
     _cache[cp] = cols
     return cols
@@ -103,31 +72,16 @@ def _is_bordered(line: str) -> bool:
     return bool(stripped) and stripped[-1] in RIGHT_BORDER
 
 
-def _is_tree_trunk(line: str, block_lines: list[str], idx: int) -> bool:
-    """Heuristic: a standalone │ not part of a box border group.
+def _is_tree_trunk(line: str) -> bool:
+    """Heuristic: a standalone │ not part of a box border.
 
-    A line ending with │ is a 'tree trunk' if it has no adjacent bordered
-    lines with corner/T-junction characters (┐┘┤┌└├┬┴┼) on the same side.
+    A line is a tree trunk if the only non-whitespace character is a trailing │.
+    E.g. "                │" is a tree trunk, "  │ content │" is not.
     """
     stripped = line.rstrip()
     if not stripped or stripped[-1] != "│":
         return False
-
-    # Check ±2 neighbourhood for corner/junction chars — covers typical
-    # box layouts where top/bottom corners are within 2 lines of content.
-    corners = set("┐┘┤┌└├┬┴┼─")
-    for offset in (-2, -1, 0, 1, 2):
-        ni = idx + offset
-        if 0 <= ni < len(block_lines):
-            neighbour = block_lines[ni].rstrip()
-            if neighbour:
-                last = neighbour[-1]
-                if last in corners and last != "│":
-                    return False
-                # Also check if the line has a horizontal rule stretch
-                if "─" in neighbour and any(c in RIGHT_BORDER for c in neighbour):
-                    return False
-    return True
+    return stripped[:-1].strip() == ""
 
 
 def _find_box_groups(block_lines: list[str]) -> list[list[int]]:
@@ -140,8 +94,15 @@ def _find_box_groups(block_lines: list[str]) -> list[list[int]]:
     current: list[int] = []
 
     for i, line in enumerate(block_lines):
-        if _is_bordered(line) and not _is_tree_trunk(line, block_lines, i):
+        if _is_bordered(line) and not _is_tree_trunk(line):
+            stripped = line.rstrip()
+            starts_with_bottom = stripped.lstrip()[0] == "└" if stripped.lstrip() else False
+            ends_with_bottom = stripped[-1] == "┘"
             current.append(i)
+            # Box bottom terminates the group — don't absorb lines after it.
+            if ends_with_bottom or starts_with_bottom:
+                groups.append(current)
+                current = []
         else:
             if current:
                 groups.append(current)
@@ -167,23 +128,32 @@ def _is_hrule_line(content: str, border: str) -> bool:
     if border != "┤":
         return False
     # For ┤: check if content is a horizontal rule (├───┬───)
-    stripped = content.rstrip()
-    if not stripped:
+    clean = content.strip()
+    if not clean:
         return False
     # Must start with a left-side junction or ─
-    if stripped[0] not in HORIZONTAL_LEFT and stripped[0] != HORIZONTAL_RULE:
+    if clean[0] not in HORIZONTAL_LEFT and clean[0] != HORIZONTAL_RULE:
         return False
     # All chars must be box-drawing or ─
     hrule_chars = set("─├┬┴┼┌┐└┘│┤")
-    return all(c in hrule_chars for c in stripped)
+    return all(c in hrule_chars for c in clean)
 
 
 def _align_group(block_lines: list[str], group: list[int]) -> list[str]:
     """Align a single box group to uniform display width.
 
+    Two-step strategy:
+      Step 1 (connect): expand short lines to majority width so all borders
+             connect (└┘ matches ┌┐, etc.).
+      Step 2 (shrink):  compute the minimum width that fits all content
+             (meat + 1 space + border), then shrink the whole group to that
+             width.  Only the trailing gap between the last meaningful
+             character and the right border is adjusted — content to the
+             left is never touched.
+
     Returns the modified block_lines (mutated in place).
     """
-    # Parse each line into (prefix, border_char, is_hrule)
+    # Parse each line
     parsed: list[tuple[str, str, bool]] = []
     for i in group:
         stripped = block_lines[i].rstrip()
@@ -192,60 +162,56 @@ def _align_group(block_lines: list[str], group: list[int]) -> list[str]:
         hrule = _is_hrule_line(content, border)
         parsed.append((content, border, hrule))
 
-    # Compute target width
-    # For hrule lines, width = prefix + fill + border (no padding space)
-    # For content lines, width = content + at least 1 space + border
-    content_widths: list[int] = []
-    for content, border, hrule in parsed:
-        if hrule:
-            # hrule lines don't contribute to content width — they stretch to fit
-            pass
-        else:
-            content_widths.append(display_width(content.rstrip()) + 1 + char_cols(border))
+    # --- Step 1: connect — pick target width --------------------------------
+    from collections import Counter
 
-    # If ALL lines are hrule (unlikely), fall back to max hrule width
-    if not content_widths:
-        for content, border, hrule in parsed:
-            content_widths.append(display_width(content.rstrip()) + char_cols(border))
+    line_widths: list[int] = []
+    for idx in range(len(parsed)):
+        line_widths.append(display_width(block_lines[group[idx]].rstrip()))
 
-    min_target = max(content_widths)
+    width_counts = Counter(line_widths)
+    majority_w = width_counts.most_common(1)[0][0]
+    min_w = min(line_widths)
+    spread = majority_w - min_w
 
-    # Also respect existing non-hrule line widths — never shrink below them.
-    # This preserves inner box alignment when the outer box was intentionally
-    # wider than the minimum content width.
-    for idx, (content, border, hrule) in enumerate(parsed):
-        if not hrule:
-            cur_w = display_width(block_lines[group[idx]].rstrip())
-            if cur_w > min_target:
-                min_target = cur_w
+    # Large spread (>5) means most content lines have excessive trailing
+    # padding — shrink to the minimum (typically the └┘ bottom line, which
+    # has no trailing-space ambiguity).  Small spread is usually an off-by-
+    # one in the └┘ hrule fill — majority is more reliable.
+    target_w = min_w if spread > 5 else majority_w
 
-    target_w = min_target
-
-    # Rebuild each line
+    # Rebuild each line — only adjust right-side gap
     for idx, i in enumerate(group):
         content, border, hrule = parsed[idx]
         border_w = char_cols(border)
 
+        cur_w = display_width(block_lines[group[idx]].rstrip())
+
+        if cur_w == target_w:
+            continue  # already correct width, don't touch
+
         if hrule:
-            # Find the prefix (non-─ part) and fill ─ to reach target
-            # e.g. "├──────┤" or "┌─────┐" or "├───┬───┤"
-            # Strip trailing spaces + ─ from content to find the structural prefix
-            content_clean = content.rstrip()  # remove trailing spaces first
+            # Hrule: find structural prefix (everything before trailing ─),
+            # then fill ─ to reach target width.
+            content_clean = content.rstrip()
             prefix = content_clean.rstrip(HORIZONTAL_RULE)
-            # Handle mid-junctions like ├───┬───┤: rstrip(─) stops at ┬
             prefix_w = display_width(prefix)
             fill_count = target_w - prefix_w - border_w
             if fill_count < 1:
                 fill_count = 1
-            block_lines[i] = prefix + (HORIZONTAL_RULE * fill_count) + border
+            new_line = prefix + (HORIZONTAL_RULE * fill_count) + border
         else:
-            # Pad content with spaces
-            content_stripped = content.rstrip()
-            content_w = display_width(content_stripped)
-            pad = target_w - content_w - border_w
-            if pad < 1:
-                pad = 1
-            block_lines[i] = content_stripped + (" " * pad) + border
+            # Content: preserve everything left of the trailing gap.
+            # Only adjust the spaces between last meaningful char and border.
+            content_meat = content.rstrip()
+            meat_w = display_width(content_meat)
+            gap = target_w - meat_w - border_w
+            if gap < 1:
+                gap = 1
+            new_line = content_meat + (" " * gap) + border
+
+        if new_line != block_lines[i].rstrip():
+            block_lines[i] = new_line
 
     return block_lines
 
@@ -272,7 +238,11 @@ def _char_idx_at_col(line: str, target_col: int) -> int | None:
 
 
 def _find_inner_boxes(block_lines: list[str]) -> list[tuple[int, int, int]]:
-    """Find inner box headers (┌...┐ not at col 0).
+    """Find inner box headers (┌...┐ enclosed within another box's │...│ line).
+
+    A ┌...┐ is "inner" only if:
+    1. The line has a │ at a lower column (enclosing box's left border)
+    2. No ┬ between ┌ and ┐ (otherwise it's a multi-column table header)
 
     Returns list of (left_col, right_col, line_idx) where left_col/right_col
     are the display columns of ┌ and ┐ respectively.
@@ -280,16 +250,22 @@ def _find_inner_boxes(block_lines: list[str]) -> list[tuple[int, int, int]]:
     results = []
     for i, line in enumerate(block_lines):
         col = 0
+        has_leading_pipe = False
         for ci, c in enumerate(line):
-            if c == "┌" and col > 0:
+            if c == "│":
+                has_leading_pipe = True
+            if c == "┌" and has_leading_pipe:
                 left_col = col
-                # Scan forward for matching ┐ on same line
+                # Scan forward for matching ┐, reject if ┬ found (table header)
                 right_col = col + char_cols(c)
-                found = False
+                has_junction = False
                 for cj in range(ci + 1, len(line)):
+                    if line[cj] == "┬":
+                        has_junction = True
+                        break
                     if line[cj] == "┐":
-                        results.append((left_col, right_col, i))
-                        found = True
+                        if not has_junction:
+                            results.append((left_col, right_col, i))
                         break
                     right_col += char_cols(line[cj])
                 # No ┐ found → malformed header, skip
@@ -576,23 +552,27 @@ def _verify_inner_boxes(block_lines: list[str], line_offset: int) -> list[str]:
             if lchar == "└":
                 break
 
-    # Also verify outer box: all lines should have same display_width
-    widths: dict[int, list[int]] = {}
-    for i, line in enumerate(block_lines):
-        w = display_width(line.rstrip())
-        if w not in widths:
-            widths[w] = []
-        widths[w].append(i)
-    if len(widths) > 1:
-        main_w = max(widths, key=lambda w: len(widths[w]))
-        for w, idxs in widths.items():
-            if w != main_w:
-                for idx in idxs:
-                    actual_line = line_offset + idx + 1
-                    warnings.append(
-                        f"  ⚠ L{actual_line}: w={w} expected w={main_w}"
-                    )
+    return warnings
 
+
+def _verify_group_widths(
+    block_lines: list[str], groups: list[list[int]], line_offset: int
+) -> list[str]:
+    """Verify that all lines within each box group have the same display width."""
+    warnings: list[str] = []
+    for group in groups:
+        widths: dict[int, list[int]] = {}
+        for i in group:
+            w = display_width(block_lines[i].rstrip())
+            widths.setdefault(w, []).append(i)
+        if len(widths) > 1:
+            main_w = max(widths, key=lambda w: len(widths[w]))
+            for w, idxs in widths.items():
+                if w != main_w:
+                    for idx in idxs:
+                        warnings.append(
+                            f"  ⚠ L{line_offset + idx + 1}: w={w} expected w={main_w}"
+                        )
     return warnings
 
 
@@ -604,13 +584,14 @@ def _verify_inner_boxes(block_lines: list[str], line_offset: int) -> list[str]:
 _FENCE_RE = re.compile(r"^ {0,3}```")
 
 
-def process_file(filepath: Path, *, dry_run: bool = False) -> tuple[list[str], list[str]]:
-    """Process a single .md file. Returns (changes, warnings)."""
+def process_file(filepath: Path, *, dry_run: bool = False) -> tuple[list[str], list[str], bool]:
+    """Process a single .md file. Returns (changes, warnings, has_boxes)."""
     text = filepath.read_text(encoding="utf-8")
     lines = text.split("\n")
 
     changes: list[str] = []
     all_warnings: list[str] = []
+    has_boxes = False
     in_block = False
     block_start = -1
 
@@ -639,6 +620,7 @@ def process_file(filepath: Path, *, dry_run: bool = False) -> tuple[list[str], l
         has_borders = any(_is_bordered(l) for l in block_lines)
         if not has_borders:
             continue
+        has_boxes = True
 
         groups = _find_box_groups(block_lines)
         if not groups:
@@ -656,8 +638,9 @@ def process_file(filepath: Path, *, dry_run: bool = False) -> tuple[list[str], l
         for group in groups:
             _align_group(block_lines, group)
 
-        # Phase 3: verify inner box alignment
+        # Phase 3: verify alignment
         warnings = _verify_inner_boxes(block_lines, inner_start)
+        warnings += _verify_group_widths(block_lines, groups, inner_start)
 
         # Check if anything changed
         if block_lines != original:
@@ -675,11 +658,10 @@ def process_file(filepath: Path, *, dry_run: bool = False) -> tuple[list[str], l
     if modified and not dry_run:
         filepath.write_text("\n".join(lines), encoding="utf-8")
 
-    return changes, all_warnings
+    return changes, all_warnings, has_boxes
 
 
 def main() -> None:
-    _load_font()
 
     # Parse flags
     dry_run = False
@@ -715,7 +697,7 @@ def main() -> None:
     total_warnings = 0
 
     for fp in targets:
-        changes, warnings = process_file(fp, dry_run=dry_run)
+        changes, warnings, has_boxes = process_file(fp, dry_run=dry_run)
         if changes or warnings:
             total_changed += 1
             total_blocks += len(changes)
@@ -725,6 +707,8 @@ def main() -> None:
                 print(c)
             for w in warnings:
                 print(w)
+        elif has_boxes:
+            print(f"OK: {fp} (already aligned)")
         else:
             print(f"Skipped: {fp} (no bordered blocks)")
 
