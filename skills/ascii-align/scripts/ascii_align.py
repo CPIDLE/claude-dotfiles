@@ -119,23 +119,21 @@ def _find_box_groups(block_lines: list[str]) -> list[list[int]]:
 def _is_hrule_line(content: str, border: str) -> bool:
     """Detect if a line is a horizontal-rule line.
 
-    A horizontal-rule line is one where:
-    - border is ┐ or ┘ (always hrule), OR
-    - border is ┤ and the content (stripped) is entirely made of ─ and
-      box-drawing junction chars (├┬┴┼─┌┐└┘│┤), with ─ being dominant.
+    A horizontal-rule line is one where the content (before the border) is
+    entirely made of box-drawing characters (┌└├─┬┴┼ etc.), with no spaces
+    or text content.  Lines like ``│    ┌──────┐`` are NOT hrules — the │
+    and spaces indicate it's a content line with an embedded box header.
     """
-    if border in HORIZONTAL_CORNERS:
-        return True
-    if border != "┤":
+    if border not in RIGHT_BORDER:
         return False
-    # For ┤: check if content is a horizontal rule (├───┬───)
     clean = content.strip()
     if not clean:
         return False
-    # Must start with a left-side junction or ─
-    if clean[0] not in HORIZONTAL_LEFT and clean[0] != HORIZONTAL_RULE:
+    # Must start with a box-drawing left-side or ─ character
+    left_starts = HORIZONTAL_LEFT | {"┌", "└", HORIZONTAL_RULE}
+    if clean[0] not in left_starts:
         return False
-    # All chars must be box-drawing or ─
+    # All chars must be box-drawing — no spaces or text
     hrule_chars = set("─├┬┴┼┌┐└┘│┤")
     return all(c in hrule_chars for c in clean)
 
@@ -188,6 +186,14 @@ def _align_group(block_lines: list[str], group: list[int]) -> list[str]:
 
         if cur_w == target_w:
             continue  # already correct width, don't touch
+
+        # Skip lines where the border belongs to an embedded box, not the
+        # outer border.  E.g. "│    ┌────────┐" — the ┐ is the right-side
+        # box's corner, not the outer box's border.
+        if border == "┐" and "┌" in content:
+            continue
+        if border == "┘" and "└" in content:
+            continue
 
         if hrule:
             # Hrule: find structural prefix (everything before trailing ─),
@@ -264,7 +270,13 @@ def _find_inner_boxes(block_lines: list[str]) -> list[tuple[int, int, int]]:
                         break
                     if line[cj] == "┐":
                         if not has_junction:
-                            results.append((left_col, right_col, i))
+                            # Inner box must have enclosing right │ after ┐
+                            has_enclosing_right = any(
+                                line[ck] == "│"
+                                for ck in range(cj + 1, len(line))
+                            )
+                            if has_enclosing_right:
+                                results.append((left_col, right_col, i))
                         break
                     right_col += char_cols(line[cj])
                 # No ┐ found → malformed header, skip
@@ -693,7 +705,7 @@ def process_file(filepath: Path, *, dry_run: bool = False) -> tuple[list[str], l
         # Snapshot for comparison
         original = [l for l in block_lines]
 
-        # Pre-alignment: detect off-by-1 on original widths
+        # Pre-alignment: detect off-by-1 on original widths (report only)
         off_by_1 = _check_off_by_1(block_lines, groups, inner_start)
 
         # Phase 1: align inner boxes first (adjusts content within lines)
