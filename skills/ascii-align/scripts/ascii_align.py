@@ -226,6 +226,9 @@ def _align_group(
         # Skip lines where the border belongs to an embedded box, not the
         # outer border.  E.g. "│    ┌────────┐" — the ┐ is the right-side
         # box's corner, not the outer box's border.
+        # Also skips └...┘ / ┌...┐ corner pairs — these are ambiguous when
+        # anchor and content widths disagree (off-by-1). Safer to report
+        # via diagnostics and let LLM fix.
         if border == "┐" and "┌" in content:
             continue
         if border == "┘" and "└" in content:
