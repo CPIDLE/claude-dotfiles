@@ -7309,22 +7309,22 @@ Reset 觸發（警報後）
 │ ├─ LAN ×3                       │
 │ │   ├─ T-01 → TP-LINK LAN HUB  │
 │ │   ├─ T-03 → TM 手臂主機      │ ◄── TM Modbus / ROS 通訊
-│ │   └─ T-04 → 外部擴充面板      │
-│ │                                │
-│ ├─ 擴充面板                      │
-│ │   ├─ COM1~COM5 (RS485/232)     │
+│ │   └─ T-04 → 外部擴充面板     │
+│ │                               │
+│ ├─ 擴充面板                     │
+│ │   ├─ COM1~COM5 (RS485/232)    │
 │ │   ├─ HDMI ×2 ─────────► 觸控螢幕（直接接，非樹莓派）
 │ │   ├─ VGA                       │
 │ │   └─ 觸控 USB ────────► 觸控螢幕
-│ │                                │
-│ ├─ Docker 容器                   │
+│ │                               │
+│ ├─ Docker 容器                  │
 │ │   ├─ AGVWeb (Flask)            │ ◄── Web UI + TM STOP 按鈕
 │ │   ├─ rosbridge_websocket :9090 │ ◄── browser JS ↔ ROS
-│ │   └─ ROS master                │
-│ │                                │
-│ └─ LAN HUB-A / HUB-B             │
-│     ├─ sensor 網路               │
-│     └─ 外部擴充                  │
+│ │   └─ ROS master               │
+│ │                               │
+│ └─ LAN HUB-A / HUB-B            │
+│     ├─ sensor 網路              │
+│     └─ 外部擴充                 │
 └─────────────────────────────────┘
 ```
 
@@ -7512,22 +7512,22 @@ Slot3 = R-U-R（後上右）  Slot4 = R-U-L（後上左） ← WP0800222 在此
 
 ```
 ┌─────────────────────────────────────────────┐
-│ POWER BOARD                                  │
-│                                              │
-│ 24V 區                    5V 區    12V 區    │
-│ ├─ J52: IPC              J55      J56        │
-│ ├─ J59: LAN HUB                              │
-│ ├─ J56-1: AP                                 │
-│ ├─ J56-2: 後貨盤 sensor                      │
-│ ├─ J55: 前貨盤 sensor                        │
-│ ├─ J58: ISB 模塊          J57-1    J57-2     │
-│ │                         外部電源擴充       │
-│ │ 24V 區（下排）                             │
-│ ├─ J53: 光隔離器                             │
-│ ├─ J54: E84 控制板                           │
-│ ├─ J51-2: 超音波模組                         │
-│ ├─ J51-1: RFID                               │
-│ └─ 真空 PCB 板                               │
+│ POWER BOARD                                 │
+│                                             │
+│ 24V 區                    5V 區    12V 區   │
+│ ├─ J52: IPC              J55      J56       │
+│ ├─ J59: LAN HUB                             │
+│ ├─ J56-1: AP                                │
+│ ├─ J56-2: 後貨盤 sensor                     │
+│ ├─ J55: 前貨盤 sensor                       │
+│ ├─ J58: ISB 模塊          J57-1    J57-2    │
+│ │                         外部電源擴充      │
+│ │ 24V 區（下排）                            │
+│ ├─ J53: 光隔離器                            │
+│ ├─ J54: E84 控制板                          │
+│ ├─ J51-2: 超音波模組                        │
+│ ├─ J51-1: RFID                              │
+│ └─ 真空 PCB 板                              │
 └─────────────────────────────────────────────┘
 ```
 
@@ -13039,15 +13039,15 @@ GCP Cloud Run thin proxy (asia-east1)
 
 ```
    ┌──────────────────────────────────────────────────────┐
-   │           Support Agent 軸線完整交付鏈                │
-   │                                                       │
-   │   全員 ──→ Chat_bot_v1 (Google Chat /kb)             │
-   │              ↓                                       │
-   │           PKB v2.0 (Qdrant + Ollama bge-m3)           │
-   │              ↑                                       │
-   │   AMHS ──→ diagnose Skill (Full 72B + PKB)           │
-   │              ↓                                       │
-   │           Reporter_v1 (Markdown → GYRO PPTX)         │
+   │           Support Agent 軸線完整交付鏈               │
+   │                                                      │
+   │   全員 ──→ Chat_bot_v1 (Google Chat /kb)            │
+   │              ↓                                      │
+   │           PKB v2.0 (Qdrant + Ollama bge-m3)          │
+   │              ↑                                      │
+   │   AMHS ──→ diagnose Skill (Full 72B + PKB)          │
+   │              ↓                                      │
+   │           Reporter_v1 (Markdown → GYRO PPTX)        │
    └──────────────────────────────────────────────────────┘
 ```
 
@@ -13119,15 +13119,15 @@ W6     03-30       GYRO PPTX 報告生成器                08 Reporter_v1
 
 ```
    ┌──────────────────────────────────────────────────────┐
-   │           Support Agent 軸線完整交付鏈                │
-   │                                                       │
-   │   全員 ──→ Chat_bot_v1 (Google Chat /kb)             │
-   │              ↓                                       │
-   │           PKB v2.0 (Qdrant + Ollama bge-m3)           │
-   │              ↑                                       │
-   │   AMHS ──→ diagnose Skill (Full 72B + PKB)           │
-   │              ↓                                       │
-   │           Reporter_v1 (Markdown → GYRO PPTX)         │
+   │           Support Agent 軸線完整交付鏈               │
+   │                                                      │
+   │   全員 ──→ Chat_bot_v1 (Google Chat /kb)            │
+   │              ↓                                      │
+   │           PKB v2.0 (Qdrant + Ollama bge-m3)          │
+   │              ↑                                      │
+   │   AMHS ──→ diagnose Skill (Full 72B + PKB)          │
+   │              ↓                                      │
+   │           Reporter_v1 (Markdown → GYRO PPTX)        │
    └──────────────────────────────────────────────────────┘
 ```
 
@@ -13412,14 +13412,14 @@ Skill 內部 ──→ MCP Servers ──→ 現在（即時狀態 + 指令）
 ```
 GYRO 全公司 AI 四軸策略
 ┌─────────────────────────────────────────────────────┐
-│                                                       │
-│  ① Coding Agent      ② Service Agent                │
-│  軟體標準化           AMHS Edge Agent                 │
-│                                                       │
-│  ③ Support Agent  ★  ④ Smart Robot                 │
-│  企業知識大腦         具身智能                        │
-│  (PKB v2.0)                                           │
-│                                                       │
+│                                                     │
+│  ① Coding Agent      ② Service Agent              │
+│  軟體標準化           AMHS Edge Agent               │
+│                                                     │
+│  ③ Support Agent  ★  ④ Smart Robot               │
+│  企業知識大腦         具身智能                      │
+│  (PKB v2.0)                                         │
+│                                                     │
 └─────────────────────────────────────────────────────┘
               ★ = 本報告範圍
 ```

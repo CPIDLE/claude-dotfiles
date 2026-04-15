@@ -145,12 +145,23 @@ def _is_hrule_line(content: str, border: str) -> bool:
     return all(c in hrule_chars for c in clean)
 
 
-def _align_group(block_lines: list[str], group: list[int], *, hrule_only: bool = False) -> list[str]:
+def _align_group(
+    block_lines: list[str],
+    group: list[int],
+    *,
+    hrule_only: bool = False,
+    ref_width: int | None = None,
+) -> list[str]:
     """Align a single box group to uniform display width.
 
     If hrule_only is True, only adjust hrule lines (┌─┐/└─┘ fill), skip
     content lines. Used for parallel/flow/layout types where content padding
     should not be changed.
+
+    If ref_width is given, use it as the target width instead of computing
+    majority from the group. This is used when the group is a fragment
+    (split by non-bordered lines) and the true box width is known from
+    ┌┐/└┘ lines in other fragments.
 
     Two-step strategy:
       Step 1 (connect): expand short lines to majority width so all borders
@@ -182,11 +193,26 @@ def _align_group(block_lines: list[str], group: list[int], *, hrule_only: bool =
     min_w = min(line_widths)
     spread = majority_w - min_w
 
-    # Large spread (>5) means most content lines have excessive trailing
-    # padding — shrink to the minimum (typically the └┘ bottom line, which
-    # has no trailing-space ambiguity).  Small spread is usually an off-by-
-    # one in the └┘ hrule fill — majority is more reliable.
-    target_w = min_w if spread > 5 else majority_w
+    # Pick target width. Priority:
+    # 1. ref_width (from global anchor, for fragment groups)
+    # 2. Local hrule anchor width (┌┐/└┘ lines — no trailing-space ambiguity)
+    # 3. min_w if spread > 5 (massive padding → trust min)
+    # 4. majority_w (default)
+    if ref_width is not None:
+        target_w = ref_width
+    else:
+        # Check for local hrule anchors (┌┐/└┘)
+        anchor_ws = [
+            line_widths[idx]
+            for idx, (_, border, hrule) in enumerate(parsed)
+            if hrule and border in HORIZONTAL_CORNERS
+        ]
+        if anchor_ws:
+            target_w = Counter(anchor_ws).most_common(1)[0][0]
+        elif spread > 5:
+            target_w = min_w
+        else:
+            target_w = majority_w
 
     # Rebuild each line — only adjust right-side gap
     for idx, i in enumerate(group):
@@ -784,8 +810,32 @@ def process_file(filepath: Path, *, dry_run: bool = False) -> tuple[list[str], l
         # Phase 2: align outer box borders
         # Re-detect groups after inner box changes (line widths may have changed)
         groups = _find_box_groups(block_lines)
+
+        # Compute global anchor width from ┌┐/└┘ hrule lines across ALL groups.
+        # Fragment groups without their own ┌┐/└┘ will use this as ref_width.
+        anchor_ws: list[int] = []
+        for g in groups:
+            for i in g:
+                stripped = block_lines[i].rstrip()
+                if stripped and stripped[-1] in HORIZONTAL_CORNERS:
+                    content = stripped[:-1]
+                    if _is_hrule_line(content, stripped[-1]):
+                        anchor_ws.append(display_width(stripped))
+        anchor_w: int | None = None
+        if anchor_ws:
+            anchor_counts = Counter(anchor_ws)
+            anchor_w = anchor_counts.most_common(1)[0][0]
+
         for group in groups:
-            _align_group(block_lines, group, hrule_only=conservative)
+            # Check if this group has its own ┌┐/└┘ anchor
+            has_own_anchor = any(
+                block_lines[i].rstrip()[-1] in HORIZONTAL_CORNERS
+                and _is_hrule_line(block_lines[i].rstrip()[:-1], block_lines[i].rstrip()[-1])
+                for i in group
+                if block_lines[i].rstrip()
+            )
+            rw = None if has_own_anchor else anchor_w
+            _align_group(block_lines, group, hrule_only=conservative, ref_width=rw)
 
         # Phase 3: verify alignment
         warnings = _verify_inner_boxes(block_lines, inner_start)
