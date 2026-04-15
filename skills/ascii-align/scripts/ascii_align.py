@@ -17,6 +17,7 @@ from __future__ import annotations
 import re
 import sys
 import unicodedata
+from collections import Counter
 from pathlib import Path
 
 from sarasa_widths import WIDE_OVERRIDES, NARROW_OVERRIDES
@@ -163,8 +164,6 @@ def _align_group(block_lines: list[str], group: list[int]) -> list[str]:
         parsed.append((content, border, hrule))
 
     # --- Step 1: connect — pick target width --------------------------------
-    from collections import Counter
-
     line_widths: list[int] = []
     for idx in range(len(parsed)):
         line_widths.append(display_width(block_lines[group[idx]].rstrip()))
@@ -576,6 +575,71 @@ def _verify_group_widths(
     return warnings
 
 
+def _check_off_by_1(
+    block_lines: list[str], groups: list[list[int]], line_offset: int
+) -> list[str]:
+    """Detect off-by-1: majority width = bottom hrule width + 1.
+
+    Must be called on ORIGINAL lines before alignment, since alignment
+    equalizes all widths. Only fires when spread <= 5 (rule engine picks
+    majority), because spread > 5 already shrinks to min.
+    """
+    warnings: list[str] = []
+    for group in groups:
+        widths = [display_width(block_lines[i].rstrip()) for i in group]
+        width_counts = Counter(widths)
+        majority_w = width_counts.most_common(1)[0][0]
+        min_w = min(widths)
+        spread = majority_w - min_w
+
+        if spread > 5 or spread == 0:
+            continue
+
+        # Bottom lines (┘) have no trailing-space ambiguity
+        bottom_ws = []
+        for i in group:
+            stripped = block_lines[i].rstrip()
+            if stripped and stripped[-1] == "┘":
+                bottom_ws.append(display_width(stripped))
+
+        if not bottom_ws:
+            continue
+
+        bottom_w = min(bottom_ws)
+        if majority_w - bottom_w == 1:
+            first = line_offset + group[0] + 1
+            last = line_offset + group[-1] + 1
+            warnings.append(
+                f"  ⚠ L{first}-L{last}: off-by-1 "
+                f"(group w={majority_w}, bottom w={bottom_w})"
+            )
+    return warnings
+
+
+def _print_llm_prompt(filepath: Path, warnings: list[str]) -> None:
+    """Print a structured prompt for Claude subagent to fix residual issues."""
+    abs_path = filepath.resolve()
+    print(f"=== LLM FIX PROMPT for {filepath} ===")
+    print(
+        "Font: Sarasa Mono TC.\n"
+        "Display width: box-drawing (─│├┐┘┤┌┬┴┼) = 1 col,\n"
+        "arrows (▼▲→←) = 2 cols, geometric (●○■□◆) = 2 cols.\n"
+        "\n"
+        "Rules:\n"
+        "- Every line in a box group must have identical display width\n"
+        "- Only adjust spacing. Never change text content.\n"
+        "- ▼/→ must start at same column as │ above it\n"
+        "- Junction (┬┴┼) must align vertically with │ in content lines\n"
+        "\n"
+        "Issues found:"
+    )
+    for w in warnings:
+        print(w)
+    print(f"\nFile to fix: {abs_path}")
+    print("Read the file, fix the issues above, then save.")
+    print("===")
+
+
 # ---------------------------------------------------------------------------
 # File processing
 # ---------------------------------------------------------------------------
@@ -629,6 +693,9 @@ def process_file(filepath: Path, *, dry_run: bool = False) -> tuple[list[str], l
         # Snapshot for comparison
         original = [l for l in block_lines]
 
+        # Pre-alignment: detect off-by-1 on original widths
+        off_by_1 = _check_off_by_1(block_lines, groups, inner_start)
+
         # Phase 1: align inner boxes first (adjusts content within lines)
         _align_inner_boxes(block_lines)
 
@@ -655,6 +722,9 @@ def process_file(filepath: Path, *, dry_run: bool = False) -> tuple[list[str], l
             all_warnings.extend(warnings)
             modified = True
 
+        # Off-by-1 warnings apply regardless of whether alignment changed lines
+        all_warnings.extend(off_by_1)
+
     if modified and not dry_run:
         filepath.write_text("\n".join(lines), encoding="utf-8")
 
@@ -665,11 +735,14 @@ def main() -> None:
 
     # Parse flags
     dry_run = False
+    prompt_mode = False
     raw_args = sys.argv[1:]
     args: list[str] = []
     for a in raw_args:
         if a in ("--dry-run", "--check", "-n"):
             dry_run = True
+        elif a == "--prompt":
+            prompt_mode = True
         else:
             args.append(a)
 
@@ -695,6 +768,7 @@ def main() -> None:
     total_changed = 0
     total_blocks = 0
     total_warnings = 0
+    file_warnings: list[tuple[Path, list[str]]] = []
 
     for fp in targets:
         changes, warnings, has_boxes = process_file(fp, dry_run=dry_run)
@@ -707,6 +781,8 @@ def main() -> None:
                 print(c)
             for w in warnings:
                 print(w)
+            if warnings:
+                file_warnings.append((fp, warnings))
         elif has_boxes:
             print(f"OK: {fp} (already aligned)")
         else:
@@ -718,6 +794,11 @@ def main() -> None:
     if total_warnings:
         summary += f", {total_warnings} warnings"
     print(summary)
+
+    if prompt_mode and file_warnings:
+        print()
+        for fp, warnings in file_warnings:
+            _print_llm_prompt(fp, warnings)
 
 
 if __name__ == "__main__":

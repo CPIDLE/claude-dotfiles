@@ -25,6 +25,7 @@ python "SKILL_DIR/scripts/ascii_align.py" [path ...]
 - File argument → process that single file
 - Directory argument → scan that directory for `*.md`
 - `--dry-run` / `--check` / `-n` → report without writing
+- `--prompt` → dry-run + generate LLM fix prompt for residual issues
 
 ### Full Pipeline (rule-based + LLM fix)
 
@@ -35,9 +36,13 @@ Run the 3-step pipeline for best results:
 python "SKILL_DIR/scripts/ascii_align.py" <path>
 ```
 
-**Step 2** — Claude subagent fix (for each file with residual issues):
-Spawn a subagent with a **precise prompt** describing the remaining issues.
-The prompt MUST include:
+**Step 1+2 combined** — Rule-based align + subagent prompt generation:
+```bash
+python "SKILL_DIR/scripts/ascii_align.py" --prompt <path>
+```
+Aligns the file (writes changes) AND outputs a structured prompt for any
+residual issues. Spawn a subagent with that prompt directly.
+If `--prompt` is not used, craft a manual prompt that MUST include:
 - Display width rules (see table below)
 - Relative alignment rules (same column, not absolute numbers)
 - Specific line numbers and what's wrong
@@ -81,7 +86,7 @@ line which has no trailing-space ambiguity.
 - Inner box alignment (nested `┌─┐` / `└─┘`)
 
 ### What Rule-Based Cannot Handle (→ Step 2 LLM)
-- **Off-by-1 width**: majority has 1 extra trailing space (needs semantic judgment)
+- **Off-by-1 width**: majority has 1 extra trailing space (detected by `--check` as `off-by-1` warning, needs semantic judgment to fix)
 - **Inner box spacing**: side-by-side boxes with wrong inter-box gap
 - **Branch connector displacement**: `│` after `┌─┼─┐` at wrong columns
 - **Content displacement**: nested box content with massive leading whitespace
@@ -118,8 +123,7 @@ Summary: 2 files changed, 3 blocks fixed, 1 warning
 ## Workflow
 
 1. Parse `$ARGUMENTS` for target path(s); default to `.`
-2. Run `ascii_align.py` (Step 1 — rule-based)
-3. Check output for warnings (`⚠`) or known residual patterns
-4. If residuals exist → spawn Claude subagent with precise fix prompt (Step 2)
-5. Re-run `ascii_align.py` (Step 3 — re-align after LLM)
-6. Report final results
+2. Run `ascii_align.py --prompt` (Step 1 — rule-based align + generate subagent prompt if residuals exist)
+3. If prompt output exists → spawn Claude subagent with that prompt (Step 2)
+4. Re-run `ascii_align.py` (Step 3 — re-align after LLM)
+5. Report final results
