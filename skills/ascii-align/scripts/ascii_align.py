@@ -33,6 +33,13 @@ HORIZONTAL_CORNERS = set("┐┘")
 HORIZONTAL_RULE = "─"
 # Left-side chars that start a horizontal rule line (paired with ┤ on the right)
 HORIZONTAL_LEFT = set("├┬┴┼")
+ARROW_CHARS = set("→←↑↓▼▲↔↕")
+
+# <!-- aa: TYPE --> annotation
+_AA_RE = re.compile(r"<!--\s*aa:\s*(\w+)\s*-->")
+
+# Valid annotation types
+_AA_TYPES = {"single", "parallel", "nested", "flow", "layout", "table"}
 
 
 def char_cols(c: str) -> int:
@@ -138,8 +145,12 @@ def _is_hrule_line(content: str, border: str) -> bool:
     return all(c in hrule_chars for c in clean)
 
 
-def _align_group(block_lines: list[str], group: list[int]) -> list[str]:
+def _align_group(block_lines: list[str], group: list[int], *, hrule_only: bool = False) -> list[str]:
     """Align a single box group to uniform display width.
+
+    If hrule_only is True, only adjust hrule lines (┌─┐/└─┘ fill), skip
+    content lines. Used for parallel/flow/layout types where content padding
+    should not be changed.
 
     Two-step strategy:
       Step 1 (connect): expand short lines to majority width so all borders
@@ -205,6 +216,9 @@ def _align_group(block_lines: list[str], group: list[int]) -> list[str]:
             if fill_count < 1:
                 fill_count = 1
             new_line = prefix + (HORIZONTAL_RULE * fill_count) + border
+        elif hrule_only:
+            # Conservative mode: skip content lines entirely
+            continue
         else:
             # Content: preserve everything left of the trailing gap.
             # Only adjust the spaces between last meaningful char and border.
@@ -587,6 +601,53 @@ def _verify_group_widths(
     return warnings
 
 
+def _read_annotation(lines: list[str], fence_line: int) -> str | None:
+    """Read <!-- aa: TYPE --> annotation above a code fence line."""
+    for i in range(fence_line - 1, max(fence_line - 4, -1), -1):
+        m = _AA_RE.search(lines[i])
+        if m:
+            t = m.group(1).lower()
+            return t if t in _AA_TYPES else None
+    return None
+
+
+def _detect_type(block_lines: list[str]) -> str:
+    """Auto-detect ASCII art type from block content."""
+    has_parallel = False
+    has_arrows_outside = False
+    has_junction = False
+
+    for line in block_lines:
+        # parallel: same line has ≥2 independent │...│ segments with gap
+        segments = re.findall(r"│[^│]*│", line)
+        if len(segments) >= 2:
+            # Verify there's a gap (≥2 spaces) between segments
+            for j in range(len(segments) - 1):
+                end_pos = line.find(segments[j]) + len(segments[j])
+                next_pos = line.find(segments[j + 1], end_pos)
+                if next_pos > end_pos and line[end_pos:next_pos].strip() == "":
+                    has_parallel = True
+                    break
+
+        # arrows on a line without box borders → flow connector
+        stripped = line.strip()
+        if any(c in ARROW_CHARS for c in stripped):
+            if "│" not in stripped and "┌" not in stripped and "└" not in stripped:
+                has_arrows_outside = True
+
+        # junction chars → table structure
+        if any(c in "┬┼┴" for c in line):
+            has_junction = True
+
+    if has_junction:
+        return "table"
+    if has_parallel:
+        return "parallel"
+    if has_arrows_outside:
+        return "flow"
+    return "single"
+
+
 def _check_off_by_1(
     block_lines: list[str], groups: list[list[int]], line_offset: int
 ) -> list[str]:
@@ -702,20 +763,29 @@ def process_file(filepath: Path, *, dry_run: bool = False) -> tuple[list[str], l
         if not groups:
             continue
 
+        # Determine alignment strategy from annotation or auto-detection
+        aa_type = _read_annotation(lines, bstart) or _detect_type(block_lines)
+        # table → skip entirely
+        if aa_type == "table":
+            continue
+        # Conservative types: only fix hrule fill, skip inner box and content padding
+        conservative = aa_type in ("parallel", "flow", "layout")
+
         # Snapshot for comparison
         original = [l for l in block_lines]
 
         # Pre-alignment: detect off-by-1 on original widths (report only)
         off_by_1 = _check_off_by_1(block_lines, groups, inner_start)
 
-        # Phase 1: align inner boxes first (adjusts content within lines)
-        _align_inner_boxes(block_lines)
+        # Phase 1: align inner boxes (skip for conservative types)
+        if not conservative:
+            _align_inner_boxes(block_lines)
 
         # Phase 2: align outer box borders
         # Re-detect groups after inner box changes (line widths may have changed)
         groups = _find_box_groups(block_lines)
         for group in groups:
-            _align_group(block_lines, group)
+            _align_group(block_lines, group, hrule_only=conservative)
 
         # Phase 3: verify alignment
         warnings = _verify_inner_boxes(block_lines, inner_start)

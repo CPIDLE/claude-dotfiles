@@ -66,13 +66,33 @@ python "SKILL_DIR/scripts/ascii_align.py" <path>
 
 Width is resolved by: override table → EAW → default 1.
 
+## Type Annotation & Auto-Detection
+
+Each code block gets a **type** that determines the alignment strategy:
+
+| Type | Detection | Strategy |
+|------|-----------|----------|
+| `single` | Default (one box) | Full alignment |
+| `nested` | Via `<!-- aa: nested -->` | Full alignment |
+| `parallel` | ≥2 `│...│` segments per line with gap | Hrule fill only |
+| `flow` | Arrow chars (→↓) on non-border lines | Hrule fill only |
+| `layout` | Via `<!-- aa: layout -->` | Hrule fill only |
+| `table` | Lines with `┬┼┴` junctions | Skip entirely |
+
+**Annotation** (highest priority): `<!-- aa: TYPE -->` above the code fence.
+**Auto-detect** (fallback): heuristics based on block content.
+
+Conservative types (`parallel`, `flow`, `layout`) only adjust `─` fill in
+`┌─┐`/`└─┘` lines — content padding and inner boxes are not touched.
+
 ## Rule-Based Alignment Logic
 
 ### Step 1: Connect (majority width)
 1. Find code blocks (```` ``` ```` to ```` ``` ````) containing right-border chars (`│┐┘┤`)
-2. Group contiguous bordered lines; `└┘` terminates the group
-3. Compute majority width (most common display width in the group)
-4. Expand/shrink all lines to majority width
+2. Determine type (annotation → auto-detect)
+3. Group contiguous bordered lines; `└┘` terminates the group
+4. Compute majority width (most common display width in the group)
+5. Expand/shrink lines to majority width (hrule only for conservative types)
 
 ### Step 2: Shrink (spread > 5)
 If the spread (majority - min width) exceeds 5, the majority is likely wrong
