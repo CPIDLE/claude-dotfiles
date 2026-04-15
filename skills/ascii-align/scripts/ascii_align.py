@@ -661,8 +661,8 @@ def _detect_type(block_lines: list[str]) -> str:
             if "│" not in stripped and "┌" not in stripped and "└" not in stripped:
                 has_arrows_outside = True
 
-        # junction chars → table structure
-        if any(c in "┬┼┴" for c in line):
+        # table: needs ┼ (cross junction) — ┬/┴ alone could be branch connectors
+        if "┼" in line:
             has_junction = True
 
     if has_junction:
