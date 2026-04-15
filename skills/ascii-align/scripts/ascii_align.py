@@ -682,9 +682,22 @@ def _check_off_by_1(
     Must be called on ORIGINAL lines before alignment, since alignment
     equalizes all widths. Only fires when spread <= 5 (rule engine picks
     majority), because spread > 5 already shrinks to min.
+
+    Skips groups that have hrule anchor lines (┌┐/└┘) — those are already
+    corrected by _align_group's anchor priority logic.
     """
     warnings: list[str] = []
     for group in groups:
+        # Skip groups with hrule anchors — _align_group already uses anchor width
+        has_anchor = any(
+            block_lines[i].rstrip()[-1] in HORIZONTAL_CORNERS
+            and _is_hrule_line(block_lines[i].rstrip()[:-1], block_lines[i].rstrip()[-1])
+            for i in group
+            if block_lines[i].rstrip()
+        )
+        if has_anchor:
+            continue
+
         widths = [display_width(block_lines[i].rstrip()) for i in group]
         width_counts = Counter(widths)
         majority_w = width_counts.most_common(1)[0][0]
