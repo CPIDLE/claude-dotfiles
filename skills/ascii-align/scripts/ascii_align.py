@@ -159,28 +159,17 @@ def _align_group(
     block_lines: list[str],
     group: list[int],
     *,
-    hrule_only: bool = False,
     ref_width: int | None = None,
 ) -> list[str]:
-    """Align a single box group to uniform display width.
+    """Align hrule lines (┌─┐/└─┘) in a box group to uniform display width.
 
-    If hrule_only is True, only adjust hrule lines (┌─┐/└─┘ fill), skip
-    content lines. Used for parallel/flow/layout types where content padding
-    should not be changed.
+    Only adjusts ─ fill in horizontal rule lines. Content lines are left
+    untouched — content padding is the LLM subagent's responsibility.
 
     If ref_width is given, use it as the target width instead of computing
     majority from the group. This is used when the group is a fragment
     (split by non-bordered lines) and the true box width is known from
     ┌┐/└┘ lines in other fragments.
-
-    Two-step strategy:
-      Step 1 (connect): expand short lines to majority width so all borders
-             connect (└┘ matches ┌┐, etc.).
-      Step 2 (shrink):  compute the minimum width that fits all content
-             (meat + 1 space + border), then shrink the whole group to that
-             width.  Only the trailing gap between the last meaningful
-             character and the right border is adjusted — content to the
-             left is never touched.
 
     Returns the modified block_lines (mutated in place).
     """
@@ -252,18 +241,9 @@ def _align_group(
             if fill_count < 1:
                 fill_count = 1
             new_line = prefix + (HORIZONTAL_RULE * fill_count) + border
-        elif hrule_only:
-            # Conservative mode: skip content lines entirely
-            continue
         else:
-            # Content: preserve everything left of the trailing gap.
-            # Only adjust the spaces between last meaningful char and border.
-            content_meat = content.rstrip()
-            meat_w = display_width(content_meat)
-            gap = target_w - meat_w - border_w
-            if gap < 1:
-                gap = 1
-            new_line = content_meat + (" " * gap) + border
+            # Content lines: skip — padding is LLM subagent's responsibility
+            continue
 
         if new_line != block_lines[i].rstrip():
             block_lines[i] = new_line
@@ -272,13 +252,8 @@ def _align_group(
 
 
 # ---------------------------------------------------------------------------
-# Inner box alignment
+# Inner box detection
 # ---------------------------------------------------------------------------
-
-def _col_at(line: str, char_idx: int) -> int:
-    """Display column where character at char_idx starts."""
-    return sum(char_cols(line[i]) for i in range(char_idx))
-
 
 def _char_idx_at_col(line: str, target_col: int) -> int | None:
     """Find character index whose display column == target_col. None if no match."""
@@ -332,249 +307,6 @@ def _find_inner_boxes(block_lines: list[str]) -> list[tuple[int, int, int]]:
                 # No ┐ found → malformed header, skip
             col += char_cols(c)
     return results
-
-
-def _align_inner_boxes(block_lines: list[str]) -> bool:
-    """Align inner boxes: parse structure → content decides width → redraw.
-
-    Iteratively processes one box at a time, re-scanning after each fix
-    because modifying one inner box can shift column positions of others
-    on the same line.
-    """
-    changed = False
-    max_iter = 20
-    for _iteration in range(max_iter):
-        inner_boxes = _find_inner_boxes(block_lines)
-        if not inner_boxes:
-            break
-        any_fixed = False
-        for left_col, header_right_col, header_idx in inner_boxes:
-            if _align_one_inner_box(block_lines, left_col, header_right_col, header_idx):
-                any_fixed = True
-                changed = True
-                break  # re-scan — positions may have shifted
-        if not any_fixed:
-            break  # all boxes aligned
-    else:
-        print(f"WARNING: inner box iteration limit ({max_iter}) reached", file=sys.stderr)
-    return changed
-
-
-def _align_one_inner_box(
-    block_lines: list[str], left_col: int, header_right_col: int, header_idx: int
-) -> bool:
-    """Process a single inner box. Returns True if any changes made."""
-    changed = False
-
-    # --- Phase 1: Collect box structure ---
-    content_info: list[tuple[int, int, int, str, int]] = []
-    footer_idx: int | None = None
-    footer_left_ci: int | None = None
-    footer_right_ci: int | None = None
-
-    for li in range(header_idx + 1, len(block_lines)):
-        line = block_lines[li]
-        left_ci = _char_idx_at_col(line, left_col)
-        if left_ci is None or left_ci >= len(line):
-            break
-        lchar = line[left_ci]
-
-        if lchar == "└":
-            scan_col = left_col + char_cols(lchar)
-            for cj in range(left_ci + 1, len(line)):
-                if line[cj] == "┘":
-                    footer_idx = li
-                    footer_left_ci = left_ci
-                    footer_right_ci = cj
-                    break
-                scan_col += char_cols(line[cj])
-            break
-
-        if lchar != "│":
-            break
-
-        # Find right │
-        scan_col = left_col + char_cols(lchar)
-        right_ci = None
-        for cj in range(left_ci + 1, len(line)):
-            if line[cj] == "│":
-                right_ci = cj
-                break
-            scan_col += char_cols(line[cj])
-
-        if right_ci is None:
-            break
-
-        inner_text = line[left_ci + 1 : right_ci]
-        cs = inner_text.rstrip()
-        cw = display_width(cs)
-        content_info.append((li, left_ci, right_ci, cs, cw))
-
-    if not content_info:
-        return False
-
-    # --- Phase 2: Compute target box width ---
-    # Desired width based on content
-    max_content_w = max(cw for _, _, _, _, cw in content_info)
-    desired_inner_space = max_content_w + 1
-    desired_right_col = left_col + char_cols("│") + desired_inner_space
-
-    # Constraint: don't expand beyond available gap on any line.
-    # The gap is the space between the current inner right │ and the next
-    # non-space character (typically outer mid │). Expansion must not push it.
-    max_expansion = 999
-    # Check header line
-    hline = block_lines[header_idx]
-    h_left_ci = _char_idx_at_col(hline, left_col)
-    if h_left_ci is not None:
-        for cj in range(h_left_ci + 1, len(hline)):
-            if hline[cj] == "┐":
-                after_corner = hline[cj + 1:]
-                gap_spaces = len(after_corner) - len(after_corner.lstrip(" "))
-                avail = gap_spaces - 1  # keep at least 1 space
-                if avail < max_expansion:
-                    max_expansion = avail
-                break
-    # Check content lines
-    for li, left_ci, right_ci, cs, cw in content_info:
-        line = block_lines[li]
-        after = line[right_ci + 1:]
-        gap_spaces = len(after) - len(after.lstrip(" "))
-        avail = gap_spaces - 1
-        if avail < max_expansion:
-            max_expansion = avail
-    # Check footer
-    if footer_idx is not None and footer_right_ci is not None:
-        fline = block_lines[footer_idx]
-        after_f = fline[footer_right_ci + 1:]
-        gap_spaces = len(after_f) - len(after_f.lstrip(" "))
-        avail = gap_spaces - 1
-        if avail < max_expansion:
-            max_expansion = avail
-
-    # Never shrink: respect existing box width (max of header and all content lines)
-    existing_max_right = header_right_col
-    for li, left_ci, right_ci, cs, cw in content_info:
-        actual_right = _col_at(block_lines[li], right_ci)
-        if actual_right > existing_max_right:
-            existing_max_right = actual_right
-    if footer_idx is not None and footer_right_ci is not None:
-        actual_foot_right = _col_at(block_lines[footer_idx], footer_right_ci)
-        if actual_foot_right > existing_max_right:
-            existing_max_right = actual_foot_right
-
-    # Target = max(content-based, existing) → never shrink
-    desired_right_col = max(desired_right_col, existing_max_right)
-
-    # Limit expansion beyond existing to available gap
-    current_right_col = existing_max_right
-    expansion_needed = desired_right_col - current_right_col
-    if expansion_needed > 0 and max_expansion < expansion_needed:
-        if max_expansion <= 0:
-            new_right_col = current_right_col
-        else:
-            new_right_col = current_right_col + max_expansion
-    else:
-        new_right_col = desired_right_col
-
-    inner_space = new_right_col - left_col - char_cols("│")
-
-    if new_right_col == header_right_col:
-        all_ok = True
-        for li, left_ci, right_ci, cs, cw in content_info:
-            actual_right = _col_at(block_lines[li], right_ci)
-            if actual_right != new_right_col:
-                all_ok = False
-                break
-        # Also check footer
-        if all_ok and footer_idx is not None and footer_right_ci is not None:
-            actual_foot = _col_at(block_lines[footer_idx], footer_right_ci)
-            if actual_foot != new_right_col:
-                all_ok = False
-        if all_ok:
-            return False
-
-    # --- Phase 3: Redraw header ---
-    hline = block_lines[header_idx]
-    h_left_ci = _char_idx_at_col(hline, left_col)
-    if h_left_ci is not None:
-        h_right_ci = None
-        for cj in range(h_left_ci + 1, len(hline)):
-            if hline[cj] == "┐":
-                h_right_ci = cj
-                break
-        if h_right_ci is not None:
-            orig_w = display_width(hline.rstrip())
-            before_h = hline[:h_left_ci]
-            after_h = hline[h_right_ci + 1:]
-
-            header_inner = hline[h_left_ci + 1 : h_right_ci]
-            label_part = header_inner.rstrip(HORIZONTAL_RULE)
-            label_w = display_width(label_part)
-            fill = new_right_col - left_col - char_cols("┌") - label_w
-            if fill < 1:
-                fill = 1
-            new_header = "┌" + label_part + (HORIZONTAL_RULE * fill) + "┐"
-
-            new_h_core = before_h + new_header
-            after_h_content = after_h.lstrip(" ")
-            after_h_w = display_width(after_h_content)
-            h_gap = orig_w - display_width(new_h_core) - after_h_w
-            if h_gap < 1:
-                h_gap = 1
-            new_hline = new_h_core + (" " * h_gap) + after_h_content
-            if new_hline != hline.rstrip():
-                block_lines[header_idx] = new_hline
-                changed = True
-
-    # --- Phase 4: Redraw content lines ---
-    for li, left_ci, right_ci, cs, cw in content_info:
-        line = block_lines[li]
-        orig_w = display_width(line.rstrip())
-
-        before = line[:left_ci]
-        after = line[right_ci + 1:]
-
-        pad = inner_space - cw
-        if pad < 0:
-            continue  # content overflows — skip this line
-        new_inner = "│" + cs + (" " * pad) + "│"
-
-        new_core = before + new_inner
-        after_content = after.lstrip(" ")
-        after_w = display_width(after_content)
-        gap = orig_w - display_width(new_core) - after_w
-        if gap < 1:
-            gap = 1
-        new_line = new_core + (" " * gap) + after_content
-        if new_line != line.rstrip():
-            block_lines[li] = new_line
-            changed = True
-
-    # --- Phase 5: Redraw footer ---
-    if footer_idx is not None and footer_left_ci is not None and footer_right_ci is not None:
-        fline = block_lines[footer_idx]
-        orig_w = display_width(fline.rstrip())
-        before_f = fline[:footer_left_ci]
-        after_f = fline[footer_right_ci + 1:]
-
-        f_fill = new_right_col - left_col - char_cols("└")
-        if f_fill < 1:
-            f_fill = 1
-        new_footer = "└" + (HORIZONTAL_RULE * f_fill) + "┘"
-
-        new_f_core = before_f + new_footer
-        after_f_content = after_f.lstrip(" ")
-        after_f_w = display_width(after_f_content)
-        f_gap = orig_w - display_width(new_f_core) - after_f_w
-        if f_gap < 1:
-            f_gap = 1
-        new_fline = new_f_core + (" " * f_gap) + after_f_content
-        if new_fline != fline.rstrip():
-            block_lines[footer_idx] = new_fline
-            changed = True
-
-    return changed
 
 
 # ---------------------------------------------------------------------------
@@ -738,28 +470,185 @@ def _check_off_by_1(
     return warnings
 
 
-def _print_llm_prompt(filepath: Path, warnings: list[str]) -> None:
-    """Print a structured prompt for Claude subagent to fix residual issues."""
+def _diagnose_file(filepath: Path) -> str | None:
+    """Analyze a file and produce a rich diagnostic prompt for the LLM subagent.
+
+    Returns the prompt string, or None if no issues found.
+    Called AFTER hrule fixes have been written, so it sees the post-fix state.
+    """
+    text = filepath.read_text(encoding="utf-8")
+    lines = text.split("\n")
     abs_path = filepath.resolve()
-    print(f"=== LLM FIX PROMPT for {filepath} ===")
-    print(
-        "Font: Sarasa Mono TC.\n"
-        "Display width: box-drawing (─│├┐┘┤┌┬┴┼) = 1 col,\n"
-        "arrows (▼▲→←) = 2 cols, geometric (●○■□◆) = 2 cols.\n"
-        "\n"
-        "Rules:\n"
-        "- Every line in a box group must have identical display width\n"
-        "- Only adjust spacing. Never change text content.\n"
-        "- ▼/→ must start at same column as │ above it\n"
-        "- Junction (┬┴┼) must align vertically with │ in content lines\n"
-        "\n"
-        "Issues found:"
+
+    # Collect code blocks
+    in_block = False
+    block_start = -1
+    blocks: list[tuple[int, int]] = []
+    for i, line in enumerate(lines):
+        if _FENCE_RE.match(line):
+            if not in_block:
+                in_block = True
+                block_start = i
+            else:
+                blocks.append((block_start, i))
+                in_block = False
+
+    block_reports: list[str] = []
+    block_num = 0
+
+    for bstart, bend in blocks:
+        inner_start = bstart + 1
+        inner_end = bend
+        if inner_start >= inner_end:
+            continue
+
+        block_lines = lines[inner_start:inner_end]
+        if not any(_is_bordered(l) for l in block_lines):
+            continue
+
+        groups = _find_box_groups(block_lines)
+        if not groups:
+            continue
+
+        aa_type = _read_annotation(lines, bstart) or _detect_type(block_lines)
+        if aa_type == "table":
+            continue
+
+        # Collect all issues for this block
+        issues: list[str] = []
+
+        # --- Group width analysis ---
+        for gi, group in enumerate(groups):
+            widths = [(i, display_width(block_lines[i].rstrip())) for i in group]
+            width_counts = Counter(w for _, w in widths)
+            target_w = width_counts.most_common(1)[0][0]
+
+            # Check for hrule anchor override
+            anchor_ws = []
+            for i in group:
+                stripped = block_lines[i].rstrip()
+                if stripped and stripped[-1] in HORIZONTAL_CORNERS:
+                    if _is_hrule_line(stripped[:-1], stripped[-1]):
+                        anchor_ws.append(display_width(stripped))
+            if anchor_ws:
+                target_w = Counter(anchor_ws).most_common(1)[0][0]
+
+            ok_lines = []
+            fix_lines = []
+            for i, w in widths:
+                line_num = inner_start + i + 1
+                if w == target_w:
+                    ok_lines.append(f"L{line_num}")
+                else:
+                    diff = w - target_w
+                    sign = f"+{diff}" if diff > 0 else str(diff)
+                    content_preview = block_lines[i].rstrip()
+                    if len(content_preview) > 72:
+                        content_preview = content_preview[:69] + "..."
+                    fix_lines.append(
+                        f"  - L{line_num}: w={w} ({sign}). "
+                        f'"{content_preview}"'
+                    )
+
+            if not fix_lines:
+                continue
+
+            g_first = inner_start + group[0] + 1
+            g_last = inner_start + group[-1] + 1
+            issues.append(
+                f"### Group {gi + 1}: L{g_first}-L{g_last} "
+                f"(target_width: {target_w})"
+            )
+            issues.append(f"OK lines: {', '.join(ok_lines)}")
+            issues.append("Fix lines:")
+            issues.extend(fix_lines)
+
+        # --- Inner box analysis ---
+        inner_boxes = _find_inner_boxes(block_lines)
+        for left_col, right_col, header_idx in inner_boxes:
+            misaligned: list[str] = []
+            for li in range(header_idx + 1, len(block_lines)):
+                line = block_lines[li]
+                left_ci = _char_idx_at_col(line, left_col)
+                if left_ci is None or left_ci >= len(line):
+                    break
+                lchar = line[left_ci]
+                if lchar not in "│└":
+                    break
+
+                target_char = "┘" if lchar == "└" else "│"
+                scan_col = left_col + char_cols(lchar)
+                for cj in range(left_ci + 1, len(line)):
+                    if line[cj] == target_char:
+                        if scan_col != right_col:
+                            diff = scan_col - right_col
+                            sign = f"+{diff}" if diff > 0 else str(diff)
+                            line_num = inner_start + li + 1
+                            misaligned.append(
+                                f"  L{line_num}: {target_char}@col {scan_col} ({sign})"
+                            )
+                        break
+                    scan_col += char_cols(line[cj])
+                if lchar == "└":
+                    break
+
+            if misaligned:
+                h_line_num = inner_start + header_idx + 1
+                issues.append(
+                    f"### Inner box at L{h_line_num} "
+                    f"(┌@col {left_col}, ┐@col {right_col})"
+                )
+                issues.append(f"Expected right border at col {right_col}:")
+                issues.extend(misaligned)
+
+        # --- Off-by-1 analysis ---
+        off1 = _check_off_by_1(block_lines, groups, inner_start)
+        if off1:
+            issues.append("### Off-by-1")
+            issues.extend(off1)
+
+        if not issues:
+            continue
+
+        block_num += 1
+        b_first = inner_start + 1
+        b_last = inner_end
+        header = f"## Block {block_num}: L{b_first}-L{b_last} (type: {aa_type})"
+        block_reports.append(header + "\n" + "\n".join(issues))
+
+    if not block_reports:
+        return None
+
+    prompt_parts = [
+        f"=== LLM FIX PROMPT for {filepath} ===",
+        "",
+        "## Width Rules",
+        "Font: Sarasa Mono TC.",
+        "- box-drawing (─│├┐┘┤┌┬┴┼) = 1 col",
+        "- CJK / fullwidth (中（）【】) = 2 cols",
+        "- arrows (→←↑↓↔▼▲) = 2 cols",
+        "- geometric (●○■□◆) = 2 cols",
+        "- EM dash/ellipsis (—…) = 2 cols",
+        "- ASCII (A-Z 0-9 +-=) = 1 col",
+        "",
+        "## Principles",
+        "- Every line in a box group MUST have identical display width",
+        "- Only adjust spacing (spaces). Never change text content.",
+        "- Vertical alignment: ▼/→ must start at same column as │ above",
+        "- 寧可不改也不改壞 — if unsure, leave unchanged",
+        "",
+    ]
+    prompt_parts.extend(
+        ("\n\n".join(block_reports)).split("\n")
     )
-    for w in warnings:
-        print(w)
-    print(f"\nFile to fix: {abs_path}")
-    print("Read the file, fix the issues above, then save.")
-    print("===")
+    prompt_parts.extend([
+        "",
+        f"File to fix: {abs_path}",
+        "Read the file, fix the issues above, then save.",
+        f"Verify: python ascii_align.py --check \"{abs_path}\"",
+        "===",
+    ])
+    return "\n".join(prompt_parts)
 
 
 # ---------------------------------------------------------------------------
@@ -817,22 +706,13 @@ def process_file(filepath: Path, *, dry_run: bool = False) -> tuple[list[str], l
         # table → skip entirely
         if aa_type == "table":
             continue
-        # Conservative types: only fix hrule fill, skip inner box and content padding
-        conservative = aa_type in ("parallel", "flow", "layout")
-
         # Snapshot for comparison
         original = [l for l in block_lines]
 
         # Pre-alignment: detect off-by-1 on original widths (report only)
         off_by_1 = _check_off_by_1(block_lines, groups, inner_start)
 
-        # Phase 1: align inner boxes (skip for conservative types)
-        if not conservative:
-            _align_inner_boxes(block_lines)
-
-        # Phase 2: align outer box borders
-        # Re-detect groups after inner box changes (line widths may have changed)
-        groups = _find_box_groups(block_lines)
+        # Align outer box borders (hrule fill only — content is LLM's job)
 
         # Compute global anchor width from ┌┐/└┘ hrule lines across ALL groups.
         # Fragment groups without their own ┌┐/└┘ will use this as ref_width.
@@ -858,15 +738,16 @@ def process_file(filepath: Path, *, dry_run: bool = False) -> tuple[list[str], l
                 if block_lines[i].rstrip()
             )
             rw = None if has_own_anchor else anchor_w
-            _align_group(block_lines, group, hrule_only=conservative, ref_width=rw)
+            _align_group(block_lines, group, ref_width=rw)
 
-        # Phase 3: verify alignment
+        # Verify alignment (always, regardless of whether changes were made)
         warnings = _verify_inner_boxes(block_lines, inner_start)
         warnings += _verify_group_widths(block_lines, groups, inner_start)
+        all_warnings.extend(warnings)
+        all_warnings.extend(off_by_1)
 
         # Check if anything changed
         if block_lines != original:
-            # Write back
             lines[inner_start:inner_end] = block_lines
             for group in groups:
                 first_line = inner_start + group[0] + 1
@@ -874,11 +755,7 @@ def process_file(filepath: Path, *, dry_run: bool = False) -> tuple[list[str], l
                 count = len(group)
                 w = display_width(block_lines[group[0]].rstrip())
                 changes.append(f"  L{first_line}-L{last_line}: {count} lines aligned to w={w}")
-            all_warnings.extend(warnings)
             modified = True
-
-        # Off-by-1 warnings apply regardless of whether alignment changed lines
-        all_warnings.extend(off_by_1)
 
     if modified and not dry_run:
         filepath.write_text("\n".join(lines), encoding="utf-8")
@@ -900,6 +777,10 @@ def main() -> None:
             prompt_mode = True
         else:
             args.append(a)
+
+    # --prompt implies writing (not dry-run) so diagnostics see post-fix state
+    if prompt_mode:
+        dry_run = False
 
     # Collect target files
     targets: list[Path] = []
@@ -927,21 +808,24 @@ def main() -> None:
 
     for fp in targets:
         changes, warnings, has_boxes = process_file(fp, dry_run=dry_run)
-        if changes or warnings:
+        if changes:
             total_changed += 1
             total_blocks += len(changes)
-            total_warnings += len(warnings)
             print(f"Fixed: {fp}")
             for c in changes:
                 print(c)
+        if warnings:
+            total_warnings += len(warnings)
+            if not changes:
+                print(f"Lint: {fp}")
             for w in warnings:
                 print(w)
-            if warnings:
-                file_warnings.append((fp, warnings))
-        elif has_boxes:
-            print(f"OK: {fp} (already aligned)")
-        else:
-            print(f"Skipped: {fp} (no bordered blocks)")
+            file_warnings.append((fp, warnings))
+        if not changes and not warnings:
+            if has_boxes:
+                print(f"OK: {fp} (already aligned)")
+            else:
+                print(f"Skipped: {fp} (no bordered blocks)")
 
     print()
     prefix = "(dry-run) " if dry_run else ""
@@ -950,10 +834,13 @@ def main() -> None:
         summary += f", {total_warnings} warnings"
     print(summary)
 
-    if prompt_mode and file_warnings:
-        print()
-        for fp, warnings in file_warnings:
-            _print_llm_prompt(fp, warnings)
+    if prompt_mode:
+        # Diagnostic pass: analyze all files for remaining issues (after hrule fixes)
+        for fp in targets:
+            prompt = _diagnose_file(fp)
+            if prompt:
+                print()
+                print(prompt)
 
 
 if __name__ == "__main__":

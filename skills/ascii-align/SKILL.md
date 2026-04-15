@@ -3,7 +3,7 @@ name: ascii-align
 description: >
   Scan Markdown files for ASCII-art code blocks and fix right-border alignment
   based on actual CJK glyph widths (Sarasa Mono TC). Two-step pipeline:
-  rule-based engine + Claude subagent for structural fixes.
+  linter (hrule fix + diagnostics) + Claude subagent for structural fixes.
   Trigger when: /ascii-align, ASCII 對齊, 邊框對齊, box alignment.
 argument-hint: "[path/to/file.md | path/to/dir]"
 ---
@@ -15,7 +15,7 @@ using **pre-computed glyph widths** from Sarasa Mono TC (lookup table, no runtim
 
 ## How to Use
 
-### Quick (rule-based only)
+### Quick (linter only)
 
 ```bash
 python "SKILL_DIR/scripts/ascii_align.py" [path ...]
@@ -25,33 +25,27 @@ python "SKILL_DIR/scripts/ascii_align.py" [path ...]
 - File argument → process that single file
 - Directory argument → scan that directory for `*.md`
 - `--dry-run` / `--check` / `-n` → report without writing
-- `--prompt` → dry-run + generate LLM fix prompt for residual issues
+- `--prompt` → apply safe fixes + generate rich diagnostic prompt for LLM subagent
 
-### Full Pipeline (rule-based + LLM fix)
+### Full Pipeline (linter + LLM fix)
 
 Run the 3-step pipeline for best results:
 
-**Step 1** — Rule-based pass:
-```bash
-python "SKILL_DIR/scripts/ascii_align.py" <path>
-```
-
-**Step 1+2 combined** — Rule-based align + subagent prompt generation:
+**Step 1** — Linter pass (hrule fix + diagnostics):
 ```bash
 python "SKILL_DIR/scripts/ascii_align.py" --prompt <path>
 ```
-Aligns the file (writes changes) AND outputs a structured prompt for any
-residual issues. Spawn a subagent with that prompt directly.
-If `--prompt` is not used, craft a manual prompt that MUST include:
-- Display width rules (see table below)
-- Relative alignment rules (same column, not absolute numbers)
-- Specific line numbers and what's wrong
-- The file path to read and edit
+Applies safe fixes (hrule `─` fill only) AND outputs a structured diagnostic
+prompt for any remaining issues. Spawn a subagent with that prompt directly.
 
-**Step 3** — Re-align (fix any width errors from LLM):
+**Step 2** — Claude subagent fixes ALL structural issues guided by the diagnostic prompt.
+
+**Step 3** — Verify:
 ```bash
-python "SKILL_DIR/scripts/ascii_align.py" <path>
+python "SKILL_DIR/scripts/ascii_align.py" --check <path>
 ```
+Pure verification. Reports any remaining issues without writing.
+If warnings remain, retry Step 2 with the new warnings (max 1 retry).
 
 ## Width Rules (Sarasa Mono TC)
 
@@ -70,80 +64,90 @@ Width is resolved by: override table → EAW → default 1.
 
 Each code block gets a **type** that determines the alignment strategy:
 
-| Type | Detection | Strategy |
-|------|-----------|----------|
-| `single` | Default (one box) | Full alignment |
-| `nested` | Via `<!-- aa: nested -->` | Full alignment |
-| `parallel` | ≥2 `│...│` segments per line with gap | Hrule fill only |
-| `flow` | Arrow chars (→↓) on non-border lines | Hrule fill only |
-| `layout` | Via `<!-- aa: layout -->` | Hrule fill only |
-| `table` | Lines with `┬┼┴` junctions | Skip entirely |
+| Type | Detection | Linter Strategy |
+|------|-----------|-----------------|
+| `single` | Default (one box) | Hrule fill |
+| `nested` | Via `<!-- aa: nested -->` | Hrule fill |
+| `parallel` | ≥2 `│...│` segments per line with gap | Hrule fill |
+| `flow` | Arrow chars (→↓) on non-border lines | Hrule fill |
+| `layout` | Via `<!-- aa: layout -->` | Hrule fill |
+| `table` | Lines with `┼` junctions | Skip entirely |
 
 **Annotation** (highest priority): `<!-- aa: TYPE -->` above the code fence.
 **Auto-detect** (fallback): heuristics based on block content.
 
-Conservative types (`parallel`, `flow`, `layout`) only adjust `─` fill in
-`┌─┐`/`└─┘` lines — content padding and inner boxes are not touched.
+All types get hrule fill only from the linter. Content padding, inner box
+alignment, and structural fixes are the LLM subagent's responsibility.
 
-## Rule-Based Alignment Logic
+## Linter Capabilities
 
-### Step 1: Connect (majority width)
-1. Find code blocks (```` ``` ```` to ```` ``` ````) containing right-border chars (`│┐┘┤`)
-2. Determine type (annotation → auto-detect)
-3. Group contiguous bordered lines; `└┘` terminates the group
-4. Compute majority width (most common display width in the group)
-5. Expand/shrink lines to majority width (hrule only for conservative types)
+### What the Linter Handles (safe, automatic)
+- Detecting and classifying ASCII art blocks (type, groups, inner boxes)
+- Computing display widths (Sarasa Mono TC glyph table)
+- Fixing hrule `─` fill in `┌─┐`/`└─┘` lines
+- Reporting all width mismatches, inner box misalignment, off-by-1 issues
+- Generating rich diagnostic prompt for the LLM subagent
 
-### Step 2: Shrink (spread > 5)
-If the spread (majority - min width) exceeds 5, the majority is likely wrong
-(massive trailing padding). Use min width instead — typically the `└┘` bottom
-line which has no trailing-space ambiguity.
+### What the LLM Subagent Handles (guided by diagnostics)
+- **Content padding**: adjusting spaces between content and right border `│`
+- **Inner box alignment**: nested `┌─┐`/`└─┘` border columns
+- **Off-by-1 width**: majority has 1 extra trailing space (semantic judgment)
+- **Parallel box spacing**: individual box width within side-by-side layouts
+- **Branch connector alignment**: `│` columns after `┌─┼─┐`
 
-### What Rule-Based Handles
-- Connecting broken `└┘` / `┌┐` to group width
-- Fixing hrule `─` fill counts
-- Padding content lines to uniform width
-- Inner box alignment (nested `┌─┐` / `└─┘`)
+## Diagnostic Prompt Format
 
-### What Rule-Based Cannot Handle (→ Step 2 LLM)
-- **Off-by-1 width**: majority has 1 extra trailing space (detected by `--check` as `off-by-1` warning, needs semantic judgment to fix)
-- **Inner box spacing**: side-by-side boxes with wrong inter-box gap
-- **Branch connector displacement**: `│` after `┌─┼─┐` at wrong columns
-- **Content displacement**: nested box content with massive leading whitespace
-
-## Subagent Prompt Guidelines
-
-When spawning a Claude subagent for Step 2, include:
+The `--prompt` flag generates a structured diagnostic for each file with issues:
 
 ```
-Font: Sarasa Mono TC.
-Display width: box-drawing (─│├┐┘┤┌┬┴┼) = 1 col,
-arrows (▼▲→←) = 2 cols, geometric (●○■□◆) = 2 cols.
+=== LLM FIX PROMPT for <filepath> ===
 
-Rules:
-- Every line in a box group must have identical display width
-- Only adjust spacing. Never change text content.
-- ▼/→ must start at same column as │ above it
-- Junction (┬┴┼) must align vertically with │ in content lines
+## Width Rules
+[font and width rules]
+
+## Principles
+[alignment rules and conservative principle]
+
+## Block N: L70-L91 (type: single)
+
+### Group 1: L70-L85 (target_width: 69)
+OK lines: L70, L71, L73, L74, L76-L84
+Fix lines:
+  - L72: w=70 (+1). "│  ┌──────────┐    │"
+  - L85: w=113 (+44). "│  │ subitem  │    ... │"
+
+### Inner box at L72 (┌@col 4, ┐@col 18)
+Expected right border at col 18:
+  L73: │@col 19 (+1)
+  L75: ┘@col 19 (+1)
+
+### Off-by-1
+  ⚠ L70-L85: off-by-1 (group w=69, bottom w=68)
+
+File to fix: <abs_path>
+Verify: python ascii_align.py --check "<abs_path>"
+===
 ```
 
-Then describe the **specific issues** with line numbers. Do NOT use generic prompts — precision is critical.
+## Workflow
+
+1. Parse `$ARGUMENTS` for target path(s); default to `.`
+2. Run `ascii_align.py --prompt` (Step 1 — hrule fix + diagnostic prompt)
+3. If prompt output exists → spawn Claude subagent with that prompt (Step 2)
+4. Run `ascii_align.py --check` (Step 3 — verify)
+5. If warnings remain → retry Step 2 once with new warnings
+6. Report final results
 
 ## Output
 
 ```
 Fixed: example.md
   L70-L91: 15 lines aligned to w=69
+Lint: another.md
   ⚠ L85: w=113 expected w=69
+  ⚠ L72: inner │@19 expected @18
+OK: clean.md (already aligned)
 Skipped: README.md (no bordered blocks)
 
-Summary: 2 files changed, 3 blocks fixed, 1 warning
+Summary: 1 files changed, 1 blocks fixed, 2 warnings
 ```
-
-## Workflow
-
-1. Parse `$ARGUMENTS` for target path(s); default to `.`
-2. Run `ascii_align.py --prompt` (Step 1 — rule-based align + generate subagent prompt if residuals exist)
-3. If prompt output exists → spawn Claude subagent with that prompt (Step 2)
-4. Re-run `ascii_align.py` (Step 3 — re-align after LLM)
-5. Report final results
