@@ -1,6 +1,6 @@
 # ASCII Box-Drawing Samples
 
-Auto-collected from `E:\github`.
+Auto-collected from `E:\github` on 2026-04-15.
 Total: **659** code blocks from **322** files.
 
 ---
