@@ -140,9 +140,19 @@ def _is_hrule_line(content: str, border: str) -> bool:
     left_starts = HORIZONTAL_LEFT | {"┌", "└", HORIZONTAL_RULE}
     if clean[0] not in left_starts:
         return False
-    # All chars must be box-drawing — no spaces or text
+    # All chars in the stripped content must be box-drawing — no spaces or text.
+    # Also reject if the content between leading indent and trailing border has
+    # internal spaces (e.g. "┌───┤         " is NOT an hrule).
     hrule_chars = set("─├┬┴┼┌┐└┘│┤")
-    return all(c in hrule_chars for c in clean)
+    if not all(c in hrule_chars for c in clean):
+        return False
+    # Reject if the original content (after lstrip) has trailing spaces
+    # before the border — that means the box-drawing part doesn't fill
+    # to the border, so it's a content line with embedded structure.
+    after_indent = content.lstrip()
+    if after_indent != after_indent.rstrip():
+        return False
+    return True
 
 
 def _align_group(
