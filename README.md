@@ -12,7 +12,8 @@ Claude Code 個人設定框架 — 一次安裝，完整配置所有 commands、
 |---|---|
 | CLAUDE.md、settings.json | `~/.claude/` |
 | 11 個 slash commands | `~/.claude/commands/` |
-| 9 個 custom skills | `~/.claude/skills/` |
+| 11 個 custom skills | `~/.claude/skills/` |
+| Hooks（rm → 回收桶） | `~/.claude/hooks/` |
 | MCP server config | `~/.claude/.mcp.json` |
 | Status Line 腳本 | `~/.claude/` |
 | Docs | `~/.claude/docs/` |
@@ -51,6 +52,7 @@ claude-dotfiles │ master │ pm▸sync▸bye     Opus 4.6 │ ctx:6% 5h:2%▸0
 | `/report-gyro` | 產生 GYRO 報告（Marp/Gamma） |
 | `/report-easy` | Markdown → A4 列印就緒 HTML（含 D2/Mermaid 圖表） |
 | `/clip` | 剪貼簿截圖分析 |
+| `/ascii-align` | CJK-aware ASCII box-drawing 對齊（rule engine + LLM pipeline） |
 
 ### 任務委派（`/do`）
 
@@ -110,7 +112,8 @@ bash install.sh
 ├── statusline.sh / .js      # Status Line 腳本
 ├── pm-update.sh             # /pm 狀態更新
 ├── commands/                # Claude Code slash commands
-├── skills/                  # Custom skills（8 個）
+├── skills/                  # Custom skills（11 個）
+├── hooks/                   # PreToolUse hooks（rm → 回收桶）
 ├── benchmark.py             # Gemini API 品質評測
 ├── benchmark-results/       # 評測結果 + 產出檔案
 ├── langgraph-migration.md   # LangGraph 遷移計畫（參考）
