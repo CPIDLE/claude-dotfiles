@@ -1,86 +1,6 @@
-# Fix Process Record - Branching_Tree
+# Fix Log - Branching_Tree
 
-## 標準 SOP
-
-### 0. 類別標註
-
-修正前先分類圖表結構，記錄在修正記錄中。
-
-| 類別 | 說明 | 修正難度 | 典型問題 |
-|------|------|---------|---------|
-| `single` | 單一 box | 低 | trailing space |
-| `parallel` | 並排 box（各自獨立） | 中 | 各 box 獨立寬度，CJK 溢出 |
-| `nested` | 嵌套 box（box 內有 box） | 高 | 多層 border column 對齊 |
-| `flow` | 流程圖（箭頭連接 box） | 中 | junction/arrow 對齊 |
-| `table` | 表格（┼ 分欄） | 中 | 欄位對齊，非最後欄補 space |
-| `tree` | 純 tree（├└ 分支，無外框） | 低 | 內嵌 box ┐ 對齊即可 |
-| `layout` | 配置/場地圖 | 高 | 空間佈局 |
-
-可複合標註，如 `nested+parallel`。
-
-### 1. 檢測
-
-```powershell
-# 掃描違規符號 + 寬度診斷
-python "~/.claude/skills/ascii-align/scripts/symbol_fix.py" --check <path>
-
-# 完整寬度驗證（含 hrule 對齊）
-python "~/.claude/skills/ascii-align/scripts/ascii_align.py" --check <path>
-
-# 欄位分析（顯示每個 border char 的 column 位置）
-python -c "
-from ascii_align import display_width, char_cols
-for i, line in enumerate(open('<path>').readlines()):
-    cols = []
-    c = 1
-    for ch in line.rstrip():
-        if ch in '│┌┐└┘├┤┬┴┼':
-            cols.append(f'{ch}@{c}')
-        c += char_cols(ch)
-    if cols:
-        print(f'L{i+1}: {\"  \".join(cols)}')
-"
-```
-
-### 2. 修正方式
-
-**Stage 1 — 符號替換**（自動）：
-```powershell
-python "~/.claude/skills/ascii-align/scripts/symbol_fix.py" <path>
-```
-
-**Stage 2 — 寬度修正**（手動或 LLM subagent）：
-
-| 結構類型 | 修正方法 |
-|---------|---------|
-| **簡單 box** | 調整 trailing spaces（右│前的空格數） |
-| **表格** | 在正確欄位補 space，不是最後一欄 |
-| **嵌套 box** | 由內而外：先對齊 inner│ column，再調 outer gap |
-| **tree（無外框）** | `►▼→` 寬度已在 sarasa_widths.py 正確計算，不需替換，只修框內對齊 |
-| **CJK 溢出** | 用 `pad(content, target_w)` 重算每個 cell 內容寬度 |
-
-**結構對齊原則**：
-1. 從 hrule `┌─┐`/`└─┘` 推導每個 border char 的 target column
-2. 用欄位分析確認所有 `│`/`┐`/`┘` 在同一 column
-3. hrule 延伸用 `─` 不用空格
-4. `├`/`┬`/`┼` 等 junction 必須與上下行的 `│` 在同一 column
-5. `v` 箭頭位置必須對齊上方的 `│` 或 `┼` column
-6. content `│` 必須與 hrule `┐`/`┘` 同 column（常見 off-by-1）
-
-### 3. 驗證
-
-```powershell
-# 零 warning = 通過
-python "~/.claude/skills/ascii-align/scripts/symbol_fix.py" --check <path>
-python "~/.claude/skills/ascii-align/scripts/ascii_align.py" --check <path>
-```
-
-**人工複查**：在 Notepad++ (Sarasa Mono TC) 開啟確認：
-- 所有 `│` 垂直對齊
-- `┌┐` 和 `└┘` 角落對齊
-- 嵌套框內外邊界不錯位
-
----
+> 通用規則見 `../FixRule.md`，本檔僅記錄逐檔修正歷史。
 
 ## 修正記錄
 
@@ -203,3 +123,29 @@ python "~/.claude/skills/ascii-align/scripts/ascii_align.py" --check <path>
 - UR30 底部 `└──┬───┬───┬───┘` +1─ → ┘@37 對齊 ┐@37
 - 教訓：`◄►`(w2) 替換成 `<>`(w1) 時，arrow 與 box │ 的連接需手動調整 ─ 數量
 **驗證**：所有 box ┐/│/┘ 對齊 ✓，v-to-junction 對齊 ✓
+
+### sample_282.md — `nested`
+
+**類別**：外框含 7 個 inner box（IPC/TM手臂/End Module/觸控螢幕/CAN Board/按鈕面板/大CAN），box 間有 `◄───►` 雙向連接和 connector chains
+**檢測**：`◄`×2, `►`×3, `→`×1。7 個 box CJK 溢出（13 個 width issue）。多條 connector chain off-by-1。
+**修正**：
+- 符號替換 + L10/L13 arrow-to-box│ 手動重建
+- 7 個 box hrule 逐一校正：IPC ┐@15→@16、觸控/按鈕 ┐@16→@17、CAN ┐@38→@39
+- CJK content trailing space 逐行調整（TM 主機、觸控螢幕、馬達、電池、Lidar）
+- 3 條 connector chain 修正：
+  - IPC ┬ col 10: L21 ┴@11→@10
+  - 100PIN/CAN col 33: L19 ┴@32→@33, L23 │@32→@33, L24 ┴@32→@33
+  - CAN left col 27: 已對齊
+- FixRule 新增：**connector chain（┬→│→┴ 垂直鏈）必須逐行驗 column**
+**驗證**：7 box 右 border 全對齊 ✓，3 條 connector chain 全對齊 ✓，w=67 ✓
+
+### sample_285.md — `nested` + `table`
+
+**類別**：外框含 2 個 inner table（8-pin / 5-pin）
+**檢測**：`←`×3, `►`×3。外框 CJK 溢出 19 行。Inner table 4th column CJK/arrow 內容寬度不一致（@44~@46）。
+**修正**：
+- 外框擴展 w=47→50（容納最寬 content `夾爪控制 ───────> 電動夾爪`）
+- Inner table 4th column 統一：hrule ┐@43→@46（+3─），content│ 全部 pad 到 @46
+- 漏補 4 行（電源×2, GND×2）col4│@44→@46（trailing space 不足）
+- 教訓：table 每一欄的每一行都要驗│position，不能只看 hrule 和第一行
+**驗證**：外框 w=50 ✓，inner table col4│@46 全 14 content + 5 hrule 對齊 ✓
