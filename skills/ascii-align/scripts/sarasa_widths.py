@@ -1,14 +1,26 @@
 """Sarasa Mono TC glyph width overrides.
 
-Pre-computed from SarasaMonoTC-Regular.ttf hmtx table (threshold=750).
+Pre-computed from SarasaMonoTC-Regular.ttf hmtx table (threshold=750),
+then calibrated against Notepad++ rendering (2026-04-16).
 Only stores codepoints where the font disagrees with Unicode EAW heuristic.
 """
 
 _WIDE_RANGES = [
+    # Latin-1 Supplement — calibrated w2 in Sarasa Mono TC
+    (0x00A7, 0x00A7),  # § SECTION SIGN
+    (0x00B1, 0x00B1),  # ± PLUS-MINUS SIGN
+    (0x00B2, 0x00B2),  # ² SUPERSCRIPT TWO
+    (0x00B7, 0x00B7),  # · MIDDLE DOT
+    (0x00D7, 0x00D7),  # × MULTIPLICATION SIGN
+    (0x00F7, 0x00F7),  # ÷ DIVISION SIGN
+    # Greek letters — calibrated w2
+    (0x0391, 0x03C9),  # Α..ω Greek capital + small letters
     (0x1160, 0x11FF),  # ᅠ..ᇿ (160)
-    (0x2001, 0x2001),  #   EM QUAD
-    (0x2003, 0x2003),  #   EM SPACE
+    (0x2001, 0x2001),  #   EM QUAD
+    (0x2003, 0x2003),  #   EM SPACE
     (0x2014, 0x2015),  # —..― (2)
+    (0x2016, 0x2016),  # ‖ DOUBLE VERTICAL LINE
+    (0x2022, 0x2022),  # • BULLET
     (0x2024, 0x2026),  # ․..… (3)
     (0x2030, 0x2031),  # ‰..‱ (2)
     (0x203B, 0x203B),  # ※ REFERENCE MARK
@@ -18,8 +30,16 @@ _WIDE_RANGES = [
     (0x2140, 0x2140),  # ⅀ DOUBLE-STRUCK N-ARY SUMMATION
     (0x214F, 0x214F),  # ⅏ SYMBOL FOR SAMARITAN SOURCE
     (0x2190, 0x21FF),  # ←..⇿ (112)
+    # Math symbols — calibrated w2
+    (0x2200, 0x2200),  # ∀ FOR ALL
+    (0x2203, 0x2203),  # ∃ THERE EXISTS
+    (0x2208, 0x2209),  # ∈..∉ ELEMENT OF
     (0x220F, 0x2211),  # ∏..∑ (3)
-    (0x221D, 0x221E),  # ∝..∞ (2)
+    (0x2219, 0x221E),  # ∙..∞ (6) — includes √(221A) ∝(221D) ∞(221E)
+    (0x2227, 0x2228),  # ∧..∨ LOGICAL AND/OR
+    (0x2248, 0x2248),  # ≈ ALMOST EQUAL TO
+    (0x2260, 0x2260),  # ≠ NOT EQUAL TO
+    (0x2264, 0x2265),  # ≤..≥ (2)
     (0x223E, 0x223E),  # ∾ INVERTED LAZY S
     (0x22C0, 0x22C3),  # ⋀..⋃ (4)
     (0x22EE, 0x22F1),  # ⋮..⋱ (4)
@@ -86,6 +106,8 @@ _WIDE_RANGES = [
     (0x27E0, 0x27E1),  # ⟠..⟡ (2)
     (0x27F0, 0x27FF),  # ⟰..⟿ (16)
     (0x2900, 0x2926),  # ⤀..⤦ (39)
+    # Block elements — calibrated w2
+    (0x2588, 0x2588),  # █ FULL BLOCK
     (0x2934, 0x2935),  # ⤴..⤵ (2)
     (0x2940, 0x2941),  # ⥀..⥁ (2)
     (0x2947, 0x2948),  # ⥇..⥈ (2)
@@ -120,8 +142,8 @@ _WIDE_RANGES = [
     (0x3248, 0x324F),  # ㉈..㉏ (8)
     (0xD7B0, 0xD7C6),  # ힰ..ퟆ (23)
     (0xD7CB, 0xD7FB),  # ퟋ..ퟻ (49)
-    (0xEE06, 0xEE0B),  # .. (6)
-    (0xF881, 0xF881),  #  ?
+    (0xEE06, 0xEE0B),  # .. (6)
+    (0xF881, 0xF881),  #  ?
     (0xFB00, 0xFB04),  # ﬀ..ﬄ (5)
     (0xFFA0, 0xFFBE),  # ﾠ..ﾾ (31)
     (0xFFC2, 0xFFC7),  # ￂ..ￇ (6)
@@ -132,13 +154,19 @@ _WIDE_RANGES = [
 ]
 
 _NARROW_RANGES = [
-    (0x2329, 0x232A),  # 〈..〉 (2)
+    (0x2329, 0x232A),  # 〈..〉 (2)
     (0x26A1, 0x26A1),  # ⚡ HIGH VOLTAGE SIGN
     (0x302A, 0x302F),  # 〪..〯 (6)
     (0x3099, 0x309A),  # ゙..゚ (2)
     (0x31B4, 0x31B7),  # ㆴ..ㆷ (4)
     (0x31BB, 0x31BB),  # ㆻ BOPOMOFO FINAL LETTER G
 ]
+
+# Codepoints where FE0F (VS-16) changes rendering to emoji presentation (w2).
+# The base char alone may be w1, but base+FE0F as a unit = w2.
+EMOJI_VS16 = frozenset([
+    0x26A0,  # ⚠ WARNING SIGN (⚠️ = w2)
+])
 
 def _expand(ranges):
     s = set()

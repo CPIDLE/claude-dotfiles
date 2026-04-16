@@ -52,13 +52,80 @@ If warnings remain, retry Step 2 with the new warnings (max 1 retry).
 | Category | Examples | Cols | Source |
 |----------|----------|------|--------|
 | ASCII | `A-Z 0-9 +-=` | 1 | default |
-| Box-drawing | `─│├└┐┘┤┌┬┴┼` | 1 | sarasa_widths.py override |
+| Box-drawing (all) | `─│├└┐┘┤┌┬┴┼═║━┃┏┓┗┛╞╘╪┊╱╲` | 1 | EAW=A but font w1 |
 | CJK / fullwidth | `中（）【】` | 2 | EAW F/W |
-| Arrows | `→←↑↓↔` | 2 | sarasa_widths.py override |
-| Geometric | `▼▲●○■□◆` | 2 | sarasa_widths.py override |
+| Arrows | `→←↑↓↔↕` | 2 | sarasa_widths.py override |
+| Geometric | `▼▲►◄▶▸●○■□◆◇★☆` | 2 | sarasa_widths.py override |
+| Check/cross | `✓✗✔✘` | 2 | sarasa_widths.py override |
+| Math | `×÷±≤≥≠∞√≈∈∀∃∧∨` | 2 | sarasa_widths.py override |
+| Greek | `Δαβθμπσ` (all Α-ω) | 2 | sarasa_widths.py override |
+| Latin-1 punct | `· § ² ‖ •` | 2 | sarasa_widths.py override |
 | EM dash / ellipsis | `—…` | 2 | sarasa_widths.py override |
+| Block elements | `█` | 2 | sarasa_widths.py override |
+| Confirmed w1 | `° – ╱ ╲` | 1 | EAW=A, calibrated narrow |
 
 Width is resolved by: override table → EAW → default 1.
+
+**Rule of thumb**: all EAW=Ambiguous characters render as **2 cols** in Sarasa Mono TC,
+except Box Drawing (U+2500-257F) and a few Latin-1 (`°` `–`) which are w1.
+
+## Symbol Mapping (Width-Stable Replacements)
+
+When generating ASCII art inside `┌─┐`/`└─┘` bordered blocks, **prefer ASCII
+equivalents** over Unicode to guarantee consistent alignment. Content outside
+boxes (prose, comments with `←`) can keep Unicode for readability.
+
+### Arrows (highest impact — 2000+ occurrences)
+
+| Avoid | w | Use instead | w | Notes |
+|-------|---|-------------|---|-------|
+| `→` | 2 | `-->` | 3 | most common problem (1400+ uses) |
+| `←` | 2 | `<--` | 3 | |
+| `►` `▶` `▸` | 2 | `->` or `> ` | 2 | |
+| `◄` | 2 | `<-` or `< ` | 2 | |
+| `▲` | 2 | `^ ` | 2 | |
+| `▼` | 2 | `v ` | 2 | 394 occurrences |
+| `↔` | 2 | `<->` | 3 | |
+| `↑` | 2 | `^ ` | 2 | |
+| `↓` | 2 | `v ` | 2 | |
+
+### Math / Logic
+
+| Avoid | w | Use instead | w |
+|-------|---|-------------|---|
+| `×` | 2 | `x ` | 2 |
+| `÷` | 2 | `/ ` | 2 |
+| `±` | 2 | `+-` | 2 |
+| `≤` | 2 | `<=` | 2 |
+| `≥` | 2 | `>=` | 2 |
+| `≠` | 2 | `!=` | 2 |
+| `≈` | 2 | `~=` | 2 |
+| `∈` | 2 | `in` | 2 |
+| `∧` | 2 | `&&` | 2 |
+| `∨` | 2 | `\|\|` | 2 |
+
+### Symbols / Decorative
+
+| Avoid | w | Use instead | w |
+|-------|---|-------------|---|
+| `·` | 2 | `. ` | 2 |
+| `•` | 2 | `* ` | 2 |
+| `●` | 2 | `* ` | 2 |
+| `○` | 2 | `o ` | 2 |
+| `■` | 2 | `# ` | 2 |
+| `★` | 2 | `* ` | 2 |
+| `✓` | 2 | `OK` or `v ` | 2 |
+| `✗` | 2 | `NG` or `x ` | 2 |
+| `§` | 2 | `S.` | 2 |
+| `²` | 2 | `^2` | 2 |
+| Greek `α` etc. | 2 | spell out or `a ` | 2 |
+
+### Safe to use (confirmed w1 in Sarasa Mono TC)
+
+These can appear inside boxes without alignment issues:
+- All Box Drawing: `─│┌┐└┘├┤┬┴┼═║━┃┏┓┗┛╞╘╪┊╱╲`
+- Degree: `°`
+- EN dash: `–`
 
 ## Type Annotation & Auto-Detection
 
