@@ -4,12 +4,12 @@
 
 ```
 Google Chat                        AWS EC2
-┌──────────┐    HTTPS POST     ┌────────────────────────────┐
-│ 使用者   │ ────────────────> │ Caddy (reverse proxy)      │
+┌──────────┐    HTTPS POST     ┌──────────────────────────────┐
+│ 使用者   │ ────────────────> │ Caddy (reverse proxy)        │
 │ @kb ...  │                   │   ├── /chat/event --> FastAPI│
-│          │ <──────────────── │   └── /api/* --> FastAPI   │
-│ 回應卡片 │    JSON response  │                            │
-└──────────┘                   │ FastAPI (api_server.py)    │
+│          │ <──────────────── │   └── /api/* --> FastAPI     │
+│ 回應卡片 │    JSON response  │                              │
+└──────────┘                   │ FastAPI (api_server.py)      │
                                │   ├── /chat/event (新增)   │
                                │   │   ├── 解析 Chat event  │
                                │   │   ├── 路由 fast/deep   │

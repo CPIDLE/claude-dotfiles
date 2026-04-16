@@ -20,8 +20,8 @@ Binary protocol over UDP (default port 7777):
 │ Data                                      │
 ├───────────────────────────────────────────┤
 │ ranges     │ float32[] (n_steps x  4 bytes)│
-│            │ meters, range_max+1 = no data│
-└───────────────────────────────────────────┘
+│            │ meters, range_max+1 = no data │
+└────────────────────────────────────────────┘
 
 Flow: LaserScan --> pack header --> replace inf --> sendto(broadcast)
 ```

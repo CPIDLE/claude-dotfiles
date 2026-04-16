@@ -21,17 +21,17 @@ D435i USB 3.0
     │       │     ├── stereo valid --> stereo    (32mm MAE) │
     │       │     ├── gap+smooth  --> mono      (scaled)    │
     │       │     └── gap+textured --> CREStereo (metric)   │
-    │       │         │                                     │
-    │       │         v                                     │
+    │       │         │                                      │
+    │       │         v                                      │
     │       │     fused_depth --> _depth_to_points_from_array│
-    │       │     --> points [N, 3]  (~100% coverage)       │
-    │       │                                               │
-    │       ├──── [--neural-stereo OFF] ────────────────────┐│
-    │       │     Vectorized deprojection               │   │
-    │       │     --> real_points [N, 3]                │   │
-    │       │         │                                 │   │
-    │       │         ├── [Emitter OFF] Ground synthesis│   │
-    │       │         │   Color seg + plane eq          │   │
+    │       │     --> points [N, 3]  (~100% coverage)        │
+    │       │                                                │
+    │       ├──── [--neural-stereo OFF] ─────────────────────┐│
+    │       │     Vectorized deprojection               │    │
+    │       │     --> real_points [N, 3]                │    │
+    │       │         │                                 │    │
+    │       │         ├── [Emitter OFF] Ground synthesis│    │
+    │       │         │   Color seg + plane eq          │    │
     │       │         │   --> points = concat(real, synth)  ││
     │       │         │                                 │   │
     │       │         └── [Emitter ON] points = real    │   │
@@ -45,15 +45,15 @@ D435i USB 3.0
     │       v                       v 
     │   [LiDAR 1: Horizontal]  [LiDAR 2: Ground]
     │       │                      │
-    │       v                       v 
+    │       v                      v 
     │   Height filter          Vertical angle filter
     │   (0.1m ~ 1.8m)         (a° +- tol, (a+d)° +- tol)
     │       │                      │
-    │       v                       v 
+    │       v                      v 
     │   2D projection          Horizontal angular binning
     │   (XZ plane)             (slant range)
     │       │                      │
-    │       v                       v 
+    │       v                      v 
     │   Polar + binning        (LaserScan_0, LaserScan_1)
     │   (model specs)              │
     │       │                      ├───> UDP :7778 (line0)

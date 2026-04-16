@@ -4,20 +4,20 @@
 
 ```
 資料源                    Phase 1              Phase 2                    Phase 3/4           API
-F:\機器人專案\06_AGV    ┌───────────┐     ┌──────────────────┐      ┌──────────────┐    ┌──────────┐
- 14,975 files ────────>│ Vault      │────>│ Extractors       │─────>│ Synthesis    │    │ FastAPI  │
-                       │ SHA256 dedup│    │ PPTX/PDF/DOCX/   │      │ GYRO_context │    │ :8000    │
-mail_index.db ─────────│ MANIFEST   │     │ XLSX/DOC/PPT/IMG/│      │ Templates    │    │          │
- 31,990 emails         └────────────┘     │ Video            │      └──────────────┘    │ /search  │
-                                          ├──────────────────┤                          │ /deep-   │
-                                          │ Gemini 3072d     │┐                    │  query        │
-                                          │ Ollama bge-m3    ││                    │ /stats        │
-                                          │ 1024d            ││                       └────┬───────┘
-                                          └──────────────────┘│                         │
-                                                                v                            v
-                                          ┌──────────────────────────────────────────────────────┐
-                                          │              Qdrant Docker (qdrant-pkb)              │
-                                          │              localhost:6333 | D:/PKB_db/             │
+F:\機器人專案\06_AGV    ┌────────────┐     ┌──────────────────────────┐      ┌─────────────────────────────┐    ┌──────────┐
+ 14,975 files ────────>│ Vault       │────>│ Extractors               │─────>   │ Synthesis                │    │ FastAPI  │
+                       │ SHA256 dedup│    │ PPTX/PDF/DOCX/            │         │ GYRO_context        │    │ :8000    │
+mail_index.db ─────────│ MANIFEST    │     │ XLSX/DOC/PPT/IMG/│       │ Templates        │                 │          │
+ 31,990 emails         └─────────────┘     │ Video                    │      └─────────────────────────────────┘    │ /search     │
+                                          ├──────────────────┤                                            │ /deep-   │
+                                          │ Gemini 3072d     │───────────────────┐                             │  query           │
+                                          │ Ollama bge-m3                       ││                    │ /stats        │
+                                          │ 1024d                               ││                       └────┬───────────────────┘
+                                          └──────────────────────────────────────┘│                            │
+                                                               v                          v
+                                          ┌───────────────────────────────────────────────────────────────────────────┐
+                                          │              Qdrant Docker (qdrant-pkb)                                   │
+                                          │              localhost:6333 | D:/PKB_db/                                  │
                                           ├──────────────────────────────────────────────────────┤
                                           │ pkb_docs          520,771 pts  3072d  Gemini         │
                                           │ pkb_images        289,932 pts  3072d  Gemini         │
