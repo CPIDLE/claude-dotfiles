@@ -53,6 +53,7 @@ python symbol_fix.py <path>        # 自動替換 + 寬度診斷
 | connector chain ┬→│→┴ 不齊 | CJK/hrule 偏移 | 逐行驗 column，統一到 ┬ 定義的 col |
 | 表格某欄差 1 | 非最後欄不足 | 在正確欄位補 space |
 | 表格某行│偏移 | CJK/ASCII 混合行 pad 不同 | 每欄每行都驗│position |
+| connector chain 修了 ┬→│ 但忘了下游 ┘/│ | 修上游但漏下游 | 修 junction col 時，必須沿鏈往下追到所有 ┘/│/└ 也修正 |
 
 ## 3. 驗證
 

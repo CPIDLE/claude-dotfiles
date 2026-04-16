@@ -77,13 +77,42 @@ SYMBOL_MAP = [
     ("✔", "v "),
     ("✗", "x "),
     ("✘", "x "),
-    # Punctuation
+    # Punctuation / Dashes
     ("·", ". "),
     ("•", "* "),
     ("§", "S."),
     ("²", "^2"),
     ("‖", "||"),
     ("█", "##"),
+    ("—", "--"),  # EM DASH (EAW=A, w2) → -- (w2)
+    # Circled digits (EAW=A/N, Sarasa renders w2) → digit + space (w2)
+    ("⓪", "0 "),
+    ("①", "1 "),
+    ("②", "2 "),
+    ("③", "3 "),
+    ("④", "4 "),
+    ("⑤", "5 "),
+    ("⑥", "6 "),
+    ("⑦", "7 "),
+    ("⑧", "8 "),
+    ("⑨", "9 "),
+    ("⑩", "10"),
+    # Greek letters (EAW=A, w2) → ASCII spelling
+    ("Δ", "D "),
+    ("α", "a "),
+    ("β", "b "),
+    ("θ", "th"),
+    ("μ", "u "),
+    ("µ", "u "),  # MICRO SIGN (U+00B5, distinct from μ)
+    ("π", "pi"),
+    ("σ", "s "),
+    # Warning / Misc symbols
+    ("⚠", "! "),
+    ("\uFE0F", ""),  # VARIATION SELECTOR-16 (zero-width, just remove)
+    ("…", ".."),  # HORIZONTAL ELLIPSIS (EAW=A, w2) → .. (w2)
+    ("≔", ":="),  # COLON EQUALS
+    ("▔", "= "),  # UPPER ONE EIGHTH BLOCK
+    ("◉", "* "),  # FISHEYE (EAW=A, w2) → * + space (w2)
 ]
 
 # Box drawing chars — these are LEGAL inside boxes (w1)

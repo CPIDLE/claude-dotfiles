@@ -7,7 +7,7 @@
 │                  claude-dotfiles                     │
 │        Claude Code Config Framework                  │
 ├──────────────────────────────────────────────────────┤
-│  Commands (×8)          Skills (×8)                  │
+│  Commands (x 8)          Skills (x 8)                │
 │  /pm /pm-sync           ascii-align                  │
 │  /pm-bye /pm-review     report-easy                  │
 │  /do /bye /hello /sc    report-gyro ...              │
@@ -15,21 +15,21 @@
 │  Statusline (JS/Shell)                               │
 │  MCP Servers: Playwright │ Windows MCP │ Google WS   │
 └──────────────┬──────────────────────┬────────────────┘
-               │                       │
-       install.ps1 / install.sh        │
-               │                       │
-               ▼                      │
-  ┌────────────────────┐               │
-  │  ~/.claude/         │              │
-  │  commands/          │              │
-  │  skills/            │              │
-  │  settings.json      │              │
-  │  CLAUDE.md          │              │
-  └────────────────────┘               │
+               │                      │
+       install.ps1 / install.sh       │
+               │                      │
+               v                      │
+  ┌─────────────────────┐             │
+  │  ~/.claude/         │             │
+  │  commands/          │             │
+  │  skills/            │             │
+  │  settings.json      │             │
+  │  CLAUDE.md          │             │
+  └─────────────────────┘             │
                                       │
           ┌───────────────────────────┘
           │
-          ▼
+          v 
 ┌────────────────────────────────────────────┐
 │           Google Cloud Backend             │
 ├─────────────┬──────────────┬───────────────┤

@@ -14,7 +14,7 @@
        │          │           
        │   install.ps1 / install.sh
        │          │
-       ▼         ▼
+       v          v 
   ┌──────────────────────┐
   │  ~/.claude/          │
   │  commands/ skills/   │
@@ -22,7 +22,7 @@
   │  CLAUDE.md           │
   └──────────┬───────────┘
              │
-             ▼
+             v 
   ┌──────────┬──────────┬──────────────────┐
   │ Google   │ Google   │ Apps Script      │
   │ Chat     │ Sheet    │ Web App          │
