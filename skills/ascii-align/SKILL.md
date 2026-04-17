@@ -1,9 +1,9 @@
 ---
 name: ascii-align
 description: >
-  Scan Markdown files for ASCII-art code blocks and fix right-border alignment
-  based on actual CJK glyph widths (Sarasa Mono TC). Two-step pipeline:
-  linter (hrule fix + diagnostics) + Claude subagent for structural fixes.
+  Fix ASCII-art box-drawing alignment in Markdown files using Sarasa Mono TC
+  glyph widths. Per-block pipeline: auto-fix hrules -> check -> PASS (inject
+  back) or FAIL (annotate + Claude manual fix -> re-check -> inject or report).
   Trigger when: /ascii-align, ASCII 對齊, 邊框對齊, box alignment.
 argument-hint: "[path/to/file.md | path/to/dir]"
 ---
@@ -15,37 +15,28 @@ using **pre-computed glyph widths** from Sarasa Mono TC (lookup table, no runtim
 
 ## How to Use
 
-### Quick (linter only)
+### Automated (via `/ascii-align`)
+
+Invoke as a slash command — handles extract → auto-fix → check → inject per block automatically. See **Workflow** section below.
+
+### Manual / Advanced
 
 ```bash
-python "SKILL_DIR/scripts/ascii_align.py" [path ...]
-```
-
-- No argument → scan current directory for `*.md`
-- File argument → process that single file
-- Directory argument → scan that directory for `*.md`
-- `--dry-run` / `--check` / `-n` → report without writing
-- `--prompt` → apply safe fixes + generate rich diagnostic prompt for LLM subagent
-
-### Full Pipeline (linter + LLM fix)
-
-Run the 3-step pipeline for best results:
-
-**Step 1** — Linter pass (hrule fix + diagnostics):
-```bash
-python "SKILL_DIR/scripts/ascii_align.py" --prompt <path>
-```
-Applies safe fixes (hrule `─` fill only) AND outputs a structured diagnostic
-prompt for any remaining issues. Spawn a subagent with that prompt directly.
-
-**Step 2** — Claude subagent fixes ALL structural issues guided by the diagnostic prompt.
-
-**Step 3** — Verify:
-```bash
+# Lint only (no writes)
 python "SKILL_DIR/scripts/ascii_align.py" --check <path>
+
+# Auto-fix hrules in-place
+python "SKILL_DIR/scripts/ascii_align.py" <path>
+
+# Auto-fix + generate LLM diagnostic prompt
+python "SKILL_DIR/scripts/ascii_align.py" --prompt <path>
+
+# Extract blocks from a file to temp files
+python "SKILL_DIR/scripts/extract_ascii_blocks.py" <file.md>
+
+# Inject fixed block back into original file
+python "SKILL_DIR/scripts/inject_ascii_block.py" <original.md> <block.md> <start> <end>
 ```
-Pure verification. Reports any remaining issues without writing.
-If warnings remain, retry Step 2 with the new warnings (max 1 retry).
 
 ## Width Rules (Sarasa Mono TC)
 
@@ -198,12 +189,54 @@ Verify: python ascii_align.py --check "<abs_path>"
 
 ## Workflow
 
-1. Parse `$ARGUMENTS` for target path(s); default to `.`
-2. Run `ascii_align.py --prompt` (Step 1 — hrule fix + diagnostic prompt)
-3. If prompt output exists → spawn Claude subagent with that prompt (Step 2)
-4. Run `ascii_align.py --check` (Step 3 — verify)
-5. If warnings remain → retry Step 2 once with new warnings
-6. Report final results
+`SKILL_DIR` = directory containing this SKILL.md (installed: `~/.claude/skills/ascii-align`)
+
+### Per-Block Pipeline
+
+Parse `$ARGUMENTS` for target `.md` file(s); default to `*.md` in cwd.
+
+For each target file, run `extract_ascii_blocks.py` to get JSON list of blocks.
+Process **each block** (by `start`/`end` line numbers) as follows:
+
+```
+1. _<stem>_<start>_<end>.md already created by extract script
+
+2. python SKILL_DIR/scripts/ascii_align.py  _<stem>_<start>_<end>.md
+   (auto-fix hrules in-place)
+
+3. rename: _<stem>_<start>_<end>.md  ->  v_<stem>_<start>_<end>.md
+
+4. python SKILL_DIR/scripts/ascii_align.py --check  v_<stem>_<start>_<end>.md
+
+   PASS:
+     rename v_... -> p_<stem>_<start>_<end>.md
+     python SKILL_DIR/scripts/inject_ascii_block.py <original> p_... <start> <end>
+     delete p_<stem>_<start>_<end>.md
+
+   FAIL:
+     rename v_... -> x_<stem>_<start>_<end>.md
+     write --check output to x_<stem>_<start>_<end>.txt
+
+     Claude reads x_.md  +  x_.txt  and edits x_.md in-place to fix alignment
+
+     python SKILL_DIR/scripts/ascii_align.py --check  x_<stem>_<start>_<end>.md
+
+     PASS:
+       python SKILL_DIR/scripts/inject_ascii_block.py <original> x_... <start> <end>
+       delete x_.md  and  x_.txt
+
+     FAIL:
+       report failure (print x_.txt content, list specific lines)
+       delete x_.md  and  x_.txt
+```
+
+### Notes
+
+- Process blocks in **reverse line order** (last block first) so earlier block
+  line numbers stay valid if block content length ever changes.
+- Temp files live in the **same directory** as the original file.
+- The `<!-- aa: TYPE -->` annotation line is preserved in the original;
+  `inject_ascii_block.py` replaces only the fenced code block lines.
 
 ## Output
 
