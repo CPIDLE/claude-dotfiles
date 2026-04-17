@@ -143,7 +143,7 @@ def _is_hrule_line(content: str, border: str) -> bool:
     # All chars in the stripped content must be box-drawing — no spaces or text.
     # Also reject if the content between leading indent and trailing border has
     # internal spaces (e.g. "┌───┤         " is NOT an hrule).
-    hrule_chars = set("─├┬┴┼┌┐└┘│┤")
+    hrule_chars = set("─├┬┴┼┌┐└┘│┤v")
     if not all(c in hrule_chars for c in clean):
         return False
     # Reject if the original content (after lstrip) has trailing spaces
@@ -232,6 +232,8 @@ def _align_group(
         if border == "┐" and "┌" in content:
             continue
         if border == "┘" and "└" in content:
+            continue
+        if border == "│" and ("┌" in content or "└" in content):
             continue
 
         if hrule:

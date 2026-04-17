@@ -37,7 +37,8 @@ SYMBOL_MAP = [
     ("─→", "──>"),
     ("◄─", "<──"),
     ("←─", "<──"),
-    # Arrows
+    # Arrows (multi-char sequences before single-char)
+    ("←→", "<->"),  # bidirectional — preserve semantics, avoid <---->
     ("→", "-->"),
     ("←", "<--"),
     ("↔", "<->"),
@@ -153,6 +154,9 @@ def find_illegal(line: str) -> list[tuple[int, str, str]]:
 
 def replace_symbols(line: str) -> str:
     """Replace all illegal Unicode symbols with ASCII equivalents."""
+    # Digit-context × → x (no trailing space): e.g. "4×" → "4x"
+    if "×" in line:
+        line = re.sub(r"(\d)×", r"\1x", line)
     for old, new in SYMBOL_MAP:
         if old in line:
             line = line.replace(old, new)
