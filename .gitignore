@@ -10,6 +10,7 @@
 # OS
 .DS_Store
 Thumbs.db
+Desktop.ini
 
 # Editor
 *.swp
@@ -23,3 +24,17 @@ Thumbs.db
 .opencode-task*.md
 *.bak
 settings.local.json
+
+# ascii-align dev artifacts
+skills/ascii-align/testcases/test01/
+skills/ascii-align/testcases/test02/
+skills/ascii-align/testcases/inspect_*.png
+skills/ascii-align/testcases/top5_*.png
+skills/ascii-align/testcases/render_*.png
+skills/ascii-align/testcases/*_5fixed.md
+skills/ascii-align/testcases/calibrate.md
+
+# report-gyro/easy dev scratch (repo root only)
+/sample_gyro_*.html
+/clip.png
+/assets/
