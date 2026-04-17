@@ -415,15 +415,135 @@ def fix_file_v31(path: str) -> int:
     return total_changes
 
 
+# ---------------------------------------------------------------------------
+# Pass 4: expand hrule to match widest content line, then pad narrow lines
+# ---------------------------------------------------------------------------
+
+def display_col_of(line: str, target_ch: str, from_right: bool = False) -> int | None:
+    """Return display column of target_ch. If from_right, return last occurrence."""
+    col = 0
+    result = None
+    for ch in line:
+        if ch == target_ch:
+            if not from_right:
+                return col
+            result = col
+        col += char_cols(ch)
+    return result
+
+
+def pass4_expand_to_widest(lines: list[str], bs: int, be: int) -> int:
+    """For each box, expand ┌─┐/└─┘ to match the widest content │ line,
+    then pad narrower │ lines with trailing spaces."""
+    boxes = identify_boxes(lines, bs, be)
+    changes = 0
+
+    for top_idx, bot_idx, left_col, right_col in boxes:
+        # Find max right-border display col across all lines in this box
+        max_right = right_col
+        for idx in range(top_idx, bot_idx + 1):
+            raw = lines[idx].rstrip("\n")
+            for ch, dcol in get_borders(raw):
+                if ch in "│┐┘┤" and dcol > left_col and abs(dcol - right_col) <= 8:
+                    max_right = max(max_right, dcol)
+
+        if max_right == right_col:
+            continue
+
+        expand = max_right - right_col
+
+        # Expand top ┌─┐
+        top_raw = lines[top_idx].rstrip("\n")
+        ci = find_char_pos(top_raw, "┐", right_col)
+        if ci >= 0:
+            top_raw = top_raw[:ci] + "─" * expand + top_raw[ci:]
+            lines[top_idx] = top_raw + "\n"
+            changes += 1
+
+        # Expand bottom └─┘
+        bot_raw = lines[bot_idx].rstrip("\n")
+        # Find ┘ at right_col (might also be at bot's own right col)
+        for target_ch in ["┘", "┴"]:
+            ci = find_char_pos(bot_raw, target_ch, right_col)
+            if ci >= 0:
+                bot_raw = bot_raw[:ci] + "─" * expand + bot_raw[ci:]
+                lines[bot_idx] = bot_raw + "\n"
+                changes += 1
+                break
+
+        # Also handle ┬ on bottom of top hrule
+        top_raw2 = lines[top_idx].rstrip("\n")
+        # (already expanded ┐, skip)
+
+        # Pad narrow │ lines with spaces before the │
+        for idx in range(top_idx + 1, bot_idx):
+            raw = lines[idx].rstrip("\n")
+            borders = get_borders(raw)
+            # Find │ belonging to this box (nearest to original right_col)
+            candidates = [(ch, dcol) for ch, dcol in borders
+                          if ch == "│" and dcol > left_col and dcol <= max_right
+                          and abs(dcol - right_col) <= 1]
+            if not candidates:
+                continue
+            best_ch, best_col = candidates[-1]  # rightmost near right_col
+            if best_col < max_right:
+                diff = max_right - best_col
+                ci = find_char_pos(raw, "│", best_col)
+                if ci >= 0:
+                    raw = raw[:ci] + " " * diff + raw[ci:]
+                    lines[idx] = raw + "\n"
+                    changes += 1
+
+    return changes
+
+
+def fix_file_v4(path: str) -> int:
+    """Full pipeline: v3 passes + pass4 expand-to-widest."""
+    with open(path, encoding="utf-8") as f:
+        lines = f.readlines()
+
+    in_block = False
+    block_ranges = []
+    block_start = -1
+    for idx in range(len(lines)):
+        raw = lines[idx].rstrip("\n")
+        if raw.strip().startswith("```"):
+            if not in_block:
+                in_block = True
+                block_start = idx + 1
+            else:
+                in_block = False
+                block_ranges.append((block_start, idx))
+
+    total_changes = 0
+    for bs, be in block_ranges:
+        for _iteration in range(10):
+            c1 = pass1_window_fix(lines, bs, be)
+            c2 = pass2_hrule_expand(lines, bs, be)
+            c3 = pass3_connector_chain(lines, bs, be)
+            c4 = pass4_expand_to_widest(lines, bs, be)
+            round_changes = c1 + c2 + c3 + c4
+            total_changes += round_changes
+            if round_changes == 0:
+                break
+
+    if total_changes > 0:
+        with open(path, "w", encoding="utf-8") as f:
+            f.writelines(lines)
+
+    return total_changes
+
+
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("files", nargs="*", default=[])
     parser.add_argument("--v31", action="store_true", help="Use box-aware v3.1")
+    parser.add_argument("--v4", action="store_true", help="Use v4: v3 + expand-to-widest")
     args = parser.parse_args()
 
     paths = args.files if args.files else sorted(glob.glob("**/*.md", recursive=True))
-    fixer = fix_file_v31 if args.v31 else fix_file
+    fixer = fix_file_v4 if args.v4 else (fix_file_v31 if args.v31 else fix_file)
     total = 0
     for p in paths:
         n = fixer(p)

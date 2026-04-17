@@ -28,8 +28,10 @@ Lines    Module
 673-757  D455LidarScanner._points_to_scan()
 759-814  D455LidarScanner._points_to_ground_lines()
 816-900  D455LidarScanner.process_frame()
-902-972  draw_scan() -- OpenCV 2D visualization
+902-972  draw_scan() — OpenCV 2D visualization
 974-1069 RerunLogger class
-1072-1341 main() -- CLI args + main loop
+1072-1341 main() — CLI args + main loop
 ```
+
+---
 

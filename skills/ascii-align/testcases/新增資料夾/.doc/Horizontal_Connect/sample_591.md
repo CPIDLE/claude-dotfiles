@@ -12,7 +12,7 @@ opencode-bench/
 ├── HANDOFF.md                  # 交接文件
 ├── 4090-SETUP.md               # RTX 4090 環境設定
 ├── 4090-DEPLOYMENT.md          # 部署提案（含成本分析）
-├── collect_all.py              # 掃描 *_meta.txt --> xlsx（109 rows）
+├── collect_all.py              # 掃描 *_meta.txt → xlsx（109 rows）
 ├── opencode_enhance_all_benchmarks.xlsx  # 全量 benchmark 報告
 ├── fixtures/                   # A3/A4 task fixtures
 │
@@ -24,7 +24,7 @@ opencode-bench/
 ├── bench_stress.sh
 ├── run_a1_repeat.sh / run_a1_extra.sh
 │
-├── # ── 結果目錄（按平台x 日期）──
+├── # ── 結果目錄（按平台×日期）──
 ├── opencode-2026-04-07/        # 最初測試
 ├── three-way-2026-04-08/       # 早期三方對照
 ├── 4090-2026-04-08/
@@ -49,4 +49,6 @@ opencode-bench/
 ├── a5-quick-20260410-*/
 └── stress-20260410-*/          # 壓力測試
 ```
+
+---
 

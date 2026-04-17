@@ -19,3 +19,5 @@ server/
     └── api.test.js        # Integration tests
 ```
 
+---
+

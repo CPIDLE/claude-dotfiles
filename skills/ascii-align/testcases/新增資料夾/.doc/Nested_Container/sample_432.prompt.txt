@@ -1,0 +1,46 @@
+# _sample_432.md
+
+## Input — Code Block
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+│               PM v2 (Archived)                                                                 │
+│       Claude Code /pm Workflow                                                                 │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                                │
+│  ┌────────┐    ┌──────────┐    ┌───────────┐    ┌─────┐                                        │
+│  │ /pm    │────>│ /pm sync │────>│ /pm review│────>│/pm  │                                     │
+│  │ start  │    │ 5 options│    │ red-team  │    │bye  │                                        │
+│  │        │    │ menu     │    │ subagent  │    │     │                                        │
+│  └────────┘    └──────────┘    └───────────┘    └──┬──┘                                        │
+│                                                    │                                           │
+│                                            ┌───────┘                                           │
+│                                            │                                                   │
+│                                            v                                                   │
+│                                   ┌──────────────────┐                                         │
+│                                   │ Code Review      │                                         │
+│                                   │ QA + Retro       │                                         │
+│                                   └──────────────────┘                                         │
+│                                                                                                │
+│  ┌────────────────────────────────────────────────────┐                                        │
+│  │  Integration                                       │                                        │
+│  │  Status Line                                       │ Google Sheet │ progress.md          │  │
+│  └────────────────────────────────────────────────────┘                                        │
+│                                                                                                │
+│  Status: Archived --> merged into claude-dotfiles                                               │
+└──────────────────────────────────────────────────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L7: `→` (RIGHTWARDS ARROW)
+  L7: `→` (RIGHTWARDS ARROW)
+  L7: `→` (RIGHTWARDS ARROW)
+  L14: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L25: `→` (RIGHTWARDS ARROW)
+
+**Width mismatches (need fixing):**
+  Group L1-L25 target=98:
+    L25: w=99 (+1)

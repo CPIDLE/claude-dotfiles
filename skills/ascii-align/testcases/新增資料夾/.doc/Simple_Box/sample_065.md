@@ -18,3 +18,5 @@ opencode-config/        # 可分發的設定套件
 └── .opencode/         # 副本（plugins/skills）
 ```
 
+---
+

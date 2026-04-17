@@ -1,0 +1,31 @@
+=== sample_382 ===
+PASS
+
+=== sample_401 ===
+PASS
+
+=== sample_407 ===
+PASS
+
+=== sample_409 ===
+FAIL
+- L7: A: Flow connector │ at display col 13, but all subsequent connector rows (L12, L17, L22, L27, L32) have │ at col 12. Inconsistent column across the same flow path.
+
+Corrections:
+L7: `│           │                                               │`
+
+=== sample_412 ===
+PASS
+
+=== sample_413 ===
+PASS
+
+=== sample_418 ===
+PASS
+
+=== sample_424 ===
+FAIL
+- L8: B: Connector row `--->` shifts right box borders to col 31/55, but surrounding rows (L7, L9) have right box at col 29/53. Box right border jumps +2 cols on connector row only.
+
+Corrections:
+L8: `│  │   (Decision-Maker)   │  │   (Executor)          │      │`

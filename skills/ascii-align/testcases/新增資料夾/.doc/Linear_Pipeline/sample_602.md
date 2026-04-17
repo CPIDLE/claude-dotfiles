@@ -41,3 +41,5 @@ StockSage_v0/
 └── .env                       # 環境變數（gitignored）
 ```
 
+---
+

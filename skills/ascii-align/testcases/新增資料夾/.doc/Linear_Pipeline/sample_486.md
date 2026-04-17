@@ -5,18 +5,20 @@
 ```
 input.md (Markdown 報告)
     │
-    v 
+    ▼
 gen_gyro_pptx.py (解析器)
     │
-    v 
+    ▼
 Slide Plan 生成（共享）
   └─ 投影片序列、內容規劃
     │
-    ├──────────────┬───────────────┐
+    ├──────────────┬──────────────┐
     │                              │
 Marp 引擎（高品質）          python-pptx 引擎（可編輯）
     ├─ {prefix}_marp.md           ├─ 直接寫 PPTX
     ├─ Marp CLI                   ├─ GYRO 品牌樣式注入
     └─ {prefix}_marp.pptx/PDF     └─ {prefix}_editable.pptx
 ```
+
+---
 

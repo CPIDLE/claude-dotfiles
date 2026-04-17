@@ -1,0 +1,60 @@
+# _sample_376.md
+
+## Input — Code Block
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+│               PM v2 (Archived)                                                                 │
+│       Claude Code /pm Workflow                                                                 │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                                │
+│  ┌────────┐    ┌──────────┐    ┌───────────┐    ┌─────┐                                        │
+│  │ /pm    │────>│ /pm sync │────>│ /pm review│────>│/pm  │                                     │
+│  │ start  │    │ 5 options│    │ red-team  │    │bye  │                                        │
+│  │        │    │ menu     │    │ subagent  │    │     │                                        │
+│  └────────┘    └──────────┘    └───────────┘    └──┬──┘                                        │
+│                                                    │                                           │
+│                                            ┌───────┘                                           │
+│                                            │                                                   │
+│                                            v                                                   │
+│                                   ┌──────────────────┐                                         │
+│                                   │ Code Review      │                                         │
+│                                   │ QA + Retro       │                                         │
+│                                   └──────────────────┘                                         │
+│                                                                                                │
+│  ┌────────────────────────────────────────────────────┐                                        │
+│  │  Integration                                       │                                        │
+│  │  Status Line                                       │ Google Sheet │ progress.md          │  │
+│  └────────────────────────────────────────────────────┘                                        │
+│                                                                                                │
+│  Status: Archived --> merged into claude-dotfiles                                               │
+└──────────────────────────────────────────────────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L7: `→` (RIGHTWARDS ARROW)
+  L7: `→` (RIGHTWARDS ARROW)
+  L7: `→` (RIGHTWARDS ARROW)
+  L14: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L25: `→` (RIGHTWARDS ARROW)
+
+**Width mismatches (need fixing):**
+  Group L1-L25 target=98:
+    L25: w=99 (+1)
+
+
+## Review Issues — Round 1
+
+- L22: Rule B: inner box content spills outside right border ┐@56; text "│ Google Sheet │ progress.md          │" appears at cols 57–97 outside the inner box
+
+**Suggested corrections:**
+L22: `│  │  Status Line                                       │                                        │`
+
+## Task — Round 2
+
+Fix the specific issues listed in 'Review Issues — Round 1' above.
+Do NOT change any part of the diagram not mentioned in those issues.
+After fixing, verify with: python ascii_align.py --check <file>

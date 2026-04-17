@@ -1,0 +1,39 @@
+=== sample_382 ===
+FAIL
+- L22: B: Right inner box left border shifts from @23 (L21 hrule) to @24 on content row; right border shifts from @51 to @52
+- L23: B: Same border shift — right box at @24/@52 instead of @23/@51
+
+Corrections:
+L22: `│  │ Claude Code  │────>│ win_drive (stdio)        │       │`
+L23: `│  │ MCP Client   │<────│ JSON-RPC responses       │       │`
+
+=== sample_390 ===
+PASS
+
+=== sample_399 ===
+PASS
+
+=== sample_401 ===
+FAIL
+- L7: A: Flow connector │ at display col @13, but all subsequent connectors (L12, L17, L22, L27, L32) are at @12 — column inconsistency
+
+Corrections:
+L7: `│            │                                              │`
+
+=== sample_402 ===
+PASS
+
+=== sample_404 ===
+PASS
+
+=== sample_405 ===
+PASS
+
+=== sample_407 ===
+FAIL
+- L7: B: Right inner box left border at @30 (expected @29 per hrule L6); right border at @55 (expected @53)
+- L8: B: Right inner box left border at @32, right border at @57 — progressive drift from expected @29/@53
+
+Corrections:
+L7: `│  │   Claude Code        │  │   OpenCode            │      │`
+L8: `│  │   (Decision-Maker)   │ ───>│   (Executor)      │      │`

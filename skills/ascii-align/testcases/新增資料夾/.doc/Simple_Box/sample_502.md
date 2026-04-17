@@ -12,3 +12,5 @@ personal-rag/
 └── test_doc.txt            # 測試文檔
 ```
 
+---
+

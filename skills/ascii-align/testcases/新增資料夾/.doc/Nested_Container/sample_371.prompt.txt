@@ -1,0 +1,113 @@
+# _sample_371.md
+
+## Input — Code Block
+
+```
+┌────────────────────────────────────────────────────────────┐
+│              TM Program Analysis                           │
+│      Offline Toolchain for TM12 Cobot .flow                │
+├────────────────────────────────────────────────────────────┤
+│                                                            │
+│  4,444 nodes                                               │
+│           │                                                │
+│           v                                                │
+│  ┌───────────────────┐                                     │
+│  │  Python CLI       │                                     │
+│  └───────────────────┘                                     │
+│           │                                                │
+│           v                                                │
+│  ┌───────────────────┐                                     │
+│  │  Flow Parser      │                                     │
+│  └───────────────────┘                                     │
+│           │                                                │
+│           v                                                │
+│  ┌───────────────────┐                                     │
+│  │  Analyzer         │                                     │
+│  └───────────────────┘                                     │
+│           │                                                │
+│     ┌─────┼──────────────────┐                             │
+│     │                        │ │                           │
+│     v      v                   v                           │
+│  ┌─────┐ ┌───────────────┐ ┌──────────────────────┐        │
+│  │ Doc │ │ Vision        │ │ FK/IK Kinematics     │        │
+│  │ Gen │ │ Analyzer      │ │                      │        │
+│  └─────┘ └───────────────┘ └──────────────────────┘        │
+│                                                            │
+│  ┌──────────────────────────────────────────────────┐      │
+│  │  MutableFlowDocument (Edit)                      │      │
+│  └──────────────┬───────────────────────────────────┘      │
+│                 │                                          │
+│                 v                                          │
+│  ┌──────────────────────────────────────────────────┐      │
+│  │  Simplifier                                      │      │
+│  │  452 chains, 2021 duplicates                     │      │
+│  │  70 simplification plans                         │      │
+│  └──────────────────────────────────────────────────┘      │
+│                                                            │
+│  Output: 49 docs, 34 tests                                 │
+└─────────────────────────────────────────────────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L8: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L13: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L18: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L25: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L25: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L25: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L35: `▼` (BLACK DOWN-POINTING TRIANGLE)
+
+
+## Review Issues — Round 1
+
+- L24: Rule B: stray │ at col 33 outside the branch right border ┐@31
+- L25: Rule A: second v at col 13 (should be col 12, aligning with ┼@12 in L23); third v at col 33 (should be col 31, aligning with ┐@31 in L23)
+
+**Suggested corrections:**
+L24: `│     │                        │                              │`
+L25: `│     v     v                  v                              │`
+
+## Task — Round 2
+
+Fix the specific issues listed in 'Review Issues — Round 1' above.
+Do NOT change any part of the diagram not mentioned in those issues.
+After fixing, verify with: python ascii_align.py --check <file>
+
+
+## Review Issues — Round 2
+
+- L8: Rule A: flow connector v is at display col 13, but the │ connector above (L7) is at col 12 — 1-column misalignment. Same pattern repeats on L13, L18, L23.
+- L13: Rule A: v at col 13, │ connector at col 12.
+- L18: Rule A: v at col 13, │ connector at col 12.
+- L23: Rule A: v at col 13, │ connector at col 12.
+
+**Suggested corrections:**
+L8: `│           v                                                │`
+L13: `│           v                                                │`
+L18: `│           v                                                │`
+L23: `│           v                                                │`
+
+## Task — Round 3
+
+Fix the specific issues listed in 'Review Issues — Round 2' above.
+Do NOT change any part of the diagram not mentioned in those issues.
+After fixing, verify with: python ascii_align.py --check <file>
+
+
+## Review Issues — Round 3
+
+- L24: Rule B: outer right border │ at col 62 but outer box is col 61 (all other rows show │@61)
+- L25: Rule B: outer right border │ at col 62 but outer box is col 61
+
+**Suggested corrections:**
+L24: `│     │                        │                             │`
+L25: `│     v     v                  v                             │`
+
+## Task — Round 4
+
+Fix the specific issues listed in 'Review Issues — Round 3' above.
+Do NOT change any part of the diagram not mentioned in those issues.
+After fixing, verify with: python ascii_align.py --check <file>

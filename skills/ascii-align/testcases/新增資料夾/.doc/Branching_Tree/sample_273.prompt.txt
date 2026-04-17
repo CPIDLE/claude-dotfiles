@@ -1,0 +1,26 @@
+# _sample_273.md
+
+## Input — Code Block
+
+```
+MES / 上位 MCS
+        │
+    ┌───┴───┐
+    │  TSC  │  <-- 搬運系統管理（調度核心）
+    │+ MCS  │
+    │  lite │
+    └───┬───┘
+        │ Proprietary Protocol / SECS/GEM / Web API / Message Queue
+   ┌────┼────────┬────────────┐
+   │    │        │            │
+ AGVC  StockC  E-RackC     EAP
+  │      │       │           │
+ AMR  Stocker  E-Rack    Load Port
+              (Buffer)   (E84 設備)
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L4: `←` (LEFTWARDS ARROW)

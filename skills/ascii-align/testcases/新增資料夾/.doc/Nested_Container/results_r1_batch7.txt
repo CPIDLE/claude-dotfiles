@@ -1,0 +1,43 @@
+=== sample_446 ===
+PASS
+
+=== sample_447 ===
+PASS
+
+=== sample_468 ===
+FAIL
+- L10: Rule A: bracket corner ┐@38 but L11 continues with │@39 (1-col rightward shift); similarly │@48 on L10 vs │@49 on L11 — connectors drift by 1 column between rows
+
+Corrections:
+L11: `│                                     │         │        │`
+
+=== sample_513 ===
+FAIL
+- L10: Rule A: bracket corner ┐@38 but L11 continues with │@39 (1-col rightward shift); similarly │@48 on L10 vs │@49 on L11 — connectors drift by 1 column between rows
+
+Corrections:
+L11: `│                                     │         │          │`
+
+=== sample_541 ===
+PASS
+
+=== sample_551 ===
+FAIL
+- L6: Rule B: inner box left border shifts from ┌@35 (L5) to │@36 (L6) — the connector arrow ────--> pushes the │ one column right on the content row, misaligning with the box corner above and below
+
+Corrections:
+L6: `  │   pick_and_place:       │─────-->│ --target=tm  │──--> .flow (TM 原生) │`
+
+=== sample_564 ===
+FAIL
+- L6: Rule B: inner box left border shifts from ┌@35 (L5) to │@36 (L6) — the connector arrow ────--> pushes the │ one column right on the content row, misaligning with the box corner above and below
+
+Corrections:
+L6: `  │   pick_and_place:       │─────-->│ --target=tm  │──--> .flow (TM 原生) │`
+
+=== sample_577 ===
+FAIL
+- L6: Rule B: inner box left border shifts from ┌@35 (L5) to │@36 (L6) — the connector arrow ────--> pushes the │ one column right on the content row, misaligning with the box corner above and below
+
+Corrections:
+L6: `  │   pick_and_place:       │─────-->│ --target=tm  │──--> .flow (TM 原生) │`

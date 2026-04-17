@@ -4,7 +4,9 @@
 
 ```
 IF: g_place_again == true?
-  ├─ [YES] --> 重置 count=0 --> 繼續（允許重試放置）
-  └─ [NO]  --> Log ERROR --> SET: error_code=1014 --> STOP
+  ├─ [YES] → 重置 count=0 → 繼續（允許重試放置）
+  └─ [NO]  → Log ERROR → SET: error_code=1014 → STOP
 ```
+
+---
 

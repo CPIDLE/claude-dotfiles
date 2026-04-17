@@ -1,0 +1,171 @@
+# _sample_096.md
+
+⚠ **Complex diagram** — auto-detected as structurally complex (branching tree, mixed layout, or free-form flow without traditional box borders). Apply extra care: preserve all structural intent, fix only clear alignment errors, and do NOT simplify or restructure the diagram.
+
+## Input — Code Block
+
+```
+D435i USB 3.0
+    │
+    ├── Depth Stream (1280x 720 @ 15fps)
+    │       │
+    │       v 
+    │   [Decimation] --> [Threshold] --> [Spatial] --> [Temporal]
+    │       │
+    │       v 
+    │   depth_image (640x360 float32, meters)
+    │       │
+    │       ├──── [--neural-stereo/--mono-depth ON] ────────┐
+    │       │     stereo_depth (numpy, ~11% coverage)       │
+    │       │         │                                     │
+    │       │         v                                      │
+    │       │     3-source texture-adaptive fusion:          │
+    │       │     ├── stereo valid --> stereo    (32mm MAE)   │
+    │       │     ├── gap+smooth  --> mono      (scaled)      │
+    │       │     └── gap+textured --> CREStereo (metric)     │
+    │       │         │                                     │
+    │       │         v                                      │
+    │       │     fused_depth --> _depth_to_points_from_array │
+    │       │     --> points [N, 3]  (~100% coverage)         │
+    │       │                                               │
+    │       ├──── [--neural-stereo OFF] ────────────────┐   │
+    │       │     Vectorized deprojection               │   │
+    │       │     --> real_points [N, 3]                  │   │
+    │       │         │                                 │   │
+    │       │         ├── [Emitter OFF] Ground synthesis │   │
+    │       │         │   Color seg + plane eq           │   │
+    │       │         │   --> points = concat(real, synth) │   │
+    │       │         │                                 │   │
+    │       │         └── [Emitter ON] points = real     │   │
+    │       │                                           │   │
+    │       ├─── Camera height: stereo-only points (EMA)┘   │
+    │       │                                               │
+    │       v                                                │
+    │   3D point cloud [N, 3] <──────────────────────────────┘
+    │       │
+    │       ├──────────────────────┐
+    │       v                       v 
+    │   [LiDAR 1: Horizontal]  [LiDAR 2: Ground]
+    │       │                      │
+    │       v                       v 
+    │   Height filter          Vertical angle filter
+    │   (0.1m ~ 1.8m)         (a° +- tol, (a+d)° +- tol)
+    │       │                      │
+    │       v                       v 
+    │   2D projection          Horizontal angular binning
+    │   (XZ plane)             (slant range)
+    │       │                      │
+    │       v                       v 
+    │   Polar + binning        (LaserScan_0, LaserScan_1)
+    │   (model specs)              │
+    │       │                      ├───> UDP :7778 (line0)
+    │       v                       └───> UDP :7779 (line1)
+    │   LaserScan                  └───> ROS2 /ground_scan/*
+    │       │
+    │       ├───> OpenCV visualization
+    │       ├───> UDP :7777 (broadcast)
+    │       ├───> ROS2 /scan
+    │       └───> Rerun 3D viewer
+    │
+    ├── Color Stream (1280x 720 @ 15fps, RGB8)
+    │       │
+    │       ├── [--mono-depth] --> MonoDepthEstimator.push_rgb()
+    │       │       --> background thread
+    │       │       --> resize --> ImageNet norm --> [1,3,210,364]
+    │       │       --> Depth Anything V2 ONNX (~77ms)
+    │       │       --> inverse depth (for fusion on next frame)
+    │       │
+    │       ├── [emitter OFF, no neural/mono] --> ground point synthesis
+    │       │
+    │       └── Rerun camera image
+    │
+    ├── IR Left Stream (1280x 720 @ 15fps, Y8)  *
+    ├── IR Right Stream (1280x 720 @ 15fps, Y8) *
+    │       │  (* when --neural-stereo or --mono-depth)
+    │       │
+    │       ├── [--neural-stereo] NeuralStereoEstimator.push_ir_pair()
+    │       │       --> background thread
+    │       │       --> resize 1280x 720 --> 640x 360
+    │       │       --> CREStereo ONNX inference (~70ms)
+    │       │       --> disparity --> depth (baseline x  fx / disp)
+    │       │       --> _latest_depth (for fusion on next frame)
+    │       │
+    │       └── [--mono-depth] --> texture map (IR local variance)
+    │
+    ├── Accel Stream (63/250 Hz)
+    │       │
+    │       v 
+    │   GravityEstimator (low-pass alpha=0.98)
+    │       │
+    │       v 
+    │   Rotation matrix R [3x 3] ──────────────────────────────
+    │
+    └── Gyro Stream (200/400 Hz)
+            │
+            └── (reserved for future complementary filter)
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L3: `×` (MULTIPLICATION SIGN)
+  L5: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L6: `→` (RIGHTWARDS ARROW)
+  L6: `→` (RIGHTWARDS ARROW)
+  L6: `→` (RIGHTWARDS ARROW)
+  L8: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L14: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L16: `→` (RIGHTWARDS ARROW)
+  L17: `→` (RIGHTWARDS ARROW)
+  L18: `→` (RIGHTWARDS ARROW)
+  L20: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L21: `→` (RIGHTWARDS ARROW)
+  L22: `→` (RIGHTWARDS ARROW)
+  L26: `→` (RIGHTWARDS ARROW)
+  L30: `→` (RIGHTWARDS ARROW)
+  L36: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L37: `◄` (BLACK LEFT-POINTING POINTER)
+  L40: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L40: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L43: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L43: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L45: `±` (PLUS-MINUS SIGN)
+  L45: `±` (PLUS-MINUS SIGN)
+  L47: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L47: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L51: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L51: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L54: `►` (BLACK RIGHT-POINTING POINTER)
+  L55: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L55: `►` (BLACK RIGHT-POINTING POINTER)
+  L56: `►` (BLACK RIGHT-POINTING POINTER)
+  L58: `►` (BLACK RIGHT-POINTING POINTER)
+  L59: `►` (BLACK RIGHT-POINTING POINTER)
+  L60: `►` (BLACK RIGHT-POINTING POINTER)
+  L61: `►` (BLACK RIGHT-POINTING POINTER)
+  L63: `×` (MULTIPLICATION SIGN)
+  L65: `→` (RIGHTWARDS ARROW)
+  L66: `→` (RIGHTWARDS ARROW)
+  L67: `→` (RIGHTWARDS ARROW)
+  L67: `→` (RIGHTWARDS ARROW)
+  L67: `→` (RIGHTWARDS ARROW)
+  L68: `→` (RIGHTWARDS ARROW)
+  L69: `→` (RIGHTWARDS ARROW)
+  L71: `→` (RIGHTWARDS ARROW)
+  L75: `×` (MULTIPLICATION SIGN)
+  L76: `×` (MULTIPLICATION SIGN)
+  L80: `→` (RIGHTWARDS ARROW)
+  L81: `→` (RIGHTWARDS ARROW)
+  L81: `×` (MULTIPLICATION SIGN)
+  L81: `→` (RIGHTWARDS ARROW)
+  L81: `×` (MULTIPLICATION SIGN)
+  L82: `→` (RIGHTWARDS ARROW)
+  L83: `→` (RIGHTWARDS ARROW)
+  L83: `→` (RIGHTWARDS ARROW)
+  L83: `×` (MULTIPLICATION SIGN)
+  L84: `→` (RIGHTWARDS ARROW)
+  L86: `→` (RIGHTWARDS ARROW)
+  L90: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L93: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L94: `×` (MULTIPLICATION SIGN)

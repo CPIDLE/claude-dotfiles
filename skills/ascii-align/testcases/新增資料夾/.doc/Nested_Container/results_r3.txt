@@ -1,0 +1,27 @@
+=== sample_365 ===
+FAIL
+- L34: Rule B: right inner │ at col 31 does not match ┐@27 in the splitter row above (L33: ┌@6, ┼@12, ┐@27); gap row should have │@6 and │@27
+
+Corrections:
+L34: `│     │                    │                                │`
+
+=== sample_371 ===
+FAIL
+- L24: Rule B: outer right border │ at col 62 but outer box is col 61 (all other rows show │@61)
+- L25: Rule B: outer right border │ at col 62 but outer box is col 61
+
+Corrections:
+L24: `│     │                        │                             │`
+L25: `│     v     v                  v                             │`
+
+=== sample_409 ===
+FAIL
+- L8: Rule A: v connector at col 13, but the flow connector │ above it (L7) is at col 12; off by 1
+- L35: Rule A: middle v at col 13 (should be col 12, aligning with ┼@12 in L33) and right v at col 29 (should be col 27, aligning with ┐@27 in L33)
+
+Corrections:
+L8: `│           v                                               │`
+L35: `│     v     v              v                                │`
+
+=== sample_424 ===
+PASS

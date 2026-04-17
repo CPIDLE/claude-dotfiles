@@ -1,0 +1,46 @@
+# _sample_441.md
+
+## Input — Code Block
+
+```
+┌───────────────────────────────────────────────────────────┐
+│               DuelEngineSOP (Archived)                    │
+│    Delegation SOP: Claude Code <----> OpenCode              │
+├───────────────────────────────────────────────────────────┤
+│                                                           │
+│  ┌──────────────────────┐   ┌────────────────────────┐    │
+│  │   Claude Code        │   │   OpenCode             │    │
+│  │   (Decision-Maker)   │ -->│   (Executor)           │    │
+│  └──────────────────────┘   └────────────────────────┘    │
+│                                                           │
+├───────────────────────────────────────────────────────────┤
+│  Delegation Levels                                        │
+│                                                           │
+│  ┌───────────┐ ┌──────────────┐  ┌─────────────────┐      │
+│  │ L1        │ │ L2           │  │ L3              │      │
+│  │ New Files │ │ Controlled   │  │ Task-Level      │      │
+│  │           │ │ Edits        │  │ Autonomy        │      │
+│  │           │ │              │  │ <=5 parallel     │      │
+│  │           │ │              │  │ agents          │      │
+│  └───────────┘ └──────────────┘  └─────────────────┘      │
+│                                                           │
+│  Status: Archived --> merged into claude-dotfiles          │
+└───────────────────────────────────────────────────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L3: `←` (LEFTWARDS ARROW)
+  L3: `→` (RIGHTWARDS ARROW)
+  L8: `→` (RIGHTWARDS ARROW)
+  L18: `≤` (LESS-THAN OR EQUAL TO)
+  L22: `→` (RIGHTWARDS ARROW)
+
+**Width mismatches (need fixing):**
+  Group L1-L23 target=61:
+    L3: w=63 (+2)
+    L8: w=62 (+1)
+    L18: w=62 (+1)
+    L22: w=62 (+1)

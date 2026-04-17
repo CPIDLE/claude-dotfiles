@@ -1,0 +1,33 @@
+# _sample_427.md
+
+## Input — Code Block
+
+```
+┌───────────────────────────────────────────────┐
+│        OpenCode Enhance (Archived)            │
+│        OpenCode CLI Config                    │
+├───────────────────────────────────────────────┤
+│                                               │
+│  ┌────────────────────────────────────────┐   │
+│  │  OpenCode CLI (TypeScript)             │   │
+│  ├────────────────────────────────────────┤   │
+│  │  Model: Gemini 3 Flash Preview         │   │
+│  │  MCP Integration                       │   │
+│  │  AGENTS.md                             │   │
+│  │  Git-Attribution Plugin                │   │
+│  └────────────────────────────────────────┘   │
+│                                               │
+│  Status: Archived --> merged into              │
+│          claude-dotfiles                      │
+└──────────────────────────────────────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L15: `→` (RIGHTWARDS ARROW)
+
+**Width mismatches (need fixing):**
+  Group L1-L17 target=49:
+    L15: w=50 (+1)

@@ -43,7 +43,7 @@ StockSage_v0/
 │   └── setup_schedule.bat        # 排程安裝腳本
 │
 ├── backtest/
-│   └── gap_backtest.py           # 夜盤結算-->開盤跳空回測
+│   └── gap_backtest.py           # 夜盤結算→開盤跳空回測
 │
 └── models/
     ├── stocksage_model.pt        # Transformer 模型權重
@@ -52,4 +52,6 @@ StockSage_v0/
     ├── rl_meta.pkl               # RL 訓練 metadata
     └── gmp_model.pkl             # GMP LightGBM 模型
 ```
+
+---
 

@@ -16,7 +16,7 @@
 +-------------+-----------------------+                    |
 |  hid_input/ (Python, 跨平台)         |                    |
 |  ├─ pygame / inputs / evdev 後端    |                    |
-|  ├─ HID 事件 --> 抽象 intent 事件     |---------------------+
+|  ├─ HID 事件 → 抽象 intent 事件     |---------------------+
 |  │   (JogIntent / SaveIntent /      |   intent events
 |  │    FreeDriveIntent / ...)        |
 |  └─ profile 檔 (YAML) 定義按鍵對應  |
@@ -38,7 +38,9 @@
                      v
 +--------------------+-----------------+
 |  TMflow Controller (Manual Mode)     |
-|  DomainAPI + Jog RPCs (S.4 待 TM 實作)|
+|  DomainAPI + Jog RPCs (§4 待 TM 實作)|
 +--------------------------------------+
 ```
+
+---
 

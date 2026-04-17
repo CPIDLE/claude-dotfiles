@@ -1,0 +1,64 @@
+# ASCII Art Fix — sample_269.md
+
+## Character Width Rules (Sarasa Mono TC)
+
+| Category | Examples | Width |
+|----------|----------|-------|
+| ASCII printable | A-Z, 0-9, punctuation | 1 |
+| Box drawing | `─│┌┐└┘├┤┬┴┼═║┏┓┗┛╞╘╪┊╱╲` | 1 |
+| CJK characters | Chinese/Japanese/Korean hanzi | 2 |
+| Full-width brackets | `（）` | 2 |
+| Degree / EN dash | `°` `–` | 1 |
+| Other Unicode | `→×▼●★✓` (forbidden, already replaced) | 2 |
+
+**Rule:** every `│...│` content row must have the same display width as the
+horizontal rule lines (`┌──┐` / `└──┘` / `├──┤`) in the same box.
+
+## Forbidden Symbols (already replaced in the input below)
+
+| Was | Now | Reason |
+|-----|-----|--------|
+| `→` `←` | `-->` `<--` | arrows are w2 in Sarasa Mono TC |
+| `↑` `↓` | `^` `v` | vertical arrows w2 |
+| `▼` `▲` | `v` `^` | solid triangles w2 |
+| `×` | `x` | multiplication sign w2 |
+| `●` `○` | `*` `o` | circles w2 |
+| `✓` `✗` | `OK` `NG` | check/cross w2 |
+| `·` `•` | `.` `*` | middle dots w2 |
+
+Do NOT reintroduce any forbidden symbol in the output.
+
+## Input — Code Block
+
+```
+Phase 1 (0-6月)          Phase 2 (6-12月)         Phase 3 (12-24月)
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│ TSC: Alarm AI    │    │ AMR: 語義導航    │    │ Arm: AI 抓取     │
+│ RTD: ML 派車     │    │ TSC: RL 派車     │    │ E84: 異常預測    │
+│ 電池壽命預測      │    │ 預測性維護       │    │ AI-EAP 配置      │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+
+```
+
+## Issues — Code Block
+
+**Width mismatches (need fixing):**
+  Group L2-L5 target=65:
+    L3: w=68 (+3)
+    L4: w=68 (+3)
+    L5: w=69 (+4)
+
+## Task
+
+Rewrite the ASCII art so that every `│...│` content row has **identical display
+width** matching its surrounding horizontal rule lines:
+
+- CJK characters (Chinese/Japanese/Korean) = 2 columns each
+- Box-drawing characters (`─│┌┐` etc.) = 1 column each
+- ASCII characters = 1 column each
+- Trailing spaces before the right border `│` must be adjusted to pad to target width
+
+Preserve all structure and content; only fix spacing/padding.
+Do NOT introduce any forbidden Unicode symbol.
+
+Output: the corrected art as a single fenced code block. No explanation.

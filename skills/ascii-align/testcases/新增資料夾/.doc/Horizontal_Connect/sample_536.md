@@ -14,12 +14,14 @@ hid_input/
 │  ├─ linemaster_3pedal.yaml
 │  └─ schema.json               # profile 語法驗證
 ├─ intents.py                   # intent 事件 dataclass 定義
-├─ translator.py                # HID event --> intent (profile-driven)
-├─ dispatcher.py                # intent --> 統一 UI event bus
+├─ translator.py                # HID event → intent (profile-driven)
+├─ dispatcher.py                # intent → 統一 UI event bus
 ├─ watchdog.py                  # 連續 jog safety watchdog
 └─ tests/
    ├─ test_profile_loader.py
    ├─ test_translator.py        # 用錄製的 HID event 檔重播
    └─ test_watchdog.py
 ```
+
+---
 

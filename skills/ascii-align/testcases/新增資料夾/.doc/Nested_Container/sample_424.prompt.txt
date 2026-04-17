@@ -1,0 +1,75 @@
+# _sample_424.md
+
+## Input — Code Block
+
+```
+┌───────────────────────────────────────────────────────────┐
+│               DuelEngineSOP (Archived)                    │
+│    Delegation SOP: Claude Code <----> OpenCode              │
+├───────────────────────────────────────────────────────────┤
+│                                                           │
+│  ┌──────────────────────┐  ┌───────────────────────┐      │
+│  │   Claude Code        │   │   OpenCode             │    │
+│  │   (Decision-Maker)   │ ───>│   (Executor)           │  │
+│  └──────────────────────┘  └───────────────────────┘      │
+│                                                           │
+├───────────────────────────────────────────────────────────┤
+│  Delegation Levels                                        │
+│                                                           │
+│  ┌───────────┐ ┌──────────────┐  ┌─────────────────┐      │
+│  │ L1        │ │ L2           │  │ L3              │      │
+│  │ New Files │ │ Controlled   │  │ Task-Level      │      │
+│  │           │ │ Edits        │  │ Autonomy        │      │
+│  │           │ │              │  │ <=5 parallel     │      │
+│  │           │ │              │  │ agents          │      │
+│  └───────────┘ └──────────────┘  └─────────────────┘      │
+│                                                           │
+│  Status: Archived --> merged into claude-dotfiles          │
+└───────────────────────────────────────────────────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L3: `←` (LEFTWARDS ARROW)
+  L3: `→` (RIGHTWARDS ARROW)
+  L8: `→` (RIGHTWARDS ARROW)
+  L18: `≤` (LESS-THAN OR EQUAL TO)
+  L22: `→` (RIGHTWARDS ARROW)
+
+**Width mismatches (need fixing):**
+  Group L1-L23 target=61:
+    L3: w=63 (+2)
+    L18: w=62 (+1)
+    L22: w=62 (+1)
+
+
+## Review Issues — Round 1
+
+- L7: B: Right inner box left border at │@30 does not align with ┌@29 on L6 and └@29 on L9 — drifted 1 col right.
+- L8: B: Right inner box left border at │@32, drifted 3 cols right of ┌@29; the connector " --->" shifts the │ outward.
+
+**Suggested corrections:**
+L7: `│  │   Claude Code        │  │   OpenCode            │      │`
+L8: `│  │   (Decision-Maker)   │--->│   (Executor)          │    │`
+
+## Task — Round 2
+
+Fix the specific issues listed in 'Review Issues — Round 1' above.
+Do NOT change any part of the diagram not mentioned in those issues.
+After fixing, verify with: python ascii_align.py --check <file>
+
+
+## Review Issues — Round 2
+
+- L8: B: Connector row `--->` shifts right box borders to col 31/55, but surrounding rows (L7, L9) have right box at col 29/53. Box right border jumps +2 cols on connector row only.
+
+**Suggested corrections:**
+L8: `│  │   (Decision-Maker)   │  │   (Executor)          │      │`
+
+## Task — Round 3
+
+Fix the specific issues listed in 'Review Issues — Round 2' above.
+Do NOT change any part of the diagram not mentioned in those issues.
+After fixing, verify with: python ascii_align.py --check <file>

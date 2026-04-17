@@ -8,7 +8,7 @@ Binary protocol over UDP (default port 7777):
 ┌───────────────────────────────────────────┐
 │ Header (40 bytes, little-endian)          │
 ├────────────┬──────────────────────────────┤
-│ magic      │ "LS2D" (4 bytes)             │
+│ magic      │ "LS2D" (4 bytes)            │
 │ timestamp  │ float64, Unix time (8 bytes) │
 │ n_steps    │ uint32 (4 bytes)             │
 │ angle_min  │ float32, radians (4 bytes)   │
@@ -19,10 +19,12 @@ Binary protocol over UDP (default port 7777):
 ├────────────┴──────────────────────────────┤
 │ Data                                      │
 ├───────────────────────────────────────────┤
-│ ranges     │ float32[] (n_steps x  4 bytes)│
-│            │ meters, range_max+1 = no data │
-└────────────────────────────────────────────┘
+│ ranges     │ float32[] (n_steps × 4 bytes)│
+│            │ meters, range_max+1 = no data│
+└───────────────────────────────────────────┘
 
-Flow: LaserScan --> pack header --> replace inf --> sendto(broadcast)
+Flow: LaserScan → pack header → replace inf → sendto(broadcast)
 ```
+
+---
 

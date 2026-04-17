@@ -1,0 +1,75 @@
+# _sample_412.md
+
+## Input — Code Block
+
+```
+┌────────────────────────────────────────────────────────────┐
+│              TM Program Analysis                           │
+│      Offline Toolchain for TM12 Cobot .flow                │
+├────────────────────────────────────────────────────────────┤
+│                                                            │
+│  4,444 nodes                                               │
+│           │                                                │
+│           v                                                │
+│  ┌───────────────────┐                                     │
+│  │  Python CLI       │                                     │
+│  └───────────────────┘                                     │
+│           │                                                │
+│           v                                                │
+│  ┌───────────────────┐                                     │
+│  │  Flow Parser      │                                     │
+│  └───────────────────┘                                     │
+│           │                                                │
+│           v                                                │
+│  ┌───────────────────┐                                     │
+│  │  Analyzer         │                                     │
+│  └───────────────────┘                                     │
+│           │                                                │
+│     ┌─────┼──────────────────┐                             │
+│     │                        │ │                           │
+│     v      v                   v                           │
+│  ┌─────┐ ┌───────────────┐ ┌──────────────────────┐        │
+│  │ Doc │ │ Vision        │ │ FK/IK Kinematics     │        │
+│  │ Gen │ │ Analyzer      │ │                      │        │
+│  └─────┘ └───────────────┘ └──────────────────────┘        │
+│                                                            │
+│  ┌──────────────────────────────────────────────────┐      │
+│  │  MutableFlowDocument (Edit)                      │      │
+│  └──────────────┬───────────────────────────────────┘      │
+│                 │                                          │
+│                 v                                          │
+│  ┌──────────────────────────────────────────────────┐      │
+│  │  Simplifier                                      │      │
+│  │  452 chains, 2021 duplicates                     │      │
+│  │  70 simplification plans                         │      │
+│  └──────────────────────────────────────────────────┘      │
+│                                                            │
+│  Output: 49 docs, 34 tests                                 │
+└─────────────────────────────────────────────────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L8: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L13: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L18: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L25: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L25: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L25: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L35: `▼` (BLACK DOWN-POINTING TRIANGLE)
+
+
+## Review Issues — Round 1
+
+- L24: B: Stray `│@33` — appears after the legitimate right border `│@31` of the branch row with no corresponding box above or below at col 33.
+
+**Suggested corrections:**
+L24: `│     │                        │                           │`
+
+## Task — Round 2
+
+Fix the specific issues listed in 'Review Issues — Round 1' above.
+Do NOT change any part of the diagram not mentioned in those issues.
+After fixing, verify with: python ascii_align.py --check <file>

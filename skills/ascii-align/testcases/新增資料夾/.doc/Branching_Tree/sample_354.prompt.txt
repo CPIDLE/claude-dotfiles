@@ -1,0 +1,52 @@
+# _sample_354.md
+
+## Input — Code Block
+
+```
+┌──────────────────────────────────────────────────────┐
+│                  claude-dotfiles                     │
+│        Claude Code Config Framework                  │
+├──────────────────────────────────────────────────────┤
+│  Commands (x 8)          Skills (x 8)                  │
+│  /pm /pm-sync           ascii-align                  │
+│  /pm-bye /pm-review     report-easy                  │
+│  /do /bye /hello /sc    report-gyro ...              │
+├──────────────────────────────────────────────────────┤
+│  Statusline (JS/Shell)                               │
+│  MCP Servers: Playwright │ Windows MCP │ Google WS   │
+└──────────────┬──────────────────────┬───────────────┘
+               │                       │
+       install.ps1 / install.sh        │
+               │                       │
+               v                       │
+  ┌────────────────────┐               │
+  │  ~/.claude/         │              │
+  │  commands/          │              │
+  │  skills/            │              │
+  │  settings.json      │              │
+  │  CLAUDE.md          │              │
+  └────────────────────┘              │
+                                      │
+          ┌───────────────────────────┘
+          │
+          v 
+┌────────────────────────────────────────────┐
+│           Google Cloud Backend             │
+├─────────────┬──────────────┬───────────────┤
+│ Google Chat │ Google Sheet │ Apps Script   │
+│  Webhook    │  Dashboard   │  Web App      │
+└─────────────┴──────────────┴──────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L5: `×` (MULTIPLICATION SIGN)
+  L5: `×` (MULTIPLICATION SIGN)
+  L16: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L27: `▼` (BLACK DOWN-POINTING TRIANGLE)
+
+**Width mismatches (need fixing):**
+  Group L1-L12 target=56:
+    L5: w=58 (+2)

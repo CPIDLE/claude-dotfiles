@@ -8,36 +8,38 @@
 ║                                                           ║
 ║  ┌─ Server GPU / DGX Spark（廠內機房）─────────────────┐  ║
 ║  │                                                     │  ║
-║  │  n8n（觸發 + 預分類，指定 Skill + 參數）            │  ║
+║  │  n8n（觸發 + 預分類，指定 Skill + 參數）             │  ║
 ║  │    │                                                │  ║
-║  │    v                                                │  ║
+║  │    ▼                                                │  ║
 ║  │  LLM Agent                                          │  ║
 ║  │    Phase 1-2: 直接 Ollama REST API                  │  ║
-║  │    Phase 3:   採用 LangGraph 管理多步 workflow      │  ║
+║  │    Phase 3:   採用 LangGraph 管理多步 workflow        │  ║
 ║  │    │                                                │  ║
-║  │    v                                                │  ║
-║  │  5 Skill（封裝 MCP 呼叫，回傳精簡結果）             │  ║
-║  │    dispatch ──> mcp-mcs + mcp-tsc      (Fast 8B)    │  ║
-║  │    diagnose ──> mcp-eap + mcp-pkb      (Full 72B)   │  ║
-║  │    schedule ──> mcp-mcs + mcp-tsc      (Full 72B)   │  ║
-║  │    inventory --> mcp-erack + mcp-mcs    (Fast 8B)   │  ║
-║  │    traffic ───> mcp-tsc                (Fast 8B)    │  ║
+║  │    ▼                                                │  ║
+║  │  5 Skill（封裝 MCP 呼叫，回傳精簡結果）              │  ║
+║  │    dispatch ─→ mcp-mcs + mcp-tsc      (Fast 8B)    │  ║
+║  │    diagnose ─→ mcp-eap + mcp-pkb      (Full 72B)   │  ║
+║  │    schedule ─→ mcp-mcs + mcp-tsc      (Full 72B)   │  ║
+║  │    inventory → mcp-erack + mcp-mcs    (Fast 8B)    │  ║
+║  │    traffic ──→ mcp-tsc                (Fast 8B)    │  ║
 ║  │    │                                                │  ║
-║  │    v                                                │  ║
-║  │  MCP Servers + rule_validate（紅線檢查，不用 LLM）  │  ║
-║  │  mcp-mcs .  mcp-tsc .  mcp-eap .  mcp-pkb .  mcp-erack│  ║
+║  │    ▼                                                │  ║
+║  │  MCP Servers + rule_validate（紅線檢查，不用 LLM）   │  ║
+║  │  mcp-mcs · mcp-tsc · mcp-eap · mcp-pkb · mcp-erack │  ║
 ║  │    │                                                │  ║
-║  │    v                                                │  ║
-║  │  ROS 2 Bridge <----> AMR        Grafana（監控，零 LLM）│  ║
+║  │    ▼                                                │  ║
+║  │  ROS 2 Bridge ←→ AMR        Grafana（監控，零 LLM）  │  ║
 ║  │                                                     │  ║
-║  │  Ollama（72B + 8B）.  PKB Qdrant .  MCS Lite .  TSC │  ║
+║  │  Ollama（72B + 8B）· PKB Qdrant · MCS Lite · TSC    │  ║
 ║  └─────────────────────┬───────────────────────────────┘  ║
 ║                        │ 廠內 LAN / Wi-Fi                  ║
-║  ┌─────────────────────v ──────────────────────────────┐  ║
-║  │  AMR IPC x N                                        │  ║
-║  │  [平時] ROS node（純執行器）                        │  ║
-║  │  [斷線] Ollama Tiny 1.7B --> L1 收尾 + 停靠         │  ║
+║  ┌─────────────────────▼───────────────────────────────┐  ║
+║  │  AMR IPC ×N                                         │  ║
+║  │  [平時] ROS node（純執行器）                          │  ║
+║  │  [斷線] Ollama Tiny 1.7B → L1 收尾 + 停靠           │  ║
 ║  └─────────────────────────────────────────────────────┘  ║
 ╚═══════════════════════════════════════════════════════════╝
 ```
+
+---
 

@@ -1,0 +1,63 @@
+# _sample_422.md
+
+## Input — Code Block
+
+```
+┌───────────────────────────────────────────────────────────────┐
+│                  WebCamToLidarScan                            │
+│   Monocular RGB --> Virtual 2D LiDAR                           │
+│   Phase 1 done, Phase 2 partial, idle ~6 weeks                │
+├───────────────────────────────────────────────────────────────┤
+│                                                               │
+│  ┌────────────────────────────────┐                           │
+│  │  Webcam / D435i RGB            │                           │
+│  └───────────────┬────────────────┘                           │
+│                  │                                            │
+│                  v                                            │
+│  ┌────────────────────────────────┐                           │
+│  │  Depth Anything V2 ViT-S       │                           │
+│  │  ONNX (DML / CUDA / CPU)       │                           │
+│  └────────────────────────────────┘                           │
+│                  │                                            │
+│                  v                                            │
+│  ┌────────────────────────────────┐                           │
+│  │  RANSAC Ground Calibration     │                           │
+│  │  (IMU Gravity)                 │                           │
+│  └────────────────────────────────┘                           │
+│                  │                                            │
+│                  v                                            │
+│  ┌────────────────────────────────┐                           │
+│  │  LUT Conversion                │                           │
+│  │  ~650 bin LaserScan            │                           │
+│  │  <3ms CPU, <0.3ms CUDA         │                           │
+│  └────────────────────────────────┘                           │
+│                  │                                            │
+│                  v                                            │
+│  ┌────────────────────────────────┐                           │
+│  │  IMU EMA Temporal Filtering    │                           │
+│  └────────────────────────────────┘                           │
+│                  │                                            │
+│                  v                                            │
+│  ┌────────────────────────────────┐                           │
+│  │  ROS 2 /virtual_scan           │                           │
+│  └────────────────────────────────┘                           │
+│                                                               │
+│  Target: Jetson Thor (Blackwell, 128GB, 144 TOPS)             │
+│  Unsolved: AI global depth drift                              │
+└──────────────────────────────────────────────────────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L3: `→` (RIGHTWARDS ARROW)
+  L11: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L17: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L23: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L30: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L35: `▼` (BLACK DOWN-POINTING TRIANGLE)
+
+**Width mismatches (need fixing):**
+  Group L1-L42 target=65:
+    L3: w=66 (+1)

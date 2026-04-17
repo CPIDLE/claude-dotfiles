@@ -4,9 +4,11 @@
 
 ```
 Need media?
-├─ Image optimization/transformation --> images/
-├─ Video streaming/encoding --> stream/
-├─ Browser automation/screenshots --> browser-rendering/
-└─ Third-party script management --> zaraz/
+├─ Image optimization/transformation → images/
+├─ Video streaming/encoding → stream/
+├─ Browser automation/screenshots → browser-rendering/
+└─ Third-party script management → zaraz/
 ```
+
+---
 

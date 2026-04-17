@@ -10,7 +10,7 @@ Chat_bot_v1/
 ├── rate_limit.py           # Sliding window per-IP rate limiter
 ├── conv_logger.py         # （已停用）本地 JSONL 對話記錄
 ├── drive_logger.py        # （已停用）Google Drive 記錄同步
-├── drive_sync.py          # （已停用）JSONL --> Drive 增量同步
+├── drive_sync.py          # （已停用）JSONL → Drive 增量同步
 ├── start-backend.sh       # Backend 啟動腳本（Windows/Linux）
 ├── stop-backend.sh        # Backend 停止腳本
 ├── Dockerfile             # Cloud Run thin proxy 映像
@@ -23,4 +23,6 @@ Chat_bot_v1/
 ├── .env.example           # 環境變數範本
 └── reviews/               # 程式碼審核報告
 ```
+
+---
 

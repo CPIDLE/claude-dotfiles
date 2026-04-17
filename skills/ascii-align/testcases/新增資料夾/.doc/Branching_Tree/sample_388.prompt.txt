@@ -1,0 +1,61 @@
+# _sample_388.md
+
+## Input — Code Block
+
+```
+┌───────────────────────────────────────────────────────────────┐
+│              D435i LidarScan v2                               │
+│      6-Stage 3D Point Cloud Pipeline                          │
+│      Bottleneck: 500ms vs 50ms target (10x gap)               │
+├───────────────────────────────────────────────────────────────┤
+│                                                               │
+│  ┌─────────────────────┐                                      │
+│  │  Intel D435i        │                                      │
+│  └─────────────────────┘                                      │
+│            │                                                  │
+│            v                                                  │
+│  ┌─────────────────────────┐                                  │
+│  │ Stage 1: Capture        │                                  │
+│  └────────────┬────────────┘                                  │
+│               │                                               │
+│               v                                               │
+│  ┌─────────────────────────┐                                  │
+│  │ Stage 2: NLSPN Depth    │                                  │
+│  │ Completion (>200ms)     │                                  │
+│  └────────────┬────────────┘                                  │
+│               │                                               │
+│               v                                               │
+│  ┌─────────────────────────┐                                  │
+│  │ Stage 3: YOLO Detection │                                  │
+│  └────────────┬────────────┘                                  │
+│               │                                               │
+│               v                                               │
+│  ┌─────────────────────────┐                                  │
+│  │ Stage 4: Point Cloud    │                                  │
+│  └────────────┬────────────┘                                  │
+│               │                                               │
+│               v                                               │
+│  ┌─────────────────────────┐                                  │
+│  │ Stage 5: Scene Analysis │                                  │
+│  └────────────┬────────────┘                                  │
+│               │                                               │
+│               v                                               │
+│  ┌─────────────────────────────────┐                          │
+│  │ Stage 6: SegFormer-B0 FP16      │                          │
+│  │          + Rerun 3D Viz         │                          │
+│  └─────────────────────────────────┘                          │
+│                                                               │
+│  Requires: CUDA                                               │
+└──────────────────────────────────────────────────────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L11: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L16: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L22: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L27: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L32: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L37: `▼` (BLACK DOWN-POINTING TRIANGLE)

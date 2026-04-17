@@ -9,10 +9,12 @@ ThreadPoolExecutor
 
 Gemini API 速率限制
   ├── deque 追蹤最近 25 次請求時間戳 (thread-safe)
-  ├── 超過 25 req/sec --> sleep
-  └── 429 / RESOURCE_EXHAUSTED --> 指數退避 (2^n * 2s, max 120s)
+  ├── 超過 25 req/sec → sleep
+  └── 429 / RESOURCE_EXHAUSTED → 指數退避 (2^n * 2s, max 120s)
 
 LibreOffice
   └── threading.Lock 全域鎖（不支援 concurrent instances）
 ```
+
+---
 

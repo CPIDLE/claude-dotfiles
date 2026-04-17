@@ -1,0 +1,33 @@
+=== sample_409 ===
+FAIL
+- L34: B: Stray `│@29` — appears after the legitimate right border `│@27` of the branch row with no corresponding box above or below at col 29.
+
+Corrections:
+L34: `│     │                    │                              │`
+
+=== sample_410 ===
+PASS
+
+=== sample_412 ===
+FAIL
+- L24: B: Stray `│@33` — appears after the legitimate right border `│@31` of the branch row with no corresponding box above or below at col 33.
+
+Corrections:
+L24: `│     │                        │                           │`
+
+=== sample_413 ===
+FAIL
+- L21: B: Inner box content spills outside the outer box border at col 54 — text `Qdrant      │ │ Gemini     │ │ Ollama      │  │` appears after `│@54`, indicating the three inner sub-box content rows are merged/corrupted outside the inner box right border.
+- L22: B: Same corruption — content `│ │ 2.5 Flash  │ │ bge-m3      │  │` appears after `│@54` with borders detected at cols 56, 58, 71, which are inconsistent with the inner sub-boxes defined at L20 (┌@6,┐@20, ┌@22,┐@35).
+
+=== sample_414 ===
+PASS
+
+=== sample_415 ===
+PASS
+
+=== sample_416 ===
+PASS
+
+=== sample_417 ===
+PASS

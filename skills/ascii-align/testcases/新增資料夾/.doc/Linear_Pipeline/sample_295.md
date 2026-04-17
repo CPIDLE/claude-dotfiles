@@ -6,7 +6,7 @@
 Canister (with IC) ──> EQ ARC Bowl Feeder
 Carrier (with Long Tray) ──> EQ ARC Tray Feeder
 
-         ┌──────────────┐
+         ┌─────────────┐
          │ Reel Stack   │
          │   Machine    │
          └──────┬───────┘
@@ -21,4 +21,6 @@ Carrier (with Long Tray) ──> EQ ARC Tray Feeder
     v           v
  BOX Stocker  Carrier Stocker
 ```
+
+---
 

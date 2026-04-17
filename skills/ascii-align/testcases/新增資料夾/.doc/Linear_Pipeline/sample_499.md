@@ -18,3 +18,5 @@ Gemini    + ChromaDB vector DB
          + Gemini embedding
 ```
 
+---
+

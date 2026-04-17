@@ -1,0 +1,44 @@
+# _sample_437.md
+
+⚠ **Complex diagram** — auto-detected as structurally complex (branching tree, mixed layout, or free-form flow without traditional box borders). Apply extra care: preserve all structural intent, fix only clear alignment errors, and do NOT simplify or restructure the diagram.
+
+## Input — Code Block
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│              D435i LidarScan v3                                │
+│      Multi-Mode BEV System for AMR Navigation                  │
+├────────────────────────────────────────────────────────────────┤
+│                                                                │
+│  ┌─────────────────────┐                                       │
+│  │  Intel D435i        │                                       │
+│  └─────────────────────┘                                       │
+│     │             │                                            │
+│     v              v                                           │
+│  ┌───────────────────────┐  ┌──────────────────────────────┐   │
+│  │ SegFormer-B0          │  │ Depth Anything V2            │   │
+│  │ ADE20K Semantic       │  │ Depth Calibration            │   │
+│  │ Floor Detection       │  │ Emitter Pulse 100ms          │   │
+│  └───────────┬───────────┘  └──────────────┬───────────────┘   │
+│              └──────────┬──────────────────┘                   │
+│                         │                                      │
+│                         v                                      │
+│  ┌──────────────────────────────────────────────────────┐      │
+│  │  5 BEV Modes                                         │      │
+│  ├──────────────────────────────────────────────────────┤      │
+│  │  1. IPM                                             │       │
+│  │  2. Point Cloud                                     │       │
+│  │  3. Hybrid (recommended)                            │       │
+│  │  4. Dual IR                                         │       │
+│  │  5. Vertical Scan                                   │       │
+│  └──────────────────────────────────────────────────────┘      │
+└──────────────────────────────────────────────────────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L10: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L10: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L18: `▼` (BLACK DOWN-POINTING TRIANGLE)

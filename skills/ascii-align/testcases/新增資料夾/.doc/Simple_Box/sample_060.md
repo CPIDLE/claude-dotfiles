@@ -6,7 +6,9 @@
 📊 目前狀態
 ├─ Tasks: N/M completed
 ├─ Git: X modified, Y untracked
-├─ 上次同步：<時間 或「--」>
+├─ 上次同步：<時間 或「—」>
 └─ Dashboard: <已同步 / 未同步>
 ```
+
+---
 

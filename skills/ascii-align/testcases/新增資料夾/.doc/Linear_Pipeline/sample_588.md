@@ -40,3 +40,5 @@ initial_prog.script (12,241 行 / 1,341 moves)
          呼叫: fork_sensor_check, payload, tc100_*, gripeer_cover   │
 ```
 
+---
+

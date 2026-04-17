@@ -4,7 +4,7 @@
 
 ```
 F:\機器人專案\06_AGV (來源目錄)
-        v 
+        ↓
 ┌──────────────────────────────────────────────┐
 │ Phase 1: Vault Backup                        │
 │   phase1_vault_backup.py                     │
@@ -12,7 +12,7 @@ F:\機器人專案\06_AGV (來源目錄)
 │   ├─ SHA256 去重                             │
 │   └─ 複製至 PKB/vault/（唯讀）               │
 └──────────────────────────────────────────────┘
-        v  MANIFEST.csv (14,975 檔案)
+        ↓ MANIFEST.csv (14,975 檔案)
 ┌──────────────────────────────────────────────┐
 │ Phase 2: Full Embedding                      │
 │   phase2_embed.py (orchestrator)             │
@@ -23,7 +23,7 @@ F:\機器人專案\06_AGV (來源目錄)
 │   ├─ reembed_ollama_qdrant.py (bge-m3)       │
 │   └─ phase2_notify.py (Email 進度)           │
 └──────────────────────────────────────────────┘
-        v  Qdrant (4 collections, 1M+ pts)
+        ↓ Qdrant (4 collections, 1M+ pts)
 ┌──────────────────────────────────────────────┐
 │ Phase 3: API & Synthesis                     │
 │   ├─ phase3_batch_api.py (API server)        │
@@ -31,4 +31,6 @@ F:\機器人專案\06_AGV (來源目錄)
 │   └─ 日使用統計追蹤                          │
 └──────────────────────────────────────────────┘
 ```
+
+---
 

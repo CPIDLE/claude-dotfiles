@@ -1,0 +1,47 @@
+# _sample_380.md
+
+## Input — Code Block
+
+```
+┌───────────────────────────────────────────────────────────┐
+│                    StockSage                              │
+│             ML Stock Prediction                           │
+├───────────────────────────────────────────────────────────┤
+│                                                           │
+│  ┌─────────────────────────────────────────────────┐      │
+│  │  Daily Model                                    │      │
+│  │  Transformer Encoder                            │      │
+│  │  5-day x  30 features, 3-class                   │      │
+│  │  OOS accuracy: 48.9%                            │      │
+│  └────────────────────┬────────────────────────────┘      │
+│                       │                                   │
+│                       v                                   │
+│  ┌──────────────────────────────────────────────────┐     │
+│  │  GMP Model                                       │     │
+│  │  LightGBM (~55 tickers)                          │     │
+│  │  555 features                                    │     │
+│  │  Vectorized: 4min --> 10s                         │     │
+│  └──────────────────────────────────────────────────┘     │
+│                       │                                   │
+│                       v                                   │
+│  ┌─────────────────────────────────────────────────┐      │
+│  │  Daily Email via Gmail API                      │      │
+│  └─────────────────────────────────────────────────┘      │
+│                                                           │
+│  Scheduler: Windows Task Scheduler                        │
+└──────────────────────────────────────────────────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L9: `×` (MULTIPLICATION SIGN)
+  L13: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L18: `→` (RIGHTWARDS ARROW)
+  L21: `▼` (BLACK DOWN-POINTING TRIANGLE)
+
+**Width mismatches (need fixing):**
+  Group L1-L27 target=61:
+    L9: w=62 (+1)
+    L18: w=62 (+1)

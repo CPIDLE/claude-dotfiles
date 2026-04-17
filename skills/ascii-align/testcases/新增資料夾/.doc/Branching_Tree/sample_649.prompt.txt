@@ -1,0 +1,91 @@
+# _sample_649.md
+
+## Input — Code Block
+
+```
+sensor_msgs/Image (深度圖, 16UC1 or 32FC1)
+  +
+sensor_msgs/CameraInfo (相機內參)
+        │
+        v 
+  ┌─────────────────────────────────────────────────────┐
+  │  0  預計算查找表 (LUT)  -- 僅在啟動/參數變更時執行一次  │
+  │                                                     │
+  │  對每個像素 (u, v) 預先計算:                           │
+  │    *  ray_x = (u - cx) / fx                          │
+  │    *  ray_y = (v - cy) / fy                          │
+  │    *  水平角度 angle = atan2(ray_x, 1.0)             │
+  │    *  對應的 angular bin index                        │
+  │    *  地平面高度係數 (用於快速高度計算)                  │
+  └─────────────────┬───────────────────────────────────┘
+                    │ (一次性, 啟動時)
+                    v 
+  ┌─────────────────────────────────────────────────────┐
+  │  1  地平面校正  -- 啟動時收集 N 幀，RANSAC 擬合一次     │
+  │                                                     │
+  │  校正完成後，對每個像素預計算:                          │
+  │    height_coeff[u,v] = (a. ray_x + b. ray_y + c) / ||n||│
+  │  使得: 像素高度 = depth x  height_coeff[u,v] + d/||n||  │
+  └─────────────────┬───────────────────────────────────┘
+                    │ (一次性, 校正後)
+                    v 
+  ┌─────────────────────────────────────────────────────┐
+  │  2  單次遍歷核心（每幀執行）                            │
+  │                                                     │
+  │  for each pixel (u, v):                             │
+  │    depth = depth_image[v][u]                        │
+  │    if depth < range_min or depth > range_max:       │
+  │        continue                  // 距離無效          │
+  │                                                     │
+  │    height = depth x  height_coeff[u][v] + d_offset   │
+  │    if height < h_min or height > h_max:             │
+  │        continue                  // 高度不在避障範圍   │
+  │                                                     │
+  │    bin = bin_index_lut[u]        // 查表取角度 bin    │
+  │    range = depth x  range_coeff[u][v]  // 水平距離    │
+  │                                                     │
+  │    if range < scan[bin]:                            │
+  │        scan[bin] = range         // 保留最近點        │
+  │                                                     │
+  └─────────────────┬───────────────────────────────────┘
+                    │
+                    v 
+          sensor_msgs/LaserScan (虛擬 2D LiDAR)
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L5: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L7: `⓪` (CIRCLED DIGIT ZERO)
+  L7: `—` (EM DASH)
+  L10: `•` (BULLET)
+  L11: `•` (BULLET)
+  L12: `•` (BULLET)
+  L13: `•` (BULLET)
+  L14: `•` (BULLET)
+  L17: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L19: `①` (CIRCLED DIGIT ONE)
+  L19: `—` (EM DASH)
+  L22: `·` (MIDDLE DOT)
+  L22: `·` (MIDDLE DOT)
+  L22: `‖` (DOUBLE VERTICAL LINE)
+  L22: `‖` (DOUBLE VERTICAL LINE)
+  L23: `×` (MULTIPLICATION SIGN)
+  L23: `‖` (DOUBLE VERTICAL LINE)
+  L23: `‖` (DOUBLE VERTICAL LINE)
+  L26: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L28: `②` (CIRCLED DIGIT TWO)
+  L35: `×` (MULTIPLICATION SIGN)
+  L40: `×` (MULTIPLICATION SIGN)
+  L47: `▼` (BLACK DOWN-POINTING TRIANGLE)
+
+**Width mismatches (need fixing):**
+  Group L29-L45 target=57:
+    L33: w=59 (+2)
+    L35: w=58 (+1)
+    L37: w=60 (+3)
+    L39: w=59 (+2)
+    L40: w=59 (+2)
+    L43: w=59 (+2)

@@ -8,7 +8,7 @@ Web 前端（單檔 HTML + vanilla JS）
   ├─ 拖曳/Ctrl+V 上傳
   └─ localStorage 對話持久化（3 天 / 10MB）
     │
-    v 
+    ▼
 FastAPI 後端 (api/main.py)
   ├─ /chat (Gemini Function Calling 入口)
   │   ├─ search_documents
@@ -20,10 +20,12 @@ FastAPI 後端 (api/main.py)
   ├─ /kb-image/{path} (靜態服務)
   └─ /health
     │
-    v 
+    ▼
 ChromaDB（本地持久化）
   + gemini-embedding-001 (3072 維)
   + gemini-2.0-flash (Chat)
   + gemini-2.5-flash-image (生成)
 ```
+
+---
 

@@ -4,11 +4,13 @@
 
 ```
 Need security?
-├─ Web Application Firewall --> waf/
-├─ DDoS protection --> ddos/
-├─ Bot detection/management --> bot-management/
-├─ API protection --> api-shield/
-├─ CAPTCHA alternative --> turnstile/
-└─ Credential leak detection --> waf/ (managed ruleset)
+├─ Web Application Firewall → waf/
+├─ DDoS protection → ddos/
+├─ Bot detection/management → bot-management/
+├─ API protection → api-shield/
+├─ CAPTCHA alternative → turnstile/
+└─ Credential leak detection → waf/ (managed ruleset)
 ```
+
+---
 

@@ -4,15 +4,17 @@
 
 ```
 Need to run code?
-├─ Serverless functions at the edge --> workers/
-├─ Full-stack web app with Git deploys --> pages/
-├─ Stateful coordination/real-time --> durable-objects/
-├─ Long-running multi-step jobs --> workflows/
-├─ Run containers --> containers/
-├─ Multi-tenant (customers deploy code) --> workers-for-platforms/
-├─ Scheduled tasks (cron) --> cron-triggers/
-├─ Lightweight edge logic (modify HTTP) --> snippets/
-├─ Process Worker execution events (logs/observability) --> tail-workers/
-└─ Optimize latency to backend infrastructure --> smart-placement/
+├─ Serverless functions at the edge → workers/
+├─ Full-stack web app with Git deploys → pages/
+├─ Stateful coordination/real-time → durable-objects/
+├─ Long-running multi-step jobs → workflows/
+├─ Run containers → containers/
+├─ Multi-tenant (customers deploy code) → workers-for-platforms/
+├─ Scheduled tasks (cron) → cron-triggers/
+├─ Lightweight edge logic (modify HTTP) → snippets/
+├─ Process Worker execution events (logs/observability) → tail-workers/
+└─ Optimize latency to backend infrastructure → smart-placement/
 ```
+
+---
 

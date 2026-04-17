@@ -11,7 +11,7 @@
 ┌──────────────┐  ┌──────────────┐            ┌──────────────┐
 │   Step 0     │  │   Step 1     │            │   Step N     │
 │   model.do   │  │   model.do   │            │   model.do   │
-│   Stream()   │  │   Stream()   │    ...     │   Stream()   │
+│   Stream()   │  │   Stream()   │    ···     │   Stream()   │
 └──────┬───────┘  └──────┬───────┘            └──────┬───────┘
        │                 │                           │
  tool callbacks    tool callbacks              tool callbacks
@@ -21,12 +21,12 @@
  step metadata     step metadata               step metadata
  + start/finish    + start/finish              + start/finish
        │                 │                           │
-       v                  v                            v 
+       ▼                 ▼                           ▼
 ┌────────────────────────────────────────────────────────────┐
 │        addStream()    addStream()         addStream()      │
 │                                                            │
 │                   STITCHABLE STREAM                        │
-│     (sequential queue -- consumes one at a time,           │
+│     (sequential queue — consumes one at a time,            │
 │      next step added on recursion from flush)              │
 └─────────────────────────┬──────────────────────────────────┘
                           │
@@ -37,23 +37,23 @@
              │    (single linear transform chain)  │
              └────────────┬────────────────────────┘
                           │
-                          v 
+                          ▼
                   resilient stream
              (abort handling + start event)
                           │
-                          v 
+                          ▼
                       stop gate
                  (stopStream() support)
                           │
-                          v 
+                          ▼
                    user transforms
                (experimental_transform[])
                           │
-                          v 
+                          ▼
                    output transform
                (enrich w/ partialOutput)
                           │
-                          v 
+                          ▼
                    event processor
                  (onChunk, onStepFinish,
                   accumulate content,
@@ -72,7 +72,7 @@
         │   each can be called multiple times   │
         └──┬─────┬──────┬────┬──────┬────┬──────┘
            │     │      │    │      │    │
-           v      v       v     v       v     v 
+           ▼     ▼      ▼    ▼      ▼    ▼
          text  full  partial elem   UI  consume
         Stream Stream Output Stream Msg  Stream
                       Stream       Stream
@@ -81,3 +81,6 @@
         only)                             resolves
                                           promises)
 ````
+
+---
+

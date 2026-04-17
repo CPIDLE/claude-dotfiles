@@ -4,11 +4,11 @@
 
 ```
 Phase 1：環境探索（SSH 指令為主）
-  ├── 系統資訊 --> lscpu, free, uptime, df
-  ├── CPU 概覽 --> vmstat, top batch
-  ├── 記憶體概覽 --> free, ps --sort=-%mem
-  ├── Docker 容器 --> docker ps, docker stats
-  ├── ROS 環境 --> rosnode list, rosversion
+  ├── 系統資訊 → lscpu, free, uptime, df
+  ├── CPU 概覽 → vmstat, top batch
+  ├── 記憶體概覽 → free, ps --sort=-%mem
+  ├── Docker 容器 → docker ps, docker stats
+  ├── ROS 環境 → rosnode list, rosversion
   └── 輸出：Phase1_環境探索報告.md
 
 Phase 2：原始碼深度分析（SSH + Git + /proc）
@@ -30,6 +30,8 @@ Phase 3：優化建議整理（本地分析為主）
   ├── 獨立審核 agent 進行紅隊式否定審查
   ├── 每輪審核產出補充驗證指令
   ├── 執行補充指令後更新報告
-  └── 輸出：Phase1_2_審核報告.md（初審 --> 二審 --> 三審）
+  └── 輸出：Phase1_2_審核報告.md（初審 → 二審 → 三審）
 ```
+
+---
 

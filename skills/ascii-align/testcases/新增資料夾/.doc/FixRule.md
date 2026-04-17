@@ -48,6 +48,10 @@ python symbol_fix.py <path>        # 自動替換 + 寬度診斷
 | 症狀 | 原因 | 修法 |
 |------|------|------|
 | content│ 比 ┐ 多 1 col | CJK content 比 hrule 寬 | -1 trailing space 或擴展 hrule |
+| parallel box 多行替換後全部偏移 | `→`→`-->` 累積 +N width | 擴展 hrule 到 max content，窄行補 sp |
+| parallel 右列不對齊 | 左 box 擴展後 gap 變窄 | 固定右列起始 col，調整 gap 吸收差異 |
+| `←→` 變 `<---->` | symbol_fix 分別替換 `←`+`→` | 語意是雙向箭頭時手動改為 `<->` |
+| connector `──│──→` 跨 box | `→`→`-->` 後 gap 不夠 | 調整 ── 數量或 gap 使 │ column 對齊 |
 | └┘ 比 ┌┐ 寬 1 | 底部 ┬ 多佔 1 col | +1─ 在 hrule 對齊 |
 | v 比上方│ 多 1-N col | `▼`→`v ` 累積偏移 | 逐 v 調間距，對齊 junction col |
 | connector chain ┬→│→┴ 不齊 | CJK/hrule 偏移 | 逐行驗 column，統一到 ┬ 定義的 col |

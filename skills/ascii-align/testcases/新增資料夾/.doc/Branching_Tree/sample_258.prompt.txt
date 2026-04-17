@@ -1,0 +1,38 @@
+# _sample_258.md
+
+## Input — Code Block
+
+```
+                    ┌──────────────────┐
+    RTDE (reg 0-2)  │   PLC / MES      │
+   <─────────────────>│  (外部控制器)    │
+                    └──────────────────┘
+                            │
+                    ┌───────┴───────┐
+                    │    UR30       │
+                    │ (Polyscope)   │
+                    └──┬───┬───┬───┘
+          Modbus TCP   │   │   │  RS485
+       ┌───────────────┘   │   └──────────────┐
+       v                    v                    v 
+┌──────────────┐  ┌──────────────┐  ┌──────────────────┐
+│ PLC/IO 模組  │  │  SensoPart   │  │ TC100 Gripper    │
+│ 192.168.1.1  │  │  VISOR       │  │ + RS485 IO Box   │
+│ Modbus TCP   │  │  XML-RPC     │  │ Tool Modbus      │
+│ port 502     │  │  port 46527  │  │ addr 1,2         │
+└──────────────┘  └──────────────┘  └──────────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L3: `◄` (BLACK LEFT-POINTING POINTER)
+  L3: `►` (BLACK RIGHT-POINTING POINTER)
+  L12: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L12: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L12: `▼` (BLACK DOWN-POINTING TRIANGLE)
+
+**Width mismatches (need fixing):**
+  Group L1-L4 target=40:
+    L3: w=42 (+2)

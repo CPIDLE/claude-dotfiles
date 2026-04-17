@@ -1,0 +1,113 @@
+# ASCII Art Fix — sample_443.md
+
+## Character Width Rules (Sarasa Mono TC)
+
+| Category | Examples | Width |
+|----------|----------|-------|
+| ASCII printable | A-Z, 0-9, punctuation | 1 |
+| Box drawing | `─│┌┐└┘├┤┬┴┼═║┏┓┗┛╞╘╪┊╱╲` | 1 |
+| CJK characters | Chinese/Japanese/Korean hanzi | 2 |
+| Full-width brackets | `（）` | 2 |
+| Degree / EN dash | `°` `–` | 1 |
+| Other Unicode | `→×▼●★✓` (forbidden, already replaced) | 2 |
+
+**Rule:** every `│...│` content row must have the same display width as the
+horizontal rule lines (`┌──┐` / `└──┘` / `├──┤`) in the same box.
+
+## Forbidden Symbols (already replaced in the input below)
+
+| Was | Now | Reason |
+|-----|-----|--------|
+| `→` `←` | `-->` `<--` | arrows are w2 in Sarasa Mono TC |
+| `↑` `↓` | `^` `v` | vertical arrows w2 |
+| `▼` `▲` | `v` `^` | solid triangles w2 |
+| `×` | `x` | multiplication sign w2 |
+| `●` `○` | `*` `o` | circles w2 |
+| `✓` `✗` | `OK` `NG` | check/cross w2 |
+| `·` `•` | `.` `*` | middle dots w2 |
+
+Do NOT reintroduce any forbidden symbol in the output.
+
+## Input — Code Block
+
+```
+┌───────────────────────────────────────────────────────────┐
+│              UR Program Analysis                          │
+│      Offline Toolchain for UR30 Cobot                     │
+├───────────────────────────────────────────────────────────┤
+│                                                           │
+│  72 files, 64,503 lines                                   │
+│            │                                              │
+│            v                                               │
+│  ┌───────────────────┐                                    │
+│  │  Python CLI       │                                    │
+│  └───────────────────┘                                    │
+│           │                                               │
+│           v                                                │
+│  ┌───────────────────┐                                    │
+│  │  Parser           │                                    │
+│  └───────────────────┘                                    │
+│           │                                               │
+│           v                                                │
+│  ┌───────────────────┐                                    │
+│  │  Tree Parser      │                                    │
+│  └───────────────────┘                                    │
+│           │                                               │
+│           v                                                │
+│  ┌───────────────────┐                                    │
+│  │  Project Loader   │                                    │
+│  └───────────────────┘                                    │
+│           │                                               │
+│           v                                                │
+│  ┌───────────────────┐                                    │
+│  │  Flow Analyzer    │                                    │
+│  └───────────────────┘                                    │
+│           │                                               │
+│     ┌─────┼──────────────┐                                │
+│     │     │              │                                │
+│     v      v               v                                 │
+│  ┌─────┐ ┌───────────┐ ┌───────────────┐                  │
+│  │ Doc │ │ Simplifier│ │ FK Kinematics │                  │
+│  │ Gen │ │           │ │ 91.5% pass    │                  │
+│  └─────┘ └───────────┘ └───────────────┘                  │
+│                                                           │
+│  Output: 82 analysis docs, 46 tests                       │
+└───────────────────────────────────────────────────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L8: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L13: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L18: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L23: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L28: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L35: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L35: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L35: `▼` (BLACK DOWN-POINTING TRIANGLE)
+
+**Width mismatches (need fixing):**
+  Group L1-L42 target=61:
+    L8: w=62 (+1)
+    L13: w=62 (+1)
+    L18: w=62 (+1)
+    L23: w=62 (+1)
+    L28: w=62 (+1)
+    L35: w=64 (+3)
+
+## Task
+
+Rewrite the ASCII art so that every `│...│` content row has **identical display
+width** matching its surrounding horizontal rule lines:
+
+- CJK characters (Chinese/Japanese/Korean) = 2 columns each
+- Box-drawing characters (`─│┌┐` etc.) = 1 column each
+- ASCII characters = 1 column each
+- Trailing spaces before the right border `│` must be adjusted to pad to target width
+
+Preserve all structure and content; only fix spacing/padding.
+Do NOT introduce any forbidden Unicode symbol.
+
+Output: the corrected art as a single fenced code block. No explanation.

@@ -1,0 +1,43 @@
+# _sample_148.md
+
+## Input — Code Block
+
+```
+┌───────────────────────────────────┐
+│         Warning1（外層）           │  --> 第一級預警：減速準備
+│   ┌───────────────────────────┐   │
+│   │      Warning2（中間）      │   │  --> 第二級警告：主動減速
+│   │   ┌───────────────────┐   │   │
+│   │   │  Protection1（內層）│   │   │  --> 保護區：急停
+│   │   │                   │   │   │
+│   │   │    [感測器]        │   │   │
+│   │   └───────────────────┘   │   │
+│   └───────────────────────────┘   │
+└───────────────────────────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L2: `→` (RIGHTWARDS ARROW)
+  L4: `→` (RIGHTWARDS ARROW)
+  L6: `→` (RIGHTWARDS ARROW)
+
+**Width mismatches (need fixing):**
+  Group L7-L11 target=37:
+    L8: w=38 (+1)
+
+
+## Review Issues — Round 1
+
+- L6: Rule B: inner box right border pushed to @30 by CJK content overflow; hrule L5 has ┐@28, L7 has │@28, but L6 '  Protection1（內層）' = 21 display cols overflows the 19-col content area (cols 9..27), shifting the closing │ from @28 to @30
+
+**Suggested corrections:**
+L6: `│   │   │Protection1（內層）│   │   │`
+
+## Task — Round 2
+
+Fix the specific issues listed in 'Review Issues — Round 1' above.
+Do NOT change any part of the diagram not mentioned in those issues.
+After fixing, verify with: python ascii_align.py --check <file>

@@ -4,7 +4,9 @@
 
 ```
 IF: var_MR_check_PSPL == true
-  ├─ [true]  --> 執行 Modbus 讀取 PS/PL 確認
-  └─ [false] --> 跳過檢查，直接操作
+  ├─ [true]  → 執行 Modbus 讀取 PS/PL 確認
+  └─ [false] → 跳過檢查，直接操作
 ```
+
+---
 

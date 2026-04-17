@@ -1,0 +1,32 @@
+# _sample_558.md
+
+⚠ **Complex diagram** — auto-detected as structurally complex (branching tree, mixed layout, or free-form flow without traditional box borders). Apply extra care: preserve all structural intent, fix only clear alignment errors, and do NOT simplify or restructure the diagram.
+
+## Input — Code Block
+
+```
+                        MainFlow (113 節點)
+                             │
+          ┌──────────┬───────┴───────┬───────────┐
+          │          │               │           │
+    37 SubFlow   5 MultiThread  68 Vision   244 變數
+          │          │               Job    370 點位
+          │          │
+  ┌───────┴───────┐  ├─ CHECK_ALL_SENSOR_WHEN_CAR_MOVING
+  │ MR_PORT_PLACE │  ├─ CHECK_ENCODER
+  │  (423 節點)   │  ├─ CHECK_GRIP
+  │               │  ├─ Pause_handle
+  │ HT_9046LS_    │  └─ Pub_RS485IO
+  │ TMMARK_NORMAL │
+  │  (259 節點)   │
+  └───────────────┘
+
+  設計哲學：模組化 .  數據驅動 .  主人模式（主動 Modbus 監聽自主決策）
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L17: `·` (MIDDLE DOT)
+  L17: `·` (MIDDLE DOT)

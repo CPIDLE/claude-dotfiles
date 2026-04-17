@@ -1,0 +1,47 @@
+=== sample_365 ===
+FAIL
+- L7: Rule A: connector │ at display col 13, but connector rows below (L12, L17, L22, L27, L32) show │ at col 12; should be col 12
+- L34: Rule B: stray │ at col 29 outside the branch right border ┐@27
+- L35: Rule A: second v at col 13 (should be col 12, aligning with ┼@12 in L33); third v at col 29 (should be col 27, aligning with ┐@27 in L33)
+
+Corrections:
+L7:  `│            │                                              │`
+L34: `│     │                        │                            │`
+L35: `│     v     v              v                               │`
+
+=== sample_367 ===
+PASS
+
+=== sample_371 ===
+FAIL
+- L24: Rule B: stray │ at col 33 outside the branch right border ┐@31
+- L25: Rule A: second v at col 13 (should be col 12, aligning with ┼@12 in L23); third v at col 33 (should be col 31, aligning with ┐@31 in L23)
+
+Corrections:
+L24: `│     │                        │                              │`
+L25: `│     v     v                  v                              │`
+
+=== sample_373 ===
+FAIL
+- L21: Rule B: inner box content spills far outside the expected right border col 54; text "Qdrant", "Gemini", "Ollama" and extra │ chars appear well beyond col 54 (at cols 68, 70, 83)
+- L22: Rule B: same corruption — "2.5 Flash", "bge-m3" and extra │ chars appear outside right border (cols 56, 58, 71); inner box structure completely broken
+
+Corrections:
+L21: `│  │  │ Qdrant      │  │ Gemini     │  │ Ollama      │  │                                                     │`
+L22: `│  │  │             │  │ 2.5 Flash  │  │ bge-m3      │  │                                                     │`
+
+=== sample_375 ===
+PASS
+
+=== sample_376 ===
+FAIL
+- L22: Rule B: inner box content spills outside right border ┐@56; text "│ Google Sheet │ progress.md          │" appears at cols 57–97 outside the inner box
+
+Corrections:
+L22: `│  │  Status Line                                       │                                        │`
+
+=== sample_378 ===
+PASS
+
+=== sample_380 ===
+PASS

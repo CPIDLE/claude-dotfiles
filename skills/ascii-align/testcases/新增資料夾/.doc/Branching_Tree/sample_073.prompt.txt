@@ -1,0 +1,31 @@
+# _sample_073.md
+
+## Input — Code Block
+
+```
+Font: Sarasa Mono TC.
+Display width: box-drawing (─│├┐┘┤┌┬┴┼) = 1 col,
+arrows (v ^ --><--) = 2 cols, geometric (* o # []* ) = 2 cols.
+
+Rules:
+- Every line in a box group must have identical display width
+- Only adjust spacing. Never change text content.
+- v /--> must start at same column as │ above it
+- Junction (┬┴┼) must align vertically with │ in content lines
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L3: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L3: `▲` (BLACK UP-POINTING TRIANGLE)
+  L3: `→` (RIGHTWARDS ARROW)
+  L3: `←` (LEFTWARDS ARROW)
+  L3: `●` (BLACK CIRCLE)
+  L3: `○` (WHITE CIRCLE)
+  L3: `■` (BLACK SQUARE)
+  L3: `□` (WHITE SQUARE)
+  L3: `◆` (BLACK DIAMOND)
+  L8: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L8: `→` (RIGHTWARDS ARROW)

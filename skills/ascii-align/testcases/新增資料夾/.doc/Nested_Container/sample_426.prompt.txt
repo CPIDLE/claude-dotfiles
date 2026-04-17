@@ -1,0 +1,61 @@
+# _sample_426.md
+
+## Input — Code Block
+
+```
+┌───────────────────────────────────────────────────────────┐
+│              UR Program Analysis                          │
+│      Offline Toolchain for UR30 Cobot                     │
+├───────────────────────────────────────────────────────────┤
+│                                                           │
+│  72 files, 64,503 lines                                   │
+│            │                                              │
+│            v                                              │
+│  ┌───────────────────┐                                    │
+│  │  Python CLI       │                                    │
+│  └───────────────────┘                                    │
+│           │                                               │
+│           v                                               │
+│  ┌───────────────────┐                                    │
+│  │  Parser           │                                    │
+│  └───────────────────┘                                    │
+│           │                                               │
+│           v                                               │
+│  ┌───────────────────┐                                    │
+│  │  Tree Parser      │                                    │
+│  └───────────────────┘                                    │
+│           │                                               │
+│           v                                               │
+│  ┌───────────────────┐                                    │
+│  │  Project Loader   │                                    │
+│  └───────────────────┘                                    │
+│           │                                               │
+│           v                                               │
+│  ┌───────────────────┐                                    │
+│  │  Flow Analyzer    │                                    │
+│  └───────────────────┘                                    │
+│           │                                               │
+│     ┌─────┼──────────────┐                                │
+│     │                    │ │                              │
+│     v      v               v                              │
+│  ┌─────┐ ┌───────────┐ ┌───────────────┐                  │
+│  │ Doc │ │ Simplifier│ │ FK Kinematics │                  │
+│  │ Gen │ │           │ │ 91.5% pass    │                  │
+│  └─────┘ └───────────┘ └───────────────┘                  │
+│                                                           │
+│  Output: 82 analysis docs, 46 tests                       │
+└────────────────────────────────────────────────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L8: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L13: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L18: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L23: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L28: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L35: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L35: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L35: `▼` (BLACK DOWN-POINTING TRIANGLE)

@@ -1,0 +1,62 @@
+# _sample_089.md
+
+⚠ **Complex diagram** — auto-detected as structurally complex (branching tree, mixed layout, or free-form flow without traditional box borders). Apply extra care: preserve all structural intent, fix only clear alignment errors, and do NOT simplify or restructure the diagram.
+
+## Input — Code Block
+
+```
+pipeline.wait_for_frames()
+         │
+         ├───> depth_frame
+         │         │
+         │         v   Post-processing pipeline
+         │    ┌─────────────┐
+         │    │ Decimation   │  1280x720 --> 640x360 (mag=2)
+         │    └──────┬──────┘
+         │    ┌──────v ──────┐
+         │    │ Threshold    │  Remove < range_min or > range_max
+         │    └──────┬──────┘
+         │    ┌──────v ──────┐
+         │    │ Spatial      │  Edge-preserving spatial smoothing
+         │    └──────┬──────┘
+         │    ┌──────v ──────┐
+         │    │ Temporal     │  Cross-frame temporal smoothing
+         │    └──────┬──────┘
+         │           v 
+         │    filtered depth_frame
+         │    (+ update intrinsics if resolution changed)
+         │
+         ├───> color_frame --> RGB8 image (1280x720)
+         │    (stored for ground synthesis + visualization)
+         │
+         ├───> infrared_frame(1) --> Left IR (1280x720 Y8)  *
+         ├───> infrared_frame(2) --> Right IR (1280x720 Y8) *
+         │    (* when --neural-stereo enabled)
+         │
+         ├───> accel_frame --> [ax, ay, az]  (m/s^2)
+         │
+         └───> gyro_frame  --> [gx, gy, gz]  (rad/s)
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L3: `►` (BLACK RIGHT-POINTING POINTER)
+  L5: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L7: `→` (RIGHTWARDS ARROW)
+  L9: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L12: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L15: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L18: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L22: `►` (BLACK RIGHT-POINTING POINTER)
+  L22: `→` (RIGHTWARDS ARROW)
+  L25: `►` (BLACK RIGHT-POINTING POINTER)
+  L25: `→` (RIGHTWARDS ARROW)
+  L26: `►` (BLACK RIGHT-POINTING POINTER)
+  L26: `→` (RIGHTWARDS ARROW)
+  L29: `►` (BLACK RIGHT-POINTING POINTER)
+  L29: `→` (RIGHTWARDS ARROW)
+  L29: `²` (SUPERSCRIPT TWO)
+  L31: `►` (BLACK RIGHT-POINTING POINTER)
+  L31: `→` (RIGHTWARDS ARROW)

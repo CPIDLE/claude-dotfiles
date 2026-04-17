@@ -5,8 +5,10 @@
 ```
 /gyro-kb ── 產出 .md 報告
   │
-  ├── /gyro-report ── MD --> HTML（螢幕預覽、互動式導覽）
+  ├── /gyro-report ── MD → HTML（螢幕預覽、互動式導覽）
   │
-  └── Marp CLI ── MD --> PPTX / PDF（客戶交付）
+  └── Marp CLI ── MD → PPTX / PDF（客戶交付）
 ```
+
+---
 

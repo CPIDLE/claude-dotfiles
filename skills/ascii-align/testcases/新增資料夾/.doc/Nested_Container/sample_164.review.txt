@@ -1,0 +1,135 @@
+# ASCII Art LLM Review — Structural Checks
+
+The programmatic width check has already passed (every │...│ row matches its hrule width).
+Your job: catch structural issues the width checker cannot detect.
+
+## Character Width Reference (Sarasa Mono TC)
+
+- ASCII characters: 1 column each
+- Box drawing (─│┌┐└┘├┤┬┴┼ etc.): 1 column each
+- CJK characters (Chinese/Japanese/Korean): 2 columns each
+- Full-width brackets （）: 2 columns each
+- Degree ° / EN dash –: 1 column each
+
+**Display column** = sum of character widths from the start of the line (col 0).
+
+---
+
+## Rule A: Vertical Connector Column Consistency
+
+For `│` and `v` used as FLOW CONNECTORS between boxes (not as box left/right borders):
+- All connector characters in the same flow path must stay in the **same display column** across consecutive rows.
+- A connector `│` or `v` must align with the `┬` or `┴` junction it connects to (same display column).
+- A connector `v` pointing INTO a box must be within the box's column span (between left `│` col and right `│` col of that box).
+
+## Rule B: Structural Corruption
+
+Lines where box structure appears broken:
+- Inner box content spilling OUTSIDE its expected right border column (text after closing `│`)
+- Box-drawing characters (└┘┌┐├┤┬┴┼) appearing at positions not consistent with any box above/below
+- Lines where display width jumps by more than 5 columns with no structural reason
+
+## Rule C: Parallel Box Connector/Gap Parity
+
+When boxes are side by side with a connector row (e.g. `│────>│`) and gap rows (e.g. `│    │`):
+- The connector display width must **equal** the gap display width between those same borders.
+- Example: hrule `┐    ┌` has 4-char gap → the connector between those borders must also be exactly 4 display columns.
+
+## Rule D: CJK Label Row Alignment
+
+Label rows (lines with CJK text OUTSIDE box borders, typically below closing `└─┘` lines):
+- Spaces after CJK text must account for **display width** (each CJK char = 2 cols, but 1 raw byte in column count).
+- Verify: box-drawing chars (└ ┘ │) in a label row must align with the same character's display column in the bordered rows above/below.
+- Common error: using `N` ASCII spaces after CJK text when `N-1` spaces are needed (because CJK occupies 2 cols but the programmer counted 1).
+- Example (WRONG): `    可平行          └` — `可平行` takes 6 display cols but only 3 raw chars, so 10 ASCII spaces after it places `└` at display col 20 instead of 19.
+- Example (RIGHT): `    可平行         └` — 9 ASCII spaces puts `└` at display col 19.
+
+---
+
+## Output Format
+
+**If all checks pass**, output exactly:
+```
+PASS
+```
+
+**If issues found**, output each issue on its own line, then a blank line, then corrected lines:
+```
+FAIL
+- L<N>: <Rule letter>: <description of the problem with display column numbers>
+- L<N>: <Rule letter>: <description>
+
+Corrections:
+L<N>: `<corrected line content>`
+L<N>: `<corrected line content>`
+```
+
+Only flag **clear violations**. If you are unsure whether something is intentional design, output PASS.
+Do not re-check widths (already verified). Do not flag style issues.
+
+---
+
+## File: vv_sample_164.md  (Review round 2)
+
+### Code Block
+
+```
+┌─────────────────────────────────────────────────────┐
+│  EC2 (t3.medium+)                                   │
+│                                                     │
+│  ┌───────────┐   ┌──────────────┐   ┌────────────┐  │
+│  │  Caddy    │ ->│  n8n         │   │ Reporter   │  │
+│  │  (HTTPS)  │   │  (LINE Bot)  │ ->│ API        │  │
+│  │  :80/:443 │   │  :5678       │   │ (FastAPI)  │  │
+│  └───────────┘   └──────────────┘   │ :8000      │  │
+│        │                             │            │ │
+│        │ /images/* -> 靜態檔案       │ /report    │ │
+│        │                             │ /search    │ │
+│        │                             │ /calc      │ │
+│        │                            └───────┬────┘  │
+│        │                                    │       │
+│  ┌─────v────────────────────────────────────v─────┐ │
+│  │  .doc/ 知識庫（共用 volume）                   │ │
+│  │  55MB, 7,338 索引, 5,636 txt                   │ │
+│  └────────────────────────────────────────────────┘ │
+└──────────────────────────┬──────────────────────────┘
+                           │
+                    ┌──────v──────┐
+                    │ Google      │
+                    │ Gemini API  │
+                    │ - 2.5 Pro   │
+                    │ - Embedding │
+                    └─────────────┘
+
+```
+
+**Border positions (display columns):**
+```
+L  1: ┌─────────────────────────────────────────────────────┐  [┌@0, ┐@54]
+L  2: │  EC2 (t3.medium+)                                   │  [│@0, │@54]
+L  3: │                                                     │  [│@0, │@54]
+L  4: │  ┌───────────┐   ┌──────────────┐   ┌────────────┐  │  [│@0, ┌@3, ┐@15, ┌@19, ┐@34, ┌@38]
+L  5: │  │  Caddy    │ ->│  n8n         │   │ Reporter   │  │  [│@0, │@3, │@15, │@19, │@34, │@38]
+L  6: │  │  (HTTPS)  │   │  (LINE Bot)  │ ->│ API        │  │  [│@0, │@3, │@15, │@19, │@34, │@38]
+L  7: │  │  :80/:443 │   │  :5678       │   │ (FastAPI)  │  │  [│@0, │@3, │@15, │@19, │@34, │@38]
+L  8: │  └───────────┘   └──────────────┘   │ :8000      │  │  [│@0, └@3, ┘@15, └@19, ┘@34, │@38]
+L  9: │        │                             │            │ │  [│@0, │@9, │@39, │@52, │@54]
+L 10: │        │ /images/* -> 靜態檔案       │ /report    │ │  [│@0, │@9, │@39, │@52, │@54]
+L 11: │        │                             │ /search    │ │  [│@0, │@9, │@39, │@52, │@54]
+L 12: │        │                             │ /calc      │ │  [│@0, │@9, │@39, │@52, │@54]
+L 13: │        │                            └───────┬────┘  │  [│@0, │@9, └@38, ┬@46, ┘@51, │@54]
+L 14: │        │                                    │       │  [│@0, │@9, │@46, │@54]
+L 15: │  ┌─────v────────────────────────────────────v─────┐ │  [│@0, ┌@3, ┐@52, │@54]
+L 16: │  │  .doc/ 知識庫（共用 volume）                   │ │  [│@0, │@3, │@52, │@54]
+L 17: │  │  55MB, 7,338 索引, 5,636 txt                   │ │  [│@0, │@3, │@52, │@54]
+L 18: │  └────────────────────────────────────────────────┘ │  [│@0, └@3, ┘@52, │@54]
+L 19: └──────────────────────────┬──────────────────────────┘  [└@0, ┬@27, ┘@54]
+L 20:                            │  [│@27]
+L 21:                     ┌──────v──────┐  [┌@20, ┐@34]
+L 22:                     │ Google      │  [│@20, │@34]
+L 23:                     │ Gemini API  │  [│@20, │@34]
+L 24:                     │ - 2.5 Pro   │  [│@20, │@34]
+L 25:                     │ - Embedding │  [│@20, │@34]
+L 26:                     └─────────────┘  [└@20, ┘@34]
+L 27: 
+```

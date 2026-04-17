@@ -15,3 +15,5 @@ Chrome 端
 └─ localStorage (對話歷史 + 設定)
 ```
 
+---
+

@@ -25,7 +25,7 @@
 │                                             │
 │ 4. Configure post-processing filters        │
 │    ├── Decimation: magnitude = 2            │
-│    │   (1280x720 --> 640x360)               │
+│    │   (1280x720 → 640x360)                │
 │    ├── Spatial: alpha=0.5, delta=20         │
 │    ├── Temporal: alpha=0.2, delta=50        │
 │    └── Threshold: range_min ~ range_max     │
@@ -33,7 +33,9 @@
 │ 5. Get depth intrinsics (fx, fy, cx, cy)    │
 │                                             │
 │ 6. Precompute pixel coordinate grid         │
-│    u_grid[H,W], v_grid[H,W]                 │
+│    u_grid[H,W], v_grid[H,W]                │
 └─────────────────────────────────────────────┘
 ```
+
+---
 

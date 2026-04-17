@@ -1,0 +1,28 @@
+=== sample_432 ===
+PASS
+
+=== sample_433 ===
+PASS
+
+=== sample_434 ===
+PASS
+
+=== sample_435 ===
+FAIL
+- L22: Rule B: Right box left border shifts from col 23 (L21 ┌@23, L23 │@23) to col 24 (L22 │@24) — box border inconsistency on the connector row.
+- L22: Rule B: Right box right border shifts from col 51 (L21 ┐@51, L23 │@51) to col 52 (L22 │@52) — box border inconsistency on the connector row.
+
+Corrections:
+L22: `│  │ Claude Code  │────>│ win_drive (stdio)         │        │`
+
+=== sample_439 ===
+PASS
+
+=== sample_441 ===
+PASS
+
+=== sample_443 ===
+PASS
+
+=== sample_444 ===
+PASS

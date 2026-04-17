@@ -19,7 +19,9 @@ HaloScan_v0/
     ├── path_editor.py           # 走道標註 + 偵測 + BEV 並排
     ├── floor_intrusion.py       # 地板遮蔽偵測（毫秒級，不需 YOLO）
     ├── zone_editor.py           # Zone Map 互動編輯器
-    ├── site_calibration.py      # 現場校正（棋盤格-->內參-->位姿-->統一 BEV）
+    ├── site_calibration.py      # 現場校正（棋盤格→內參→位姿→統一 BEV）
     └── checkerboard_A2.png      # A2 棋盤格（列印用）
 ```
+
+---
 

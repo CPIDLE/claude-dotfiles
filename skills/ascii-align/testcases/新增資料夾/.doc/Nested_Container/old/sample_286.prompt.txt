@@ -1,0 +1,80 @@
+# ASCII Art Fix — sample_286.md
+
+## Character Width Rules (Sarasa Mono TC)
+
+| Category | Examples | Width |
+|----------|----------|-------|
+| ASCII printable | A-Z, 0-9, punctuation | 1 |
+| Box drawing | `─│┌┐└┘├┤┬┴┼═║┏┓┗┛╞╘╪┊╱╲` | 1 |
+| CJK characters | Chinese/Japanese/Korean hanzi | 2 |
+| Full-width brackets | `（）` | 2 |
+| Degree / EN dash | `°` `–` | 1 |
+| Other Unicode | `→×▼●★✓` (forbidden, already replaced) | 2 |
+
+**Rule:** every `│...│` content row must have the same display width as the
+horizontal rule lines (`┌──┐` / `└──┘` / `├──┤`) in the same box.
+
+## Forbidden Symbols (already replaced in the input below)
+
+| Was | Now | Reason |
+|-----|-----|--------|
+| `→` `←` | `-->` `<--` | arrows are w2 in Sarasa Mono TC |
+| `↑` `↓` | `^` `v` | vertical arrows w2 |
+| `▼` `▲` | `v` `^` | solid triangles w2 |
+| `×` | `x` | multiplication sign w2 |
+| `●` `○` | `*` `o` | circles w2 |
+| `✓` `✗` | `OK` `NG` | check/cross w2 |
+| `·` `•` | `.` `*` | middle dots w2 |
+
+Do NOT reintroduce any forbidden symbol in the output.
+
+## Input — Code Block
+
+```
+垂直電路板                          水平電路板
+┌───────────┐                     ┌───────────┐
+│ V-PL01 ─┐ │                     │ H-PL01 ─┐ │
+│ V-PL02 ─┤ │                     │ H-PL02 ─┤ │
+│ V-PL03 ─┼──> AND (U8)──┐        │ H-PL03 ─┼──> AND (U8)──┐
+│ V-PL04 ─┘ │            │        │ H-PL04 ─┘ │            │
+│            │            v         │            │            v 
+│ BUMP(L) ───>─ OR ───> DI_2       │ BUMP(R) ───>─ OR ───> DI_2
+└───────────┘     ^                └───────────┘     ^ 
+                  │                                  │
+           PS group AND ───> DI_0              PS group AND ───> DI_0
+           PL group AND ───> DI_1              PL group AND ───> DI_1
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L5: `►` (BLACK RIGHT-POINTING POINTER)
+  L5: `►` (BLACK RIGHT-POINTING POINTER)
+  L7: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L7: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L8: `►` (BLACK RIGHT-POINTING POINTER)
+  L8: `►` (BLACK RIGHT-POINTING POINTER)
+  L8: `►` (BLACK RIGHT-POINTING POINTER)
+  L8: `►` (BLACK RIGHT-POINTING POINTER)
+  L9: `▲` (BLACK UP-POINTING TRIANGLE)
+  L9: `▲` (BLACK UP-POINTING TRIANGLE)
+  L11: `►` (BLACK RIGHT-POINTING POINTER)
+  L11: `►` (BLACK RIGHT-POINTING POINTER)
+  L12: `►` (BLACK RIGHT-POINTING POINTER)
+  L12: `►` (BLACK RIGHT-POINTING POINTER)
+
+## Task
+
+Rewrite the ASCII art so that every `│...│` content row has **identical display
+width** matching its surrounding horizontal rule lines:
+
+- CJK characters (Chinese/Japanese/Korean) = 2 columns each
+- Box-drawing characters (`─│┌┐` etc.) = 1 column each
+- ASCII characters = 1 column each
+- Trailing spaces before the right border `│` must be adjusted to pad to target width
+
+Preserve all structure and content; only fix spacing/padding.
+Do NOT introduce any forbidden Unicode symbol.
+
+Output: the corrected art as a single fenced code block. No explanation.

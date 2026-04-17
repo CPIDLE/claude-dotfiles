@@ -12,3 +12,5 @@ e2e/
     └── *.spec.ts     # Test files
 ```
 
+---
+

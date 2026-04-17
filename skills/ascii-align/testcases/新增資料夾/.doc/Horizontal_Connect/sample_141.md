@@ -12,7 +12,7 @@
 │  類別：人員 / AGV / 台車 / 物料 / FOUP / 地板 / 牆壁 / 未知
 │
 ├─ 3D 投影匹配
-│  LiDAR 點雲 --> 座標轉換 --> 投影至魚眼影像平面
+│  LiDAR 點雲 → 座標轉換 → 投影至魚眼影像平面
 │  每個 3D 點獲得對應的語意標籤
 │
 ├─ 標記融合
@@ -23,4 +23,6 @@
    /perception/labeled_objects  (custom msg: 類別 + 位置 + 信心度)
    /perception/fisheye_images   (sensor_msgs/CompressedImage, 事件觸發時記錄)
 ```
+
+---
 

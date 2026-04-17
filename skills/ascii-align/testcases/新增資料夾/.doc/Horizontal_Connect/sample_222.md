@@ -4,8 +4,10 @@
 
 ```
 .images/
-├── client/      <-- 客戶提供（使用者確認正確版本）
-├── db/          <-- ChromaDB 搜尋（自動）
-└── generated/   <-- Mermaid 由瀏覽器渲染（不需存檔）
+├── client/      ← 客戶提供（使用者確認正確版本）
+├── db/          ← ChromaDB 搜尋（自動）
+└── generated/   ← Mermaid 由瀏覽器渲染（不需存檔）
 ```
+
+---
 

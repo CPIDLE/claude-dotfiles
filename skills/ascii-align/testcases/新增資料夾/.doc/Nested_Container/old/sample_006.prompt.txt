@@ -1,0 +1,25 @@
+# sample_006.md
+
+## Input — Code Block
+
+```
+                    正常狀態                           雪崩狀態
+              ┌──────────────────┐            ┌───────────────────┐
+              │  loggingCarWork  │            │  loggingCarWork   │
+              │    = 0.01s       │            │    = 0.01s        │
+              │  (100Hz 排程)    │            │  (100Hz 排程)     │
+              └────────┬─────────┘            └────────┬──────────┘
+                       v                               v
+              ┌────────────────────┐          ┌────────────────────────┐
+              │  log_work() 執行   │          │  log_work() 執行       │
+              │  耗時 5ms < 10ms   │          │  耗時 15ms > 10ms      │
+              │  --> sleep 5ms     │          │  --> 跳過 sleep        │
+              │  --> 下一次排程    │          │  --> 立即排下一次      │
+              └────────────────────┘          │  --> 堆積 --> 連續執行 │
+                                              │  --> CPU 100%          │
+              CPU: 69%                        └────────────────────────┘
+                                              CPU: 95~100%
+
+```
+
+*(Code Block: no automatic issues detected — verify border alignment visually)*

@@ -1,0 +1,46 @@
+# _sample_433.md
+
+## Input — Code Block
+
+```
+┌───────────────────────────────────────────────────────────┐
+│                  Mail Checker                             │
+├───────────────────────────────────────────────────────────┤
+│                                                           │
+│  ┌──────────────────────┐                                 │
+│  │ Google Takeout .mbox │                                 │
+│  └──────────┬───────────┘                                 │
+│             │                                             │
+│             v                                             │
+│  ┌──────────────────────────────────────────────────┐     │
+│  │  Attachment Extractor (MD5 Dedup)                │     │
+│  └──────────────────────┬───────────────────────────┘     │
+│                         │                                 │
+│                         v                                 │
+│  ┌───────────────────────────────────────────────────┐    │
+│  │  mail_indexer.py                                  │    │
+│  │  Metadata --> SQLite FTS5                          │    │
+│  │  Gemini 2.0 Flash Batch Summarization             │    │
+│  │  140 emails/min (10x speedup)                     │    │
+│  └───────────────────────────────────────────────────┘    │
+│                         │                                 │
+│                         v                                 │
+│  ┌──────────────────────────────────────────────────┐     │
+│  │  progress_mailer.py                              │     │
+│  │  Hourly HTML Reports via SMTP                    │     │
+│  └──────────────────────────────────────────────────┘     │
+└──────────────────────────────────────────────────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L9: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L14: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L17: `→` (RIGHTWARDS ARROW)
+  L22: `▼` (BLACK DOWN-POINTING TRIANGLE)
+
+**Width mismatches (need fixing):**
+  Group L1-L27 target=61:
+    L17: w=62 (+1)

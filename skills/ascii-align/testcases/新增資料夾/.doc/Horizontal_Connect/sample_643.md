@@ -3,7 +3,7 @@
 **Source**: `UR_Program_Analysis_v0\docs\FLOW_ANALYSIS.md` L142
 
 ```
-解析外部指令 --> 讀取 RS485 IO --> 判斷 port_direction
+解析外部指令 → 讀取 RS485 IO → 判斷 port_direction
     │
     ├─ port_direction = 1（入料方向）
     │   ├─ to_port_type = 1（Erack）
@@ -31,4 +31,6 @@
     └─ port_direction = 2（出料方向）
         └─ （與入料對稱，順序反轉）
 ```
+
+---
 

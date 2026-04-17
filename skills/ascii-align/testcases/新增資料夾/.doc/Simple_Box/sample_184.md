@@ -14,3 +14,5 @@ benchmarks/opencode-2026-04-07/
     └── T2_retry.txt, T2_retry_meta.txt  # 第二輪（有效）
 ```
 
+---
+

@@ -4,11 +4,13 @@
 
 ```
 skills/report-gyro/
-├── SKILL.md                          <-- 本檔案
+├── SKILL.md                          ← 本檔案
 ├── README_載入SOP.md
 ├── assets/
-│   └── gyro-marp-theme.css           <-- Marp 唯一 theme
+│   └── gyro-marp-theme.css           ← Marp 唯一 theme
 └── scripts/
-    └── gen_verification.py           <-- Excel 驗算產生器
+    └── gen_verification.py           ← Excel 驗算產生器
 ```
+
+---
 

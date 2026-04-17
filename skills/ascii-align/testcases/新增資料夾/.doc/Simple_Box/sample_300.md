@@ -11,3 +11,5 @@ phase2_embed.py (orchestrator)
     └── phase2_extractors.py 檔案萃取器
 ```
 
+---
+

@@ -1,0 +1,39 @@
+# _sample_357.md
+
+## Input — Code Block
+
+```
+  ┌───────────────────────────────────────────────────┐
+  │            Claude Code CLI / OpenCode CLI         │
+  ├──────────┬──────────┬───────────┬─────────────────┤
+  │ 8 命令   │ 8 技能   │ Statusline│ MCP Servers     │
+  │ /pm 系列 │ report   │ quota     │ Playwright      │
+  │ /do 委派 │ gmail    │ JS/Shell  │ Windows MCP     │
+  │ /clip    │ browser  │           │ Google WS       │
+  └────┬─────┴────┬─────┴───────────┴─────────────────┘
+       │          │           
+       │   install.ps1 / install.sh
+       │          │
+       v          v 
+  ┌──────────────────────┐
+  │  ~/.claude/          │
+  │  commands/ skills/   │
+  │  settings.json       │
+  │  CLAUDE.md           │
+  └──────────┬───────────┘
+             │
+             v 
+  ┌──────────┬──────────┬──────────────────┐
+  │ Google   │ Google   │ Apps Script      │
+  │ Chat     │ Sheet    │ Web App          │
+  │ Webhook  │ 儀表板   │ (自動化後端)     │
+  └──────────┴──────────┴──────────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L12: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L12: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L20: `▼` (BLACK DOWN-POINTING TRIANGLE)

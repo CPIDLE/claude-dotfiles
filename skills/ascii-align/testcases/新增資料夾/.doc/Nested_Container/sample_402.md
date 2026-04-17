@@ -8,17 +8,18 @@
 │        OpenCode CLI Config                   │
 ├──────────────────────────────────────────────┤
 │                                              │
-│  ┌───────────────────────────────────────────┐│
-│  │  OpenCode CLI (TypeScript)                ││
+│  ┌────────────────────────────────────────┐  │
+│  │  OpenCode CLI (TypeScript)             │  │
 │  ├────────────────────────────────────────┤  │
-│  │  Model: Gemini 3 Flash Preview            ││
-│  │  MCP Integration                          ││
-│  │  AGENTS.md                                ││
-│  │  Git-Attribution Plugin                   ││
-│  └───────────────────────────────────────────┘│
+│  │  Model: Gemini 3 Flash Preview         │  │
+│  │  MCP Integration                       │  │
+│  │  AGENTS.md                             │  │
+│  │  Git-Attribution Plugin                │  │
+│  └────────────────────────────────────────┘  │
 │                                              │
-│  Status: Archived --> merged into            │
+│  Status: Archived → merged into             │
 │          claude-dotfiles                     │
 └──────────────────────────────────────────────┘
 ```
 
+---

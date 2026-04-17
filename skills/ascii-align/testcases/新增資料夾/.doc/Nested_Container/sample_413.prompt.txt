@@ -1,0 +1,55 @@
+# _sample_413.md
+
+## Input — Code Block
+
+```
+┌───────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                  Chat Bot                                                                                 │
+│      Google Chat Bot for @gyro.com.tw                                                                     │
+├───────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                                           │
+│  ┌───────────────┐                                                                                        │
+│  │ Google Chat   │                                                                                        │
+│  │ @gyro.com.tw  │                                                                                        │
+│  └───────────────┘                                                                                        │
+│         │  /kb --doc / --mail / --img                                                                     │
+│         v                                                                                                 │
+│  ┌──────────────────────┐                                                                                 │
+│  │ GCP Cloud Run        │                                                                                 │
+│  │ (JWT / OIDC auth)    │                                                                                 │
+│  └──────────┬───────────┘                                                                                 │
+│             │ ngrok tunnel                                                                                │
+│             v                                                                                             │
+│  ┌──────────────────────────────────────────────────┐                                                     │
+│  │  Local FastAPI RAG Backend                       │                                                     │
+│  │  ┌─────────────┐ ┌────────────┐ ┌─────────────┐  │                                                     │
+│  │                                                  │ Qdrant      │ │ Gemini     │ │ Ollama      │  │     │
+│  │                                                  │ │ │ 2.5 Flash  │ │ bge-m3      │  │                 │
+│  │  └─────────────┘ └────────────┘ └─────────────┘  │                                                     │
+│  └──────────────────────────────────────────────────┘                                                     │
+│                                                                                                           │
+│  ┌──────────────────────┐                                                                                 │
+│  │ Apps Script          │                                                                                 │
+│  │ Daily Stats          │                                                                                 │
+│  └──────────────────────┘                                                                                 │
+└───────────────────────────────────────────────────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L11: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L17: `▼` (BLACK DOWN-POINTING TRIANGLE)
+
+
+## Review Issues — Round 1
+
+- L21: B: Inner box content spills outside the outer box border at col 54 — text `Qdrant      │ │ Gemini     │ │ Ollama      │  │` appears after `│@54`, indicating the three inner sub-box content rows are merged/corrupted outside the inner box right border.
+- L22: B: Same corruption — content `│ │ 2.5 Flash  │ │ bge-m3      │  │` appears after `│@54` with borders detected at cols 56, 58, 71, which are inconsistent with the inner sub-boxes defined at L20 (┌@6,┐@20, ┌@22,┐@35).
+
+## Task — Round 2
+
+Fix the specific issues listed in 'Review Issues — Round 1' above.
+Do NOT change any part of the diagram not mentioned in those issues.
+After fixing, verify with: python ascii_align.py --check <file>

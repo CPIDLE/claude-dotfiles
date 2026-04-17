@@ -1,0 +1,66 @@
+# _sample_652.md
+
+## Input — Code Block
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    GPU Memory (統一記憶體)                     │
+│                                                             │
+│  ┌──────────────┐     ┌──────────────┐     ┌─────────────┐ │
+│  │ Depth Any V3 │     │   LUT 常數    │     │  scan_bins  │ │
+│  │ TensorRT 輸出 │     │ (啟動時上傳)  │     │ (~650 floats│ │
+│  │              │     │              │     │             │ │
+│  │ float[Hx W]   │     │ height_coeff │     │ 初始: inf   │ │
+│  │ (已在 GPU)   │     │ range_coeff  │     │ atomicMin   │ │
+│  │              │     │ bin_index    │     │ 更新        │ │
+│  └──────┬───────┘     └──────┬───────┘     └──────┬──────┘ │
+│         │                    │                    │        │
+│         └─────────┬──────────┘                    │        │
+│                   v                                │        │
+│         ┌──────────────────┐                      │        │
+│         │  CUDA Kernel     │──── 寫入 ────────────>│        │
+│         │  depth_to_scan   │                               │
+│         │  (307K threads)  │                               │
+│         └──────────────────┘                               │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+                                                      │
+                        cudaMemcpy D-->H 僅 1.4 KB       │
+                        (或直接統一記憶體讀取)             │
+                                                      v 
+                                              ┌──────────────┐
+                                              │  ROS 2 發布   │
+                                              │  LaserScan    │
+                                              │  (CPU 端)     │
+                                              └──────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L8: `×` (MULTIPLICATION SIGN)
+  L14: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L16: `→` (RIGHTWARDS ARROW)
+  L23: `→` (RIGHTWARDS ARROW)
+  L25: `▼` (BLACK DOWN-POINTING TRIANGLE)
+
+**Width mismatches (need fixing):**
+  Group L1-L21 target=63:
+    L2: w=66 (+3)
+    L4: w=62 (-1)
+    L6: w=64 (+1)
+    L7: w=62 (-1)
+    L9: w=62 (-1)
+    L10: w=62 (-1)
+    L11: w=62 (-1)
+    L12: w=62 (-1)
+    L13: w=62 (-1)
+    L15: w=62 (-1)
+    L17: w=62 (-1)
+    L18: w=62 (-1)
+    L19: w=62 (-1)
+  Group L26-L30 target=62:
+    L27: w=63 (+1)
+    L28: w=63 (+1)
+    L29: w=63 (+1)

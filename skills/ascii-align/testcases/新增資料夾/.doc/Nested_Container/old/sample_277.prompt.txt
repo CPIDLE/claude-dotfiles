@@ -1,0 +1,104 @@
+# ASCII Art Fix — sample_277.md
+
+## Character Width Rules (Sarasa Mono TC)
+
+| Category | Examples | Width |
+|----------|----------|-------|
+| ASCII printable | A-Z, 0-9, punctuation | 1 |
+| Box drawing | `─│┌┐└┘├┤┬┴┼═║┏┓┗┛╞╘╪┊╱╲` | 1 |
+| CJK characters | Chinese/Japanese/Korean hanzi | 2 |
+| Full-width brackets | `（）` | 2 |
+| Degree / EN dash | `°` `–` | 1 |
+| Other Unicode | `→×▼●★✓` (forbidden, already replaced) | 2 |
+
+**Rule:** every `│...│` content row must have the same display width as the
+horizontal rule lines (`┌──┐` / `└──┘` / `├──┤`) in the same box.
+
+## Forbidden Symbols (already replaced in the input below)
+
+| Was | Now | Reason |
+|-----|-----|--------|
+| `→` `←` | `-->` `<--` | arrows are w2 in Sarasa Mono TC |
+| `↑` `↓` | `^` `v` | vertical arrows w2 |
+| `▼` `▲` | `v` `^` | solid triangles w2 |
+| `×` | `x` | multiplication sign w2 |
+| `●` `○` | `*` `o` | circles w2 |
+| `✓` `✗` | `OK` `NG` | check/cross w2 |
+| `·` `•` | `.` `*` | middle dots w2 |
+
+Do NOT reintroduce any forbidden symbol in the output.
+
+## Input — Code Block
+
+```
+ ┌─────────────────── 2600cm ───────────────────┐
+ │                                               │
+ │  ┌────┐ ┌────┐  ┌────┐  ┌────┐ ┌─────┐┌────┐│  ┌────────────────────┐
+ │  │P-1 │ │P-5 │  │A1-1│  │A1-5│ │A1-9 ││A2  ││  │                    │
+ │  └────┘ └────┘  └────┘  └────┘ └─────┘│-03 ││  │  Stocker + Sorter   │
+ │  ┌────┐ ┌────┐  ┌────┐  ┌────┐ ┌─────┐└────┘│  │  (STK 168位         │
+ │  │P-2 │ │P-6 │  │A1-2│  │A1-6│ │A1   │      │  │   + Sorter 結合)    │
+ │  └────┘ └────┘  └────┘  └────┘ │-10  │      │  │                    │
+ │  ┌────┐ ┌────┐  ┌────┐  ┌────┐ └─────┘┌────┐│  │  [CST Box Buffer]  │
+ │  │P-3 │ │P-7 │  │A1-3│  │A1-7│  ┌────┐│A2  ││  │   入庫4 / 出庫4    │
+ │  └────┘ └────┘  └────┘  └────┘  │A2  ││-02 ││  │   (Total 12)       │
+ │  ┌────┐          ┌────┐  ┌────┐  │-01 │└────┘│  └────────────────────┘
+ │  │P-4 │          │A1-4│  │A1-8│  └────┘      │
+ │  └────┘          └────┘  └────┘               │
+ │  P x 7            A1 x 10         A2 x 3         │
+ └───────────────────────────────────────────────┘
+           |  走道
+ ┌───────────────────────────────────────────────────────┐
+ │  ┌────┐                                       3400cm  │
+ │  │L-3 │                                         |      │
+ │  └────┘                                               │
+ │  ┌────┐                                               │
+ │  │L-2 │                                               │
+ │  └────┘                                               │
+ │  ┌────┐                                               │
+ │  │L-1 │  ┌─────┐                                      │
+ │  └────┘  │PK-1 │                                      │
+ │  L x 3    └─────┘                                      │
+ │           PK x 1                                       │
+ │  ┌──────────┐   ┌──────────┐                          │
+ │  │ E-Rack   │   │ E-Rack   │                          │
+ │  │ (Box)    │   │ (FOUP)   │                          │
+ │  └──────────┘   └──────────┘                          │
+ └───────────────────────────────────────────────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L15: `×` (MULTIPLICATION SIGN)
+  L15: `×` (MULTIPLICATION SIGN)
+  L15: `×` (MULTIPLICATION SIGN)
+  L17: `↕` (UP DOWN ARROW)
+  L20: `↕` (UP DOWN ARROW)
+  L28: `×` (MULTIPLICATION SIGN)
+  L29: `×` (MULTIPLICATION SIGN)
+
+**Width mismatches (need fixing):**
+  Group L13-L16 target=50:
+    L13: w=49 (-1)
+    L15: w=53 (+3)
+  Group L18-L34 target=58:
+    L20: w=59 (+1)
+    L28: w=59 (+1)
+    L29: w=59 (+1)
+
+## Task
+
+Rewrite the ASCII art so that every `│...│` content row has **identical display
+width** matching its surrounding horizontal rule lines:
+
+- CJK characters (Chinese/Japanese/Korean) = 2 columns each
+- Box-drawing characters (`─│┌┐` etc.) = 1 column each
+- ASCII characters = 1 column each
+- Trailing spaces before the right border `│` must be adjusted to pad to target width
+
+Preserve all structure and content; only fix spacing/padding.
+Do NOT introduce any forbidden Unicode symbol.
+
+Output: the corrected art as a single fenced code block. No explanation.

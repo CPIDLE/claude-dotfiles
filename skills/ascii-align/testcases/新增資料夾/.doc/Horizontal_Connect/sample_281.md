@@ -5,8 +5,10 @@
 ```
 Reset 觸發（警報後）
   └─ TMflow 初始化流程執行
-  └─ Step 1: Modbus write --> IAI driver:「打開夾爪」   <-- 未檢查卡匣存在
-  └─ Step 2: Modbus write --> IAI driver:「關閉夾爪」   <-- 太遲 -- 卡匣已掉落
+  └─ Step 1: Modbus write → IAI driver:「打開夾爪」   ← 未檢查卡匣存在
+  └─ Step 2: Modbus write → IAI driver:「關閉夾爪」   ← 太遲 — 卡匣已掉落
   └─ Step 3: 繼續初始化...
 ```
+
+---
 

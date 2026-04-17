@@ -4,14 +4,16 @@
 
 ```
 MES (e.g. Applied Materials)
-  v  SECS/GEM
+  ↓ SECS/GEM
 RTD (Real-Time Dispatch)
-  v 
+  ↓
 MCS / MCS Lite (Material Control System)
-  ├--> TSC (Traffic System Controller) --> AMR Fleet
-  ├--> Stocker Controller --> Stocker
-  ├--> E-Rack Controller --> E-Rack
-  ├--> Sorter
-  └--> EAP (Equipment Automation Program) --> Load Port (E84)
+  ├→ TSC (Traffic System Controller) → AMR Fleet
+  ├→ Stocker Controller → Stocker
+  ├→ E-Rack Controller → E-Rack
+  ├→ Sorter
+  └→ EAP (Equipment Automation Program) → Load Port (E84)
 ```
+
+---
 

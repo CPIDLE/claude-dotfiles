@@ -1,0 +1,64 @@
+# _sample_384.md
+
+## Input — Code Block
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│              D435i LidarScan v0                                │
+│      Intel RealSense D435i --> Simulated 2D LiDAR               │
+│      Python ~1500 lines                                        │
+├────────────────────────────────────────────────────────────────┤
+│                                                                │
+│  ┌─────────────────────┐                                       │
+│  │  Intel D435i        │                                       │
+│  │  Stereo Camera      │                                       │
+│  └─────────────────────┘                                       │
+│       ┌────┴────────────────┐                                  │
+│       │                     │                                  │
+│       v                      v                                 │
+│  ┌──────────────┐   ┌───────────────────┐                      │
+│  │ Native       │   │ CREStereo ONNX    │                      │
+│  │ Stereo       │   │ 89% coverage      │                      │
+│  │ 11% coverage │   │ 95mm MAE          │                      │
+│  │ 32mm MAE     │   │                   │                      │
+│  └──────┬───────┘   └────────┬──────────┘                      │
+│         └──────────┬─────────┘                                 │
+│                    │  Combined ~100%                           │
+│                    v                                           │
+│       ┌────────────────────────┐                               │
+│       │  Two Output Modes      │                               │
+│       ├────────────────────────┤                               │
+│       │ LiDAR 1: Horizontal    │                               │
+│       │          Obstacle      │                               │
+│       │ LiDAR 2: Ground Scan   │                               │
+│       └────────────┬───────────┘                               │
+│                    │                                           │
+│            ┌───────┴───────┐                                   │
+│            │               │                                   │
+│            v                v                                  │
+│  ┌──────────────┐ ┌──────────────┐                             │
+│  │ ROS2         │ │ UDP          │                             │
+│  │ LaserScan    │ │ Output       │                             │
+│  └──────────────┘ └──────────────┘                             │
+│                                                                │
+│  Limitation: Semiconductor fabs ban IR                         │
+│              --> passive stereo only 9-11%                      │
+└──────────────────────────────────────────────────────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L3: `→` (RIGHTWARDS ARROW)
+  L13: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L13: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L22: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L33: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L33: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L40: `→` (RIGHTWARDS ARROW)
+
+**Width mismatches (need fixing):**
+  Group L1-L41 target=66:
+    L3: w=67 (+1)
+    L40: w=67 (+1)

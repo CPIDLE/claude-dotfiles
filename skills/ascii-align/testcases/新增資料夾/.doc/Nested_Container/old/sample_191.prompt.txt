@@ -1,0 +1,100 @@
+# ASCII Art Fix — sample_191.md
+
+## Character Width Rules (Sarasa Mono TC)
+
+| Category | Examples | Width |
+|----------|----------|-------|
+| ASCII printable | A-Z, 0-9, punctuation | 1 |
+| Box drawing | `─│┌┐└┘├┤┬┴┼═║┏┓┗┛╞╘╪┊╱╲` | 1 |
+| CJK characters | Chinese/Japanese/Korean hanzi | 2 |
+| Full-width brackets | `（）` | 2 |
+| Degree / EN dash | `°` `–` | 1 |
+| Other Unicode | `→×▼●★✓` (forbidden, already replaced) | 2 |
+
+**Rule:** every `│...│` content row must have the same display width as the
+horizontal rule lines (`┌──┐` / `└──┘` / `├──┤`) in the same box.
+
+## Forbidden Symbols (already replaced in the input below)
+
+| Was | Now | Reason |
+|-----|-----|--------|
+| `→` `←` | `-->` `<--` | arrows are w2 in Sarasa Mono TC |
+| `↑` `↓` | `^` `v` | vertical arrows w2 |
+| `▼` `▲` | `v` `^` | solid triangles w2 |
+| `×` | `x` | multiplication sign w2 |
+| `●` `○` | `*` `o` | circles w2 |
+| `✓` `✗` | `OK` `NG` | check/cross w2 |
+| `·` `•` | `.` `*` | middle dots w2 |
+
+Do NOT reintroduce any forbidden symbol in the output.
+
+## Input — Code Block
+
+```
+.doc/ (7,388 文件)          .image/ (73,200 圖片)
+    v  .txt 提取文本              v  .md 語意描述
+    v                             v 
+┌─────────────────────────────────────────┐
+│  Gemini gemini-embedding-001 (3072 維)  │
+└─────────────────────────────────────────┘
+    v                             v 
+┌──────────┐              ┌──────────┐
+│ docs     │              │ images   │
+│ collection│              │ collection│
+└──────────┘              └──────────┘
+         ChromaDB (.chroma/)
+              v 
+┌─────────────────────────────────────────┐
+│            FastAPI Backend              │
+│  /docs/search  /images/search  /chat   │
+│  /images/context  /kb-image/  /health  │
+└─────────────────────────────────────────┘
+              v 
+┌─────────────────────────────────────────┐
+│       Chat Frontend (chat.html)         │
+│  KB mode .  file upload .  lightbox       │
+│  markdown .  badges .  persistent history │
+└─────────────────────────────────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L2: `↓` (DOWNWARDS ARROW)
+  L2: `↓` (DOWNWARDS ARROW)
+  L3: `↓` (DOWNWARDS ARROW)
+  L3: `↓` (DOWNWARDS ARROW)
+  L7: `↓` (DOWNWARDS ARROW)
+  L7: `↓` (DOWNWARDS ARROW)
+  L13: `↓` (DOWNWARDS ARROW)
+  L19: `↓` (DOWNWARDS ARROW)
+  L22: `·` (MIDDLE DOT)
+  L22: `·` (MIDDLE DOT)
+  L23: `·` (MIDDLE DOT)
+  L23: `·` (MIDDLE DOT)
+
+**Width mismatches (need fixing):**
+  Group L8-L11 target=38:
+    L10: w=40 (+2)
+  Group L14-L18 target=43:
+    L16: w=42 (-1)
+    L17: w=42 (-1)
+  Group L20-L24 target=43:
+    L22: w=45 (+2)
+    L23: w=45 (+2)
+
+## Task
+
+Rewrite the ASCII art so that every `│...│` content row has **identical display
+width** matching its surrounding horizontal rule lines:
+
+- CJK characters (Chinese/Japanese/Korean) = 2 columns each
+- Box-drawing characters (`─│┌┐` etc.) = 1 column each
+- ASCII characters = 1 column each
+- Trailing spaces before the right border `│` must be adjusted to pad to target width
+
+Preserve all structure and content; only fix spacing/padding.
+Do NOT introduce any forbidden Unicode symbol.
+
+Output: the corrected art as a single fenced code block. No explanation.

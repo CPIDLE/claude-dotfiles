@@ -1,0 +1,167 @@
+# ASCII Art LLM Review — Structural Checks
+
+The programmatic width check has already passed (every │...│ row matches its hrule width).
+Your job: catch structural issues the width checker cannot detect.
+
+## Character Width Reference (Sarasa Mono TC)
+
+- ASCII characters: 1 column each
+- Box drawing (─│┌┐└┘├┤┬┴┼ etc.): 1 column each
+- CJK characters (Chinese/Japanese/Korean): 2 columns each
+- Full-width brackets （）: 2 columns each
+- Degree ° / EN dash –: 1 column each
+
+**Display column** = sum of character widths from the start of the line (col 0).
+
+---
+
+## Rule A: Vertical Connector Column Consistency
+
+For `│` and `v` used as FLOW CONNECTORS between boxes (not as box left/right borders):
+- All connector characters in the same flow path must stay in the **same display column** across consecutive rows.
+- A connector `│` or `v` must align with the `┬` or `┴` junction it connects to (same display column).
+- A connector `v` pointing INTO a box must be within the box's column span (between left `│` col and right `│` col of that box).
+
+## Rule B: Structural Corruption
+
+Lines where box structure appears broken:
+- Inner box content spilling OUTSIDE its expected right border column (text after closing `│`)
+- Box-drawing characters (└┘┌┐├┤┬┴┼) appearing at positions not consistent with any box above/below
+- Lines where display width jumps by more than 5 columns with no structural reason
+
+## Rule C: Parallel Box Connector/Gap Parity
+
+When boxes are side by side with a connector row (e.g. `│────>│`) and gap rows (e.g. `│    │`):
+- The connector display width must **equal** the gap display width between those same borders.
+- Example: hrule `┐    ┌` has 4-char gap → the connector between those borders must also be exactly 4 display columns.
+
+## Rule D: CJK Label Row Alignment
+
+Label rows (lines with CJK text OUTSIDE box borders, typically below closing `└─┘` lines):
+- Spaces after CJK text must account for **display width** (each CJK char = 2 cols, but 1 raw byte in column count).
+- Verify: box-drawing chars (└ ┘ │) in a label row must align with the same character's display column in the bordered rows above/below.
+- Common error: using `N` ASCII spaces after CJK text when `N-1` spaces are needed (because CJK occupies 2 cols but the programmer counted 1).
+- Example (WRONG): `    可平行          └` — `可平行` takes 6 display cols but only 3 raw chars, so 10 ASCII spaces after it places `└` at display col 20 instead of 19.
+- Example (RIGHT): `    可平行         └` — 9 ASCII spaces puts `└` at display col 19.
+
+---
+
+## Output Format
+
+**If all checks pass**, output exactly:
+```
+PASS
+```
+
+**If issues found**, output each issue on its own line, then a blank line, then corrected lines:
+```
+FAIL
+- L<N>: <Rule letter>: <description of the problem with display column numbers>
+- L<N>: <Rule letter>: <description>
+
+Corrections:
+L<N>: `<corrected line content>`
+L<N>: `<corrected line content>`
+```
+
+Only flag **clear violations**. If you are unsure whether something is intentional design, output PASS.
+Do not re-check widths (already verified). Do not flag style issues.
+
+---
+
+## File: v_sample_390.md  (Review round 1)
+
+### Code Block
+
+```
+┌───────────────────────────────────────────────────────────────┐
+│                  WebCamToLidarScan                            │
+│   Monocular RGB --> Virtual 2D LiDAR                          │
+│   Phase 1 done, Phase 2 partial, idle ~6 weeks                │
+├───────────────────────────────────────────────────────────────┤
+│                                                               │
+│  ┌────────────────────────────────┐                           │
+│  │  Webcam / D435i RGB            │                           │
+│  └───────────────┬────────────────┘                           │
+│                  │                                            │
+│                  v                                            │
+│  ┌────────────────────────────────┐                           │
+│  │  Depth Anything V2 ViT-S       │                           │
+│  │  ONNX (DML / CUDA / CPU)       │                           │
+│  └────────────────────────────────┘                           │
+│                  │                                            │
+│                  v                                            │
+│  ┌────────────────────────────────┐                           │
+│  │  RANSAC Ground Calibration     │                           │
+│  │  (IMU Gravity)                 │                           │
+│  └────────────────────────────────┘                           │
+│                  │                                            │
+│                  v                                            │
+│  ┌────────────────────────────────┐                           │
+│  │  LUT Conversion                │                           │
+│  │  ~650 bin LaserScan            │                           │
+│  │  <3ms CPU, <0.3ms CUDA         │                           │
+│  └────────────────────────────────┘                           │
+│                  │                                            │
+│                  v                                            │
+│  ┌────────────────────────────────┐                           │
+│  │  IMU EMA Temporal Filtering    │                           │
+│  └────────────────────────────────┘                           │
+│                  │                                            │
+│                  v                                            │
+│  ┌────────────────────────────────┐                           │
+│  │  ROS 2 /virtual_scan           │                           │
+│  └────────────────────────────────┘                           │
+│                                                               │
+│  Target: Jetson Thor (Blackwell, 128GB, 144 TOPS)             │
+│  Unsolved: AI global depth drift                              │
+└───────────────────────────────────────────────────────────────┘
+
+```
+
+**Border positions (display columns):**
+```
+L  1: ┌───────────────────────────────────────────────────────────────┐  [┌@0, ┐@64]
+L  2: │                  WebCamToLidarScan                            │  [│@0, │@64]
+L  3: │   Monocular RGB --> Virtual 2D LiDAR                          │  [│@0, │@64]
+L  4: │   Phase 1 done, Phase 2 partial, idle ~6 weeks                │  [│@0, │@64]
+L  5: ├───────────────────────────────────────────────────────────────┤  [├@0, ┤@64]
+L  6: │                                                               │  [│@0, │@64]
+L  7: │  ┌────────────────────────────────┐                           │  [│@0, ┌@3, ┐@36, │@64]
+L  8: │  │  Webcam / D435i RGB            │                           │  [│@0, │@3, │@36, │@64]
+L  9: │  └───────────────┬────────────────┘                           │  [│@0, └@3, ┬@19, ┘@36, │@64]
+L 10: │                  │                                            │  [│@0, │@19, │@64]
+L 11: │                  v                                            │  [│@0, │@64]
+L 12: │  ┌────────────────────────────────┐                           │  [│@0, ┌@3, ┐@36, │@64]
+L 13: │  │  Depth Anything V2 ViT-S       │                           │  [│@0, │@3, │@36, │@64]
+L 14: │  │  ONNX (DML / CUDA / CPU)       │                           │  [│@0, │@3, │@36, │@64]
+L 15: │  └────────────────────────────────┘                           │  [│@0, └@3, ┘@36, │@64]
+L 16: │                  │                                            │  [│@0, │@19, │@64]
+L 17: │                  v                                            │  [│@0, │@64]
+L 18: │  ┌────────────────────────────────┐                           │  [│@0, ┌@3, ┐@36, │@64]
+L 19: │  │  RANSAC Ground Calibration     │                           │  [│@0, │@3, │@36, │@64]
+L 20: │  │  (IMU Gravity)                 │                           │  [│@0, │@3, │@36, │@64]
+L 21: │  └────────────────────────────────┘                           │  [│@0, └@3, ┘@36, │@64]
+L 22: │                  │                                            │  [│@0, │@19, │@64]
+L 23: │                  v                                            │  [│@0, │@64]
+L 24: │  ┌────────────────────────────────┐                           │  [│@0, ┌@3, ┐@36, │@64]
+L 25: │  │  LUT Conversion                │                           │  [│@0, │@3, │@36, │@64]
+L 26: │  │  ~650 bin LaserScan            │                           │  [│@0, │@3, │@36, │@64]
+L 27: │  │  <3ms CPU, <0.3ms CUDA         │                           │  [│@0, │@3, │@36, │@64]
+L 28: │  └────────────────────────────────┘                           │  [│@0, └@3, ┘@36, │@64]
+L 29: │                  │                                            │  [│@0, │@19, │@64]
+L 30: │                  v                                            │  [│@0, │@64]
+L 31: │  ┌────────────────────────────────┐                           │  [│@0, ┌@3, ┐@36, │@64]
+L 32: │  │  IMU EMA Temporal Filtering    │                           │  [│@0, │@3, │@36, │@64]
+L 33: │  └────────────────────────────────┘                           │  [│@0, └@3, ┘@36, │@64]
+L 34: │                  │                                            │  [│@0, │@19, │@64]
+L 35: │                  v                                            │  [│@0, │@64]
+L 36: │  ┌────────────────────────────────┐                           │  [│@0, ┌@3, ┐@36, │@64]
+L 37: │  │  ROS 2 /virtual_scan           │                           │  [│@0, │@3, │@36, │@64]
+L 38: │  └────────────────────────────────┘                           │  [│@0, └@3, ┘@36, │@64]
+L 39: │                                                               │  [│@0, │@64]
+L 40: │  Target: Jetson Thor (Blackwell, 128GB, 144 TOPS)             │  [│@0, │@64]
+L 41: │  Unsolved: AI global depth drift                              │  [│@0, │@64]
+L 42: └───────────────────────────────────────────────────────────────┘  [└@0, ┘@64]
+L 43: 
+```

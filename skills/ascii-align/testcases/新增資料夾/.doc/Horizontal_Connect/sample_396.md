@@ -4,12 +4,14 @@
 
 ```
 RGB (webcam / D435i)
-  └--> DA V2 ViT-S ONNX (94.5MB)
-       └--> Metric Depth Map
-            └--> RANSAC 地面校正（IMU gravity constraint）
-                 └--> LUT 單次遍歷 --> ~650 bins LaserScan
-                      └--> EMA 時序濾波（IMU-aware）
-                           └--> [選用] Ego-motion 多幀拼接
-                                └--> ROS 2 /virtual_scan
+  └→ DA V2 ViT-S ONNX (94.5MB)
+       └→ Metric Depth Map
+            └→ RANSAC 地面校正（IMU gravity constraint）
+                 └→ LUT 單次遍歷 → ~650 bins LaserScan
+                      └→ EMA 時序濾波（IMU-aware）
+                           └→ [選用] Ego-motion 多幀拼接
+                                └→ ROS 2 /virtual_scan
 ```
+
+---
 

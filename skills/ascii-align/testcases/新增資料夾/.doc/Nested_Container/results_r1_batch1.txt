@@ -1,0 +1,45 @@
+=== sample_148 ===
+FAIL
+- L6: Rule B: inner box right border pushed to @30 by CJK content overflow; hrule L5 has ┐@28, L7 has │@28, but L6 '  Protection1（內層）' = 21 display cols overflows the 19-col content area (cols 9..27), shifting the closing │ from @28 to @30
+
+Corrections:
+L6: `│   │   │Protection1（內層）│   │   │`
+
+=== sample_161 ===
+FAIL
+- L7: Rule B: box1 right border at @14 instead of @13; L5 hrule has ┐@13, L8 hrule has ┘@13, but L7 '  (HTTPS) │' has a trailing space making the closing │ land at @14 instead of @13
+
+Corrections:
+L7: `│  │  (HTTPS)│  │  (5678)   │  │  (80, 圖片)   │ │`
+
+=== sample_164 ===
+FAIL
+- L5: Rule B: inline '→' connector ' -> ' (4 chars) after box1 right @15 pushes box2 left to @20 (should be @19) and box3 left to @39 (should be @38); hrule L4 has ┌@19 and ┌@38
+- L6: Rule B: inline '->' connector ' ->' (3 chars + space) after box2 right @34 pushes box3 left to @39 (should be @38); hrule L4 has ┌@38
+- L13: Rule B: Reporter box bottom-left └@39 does not align with top-left ┌@38 (from L4 hrule)
+
+Corrections:
+L5: `│  │  Caddy    │ ->│  n8n         │   │ Reporter   │  │`
+L6: `│  │  (HTTPS)  │   │  (LINE Bot)  │ ->│ API        │  │`
+L13: `│        │                            └───────┬────┘  │`
+
+=== sample_276 ===
+PASS
+
+=== sample_277 ===
+PASS
+
+=== sample_278 ===
+PASS
+
+=== sample_360 ===
+FAIL
+- L7: Rule B: box2 left border at @30 (should be @29) and box2 right border at @55 (should be @53); L6 hrule has ┌@29 ┐@53, L9 hrule has └@29 ┘@53; extra space in gap between boxes causes 1-col shift, and box2 content is 24 cols instead of 23
+- L8: Rule B: inline '--->│' connector (4 chars before box2) pushes box2 left to @32 (should be @29) and box2 right to @57 (should be @53); L6 hrule has ┌@29 ┐@53
+
+Corrections:
+L7: `│  │   Claude Code        │  │   OpenCode            │      │`
+L8: `│  │   (Decision-Maker)   │--│   (Executor)          │      │`
+
+=== sample_361 ===
+PASS

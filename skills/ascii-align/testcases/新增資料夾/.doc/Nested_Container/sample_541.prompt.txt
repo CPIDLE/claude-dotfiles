@@ -1,0 +1,57 @@
+# _sample_541.md
+
+⚠ **Complex diagram** — auto-detected as structurally complex (branching tree, mixed layout, or free-form flow without traditional box borders). Apply extra care: preserve all structural intent, fix only clear alignment errors, and do NOT simplify or restructure the diagram.
+
+## Input — Code Block
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                    Unified Web / HMI UI                      │
+│   (React/Vue)  設定 .  操作 .  監控 .  教導 .  模擬              │
+├──────────────────────────────────────────────────────────────┤
+│                  gRPC Gateway (Proto3)                       │
+│   統一 API 層 -- 平台無關的操作語意                          │
+├──────────────────────┬───────────────────────────────────────┤
+│   Module A           │   Module B                            │
+│   GYRO 解析層        │   硬體即時通訊層                      │
+│   (離線 / 設定)      │   (線上 / 操控)                       │
+│                      │                                       │
+│   ┌─ DSL Engine ──┐  │   ┌─ Protocol Adapters ───────────┐   │
+│   │ GYRO-DSL      │  │   │ UR:  RTDE + Modbus TCP        │   │
+│   │ GYRO-Compiler │  │   │ TM:  Modbus TCP + EtherCAT    │   │
+│   └───────────────┘  │   │ AMR: ROS2 Action/Topic        │   │
+│                      │   │ 人型: ROS2 + MoveIt2 + MCP    │   │
+│   ┌─ Platform ─────┐ │   └───────────────────────────────┘   │
+│   │ Parsers        │ │                                       │
+│   │ TM: flow_parser│ │   ┌─ Safety Layer ────────────────┐   │
+│   │ UR: script_    │ │   │ 碰撞偵測 .  力矩限制 .  E-Stop  │   │
+│   │     parser     │ │   │ 安全區域 .  速度限制           │   │
+│   │ Editors        │ │   └───────────────────────────────┘   │
+│   │ Kinematics     │ │                                       │
+│   └────────────────┘ │                                       │
+├──────────────────────┴───────────────────────────────────────┤
+│              Data Layer (Git + DB)                           │
+│   task.gyro.yaml (唯一真實來源) .  SQLite logs .  Prometheus   │
+└──────────────────────────────────────────────────────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L3: `·` (MIDDLE DOT)
+  L3: `·` (MIDDLE DOT)
+  L3: `·` (MIDDLE DOT)
+  L3: `·` (MIDDLE DOT)
+  L6: `—` (EM DASH)
+  L20: `·` (MIDDLE DOT)
+  L20: `·` (MIDDLE DOT)
+  L21: `·` (MIDDLE DOT)
+  L27: `·` (MIDDLE DOT)
+  L27: `·` (MIDDLE DOT)
+
+**Width mismatches (need fixing):**
+  Group L4-L28 target=64:
+    L20: w=66 (+2)
+    L21: w=65 (+1)
+    L27: w=66 (+2)

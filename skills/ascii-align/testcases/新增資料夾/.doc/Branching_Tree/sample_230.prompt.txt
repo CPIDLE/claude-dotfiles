@@ -1,0 +1,86 @@
+# _sample_230.md
+
+## Input — Code Block
+
+```
+                    ┌─────────────────────┐
+                    │   AMR (Modbus 通訊)  │
+                    └──────────┬──────────┘
+                               │ var_var_running_array
+                    ┌──────────v ──────────┐
+                    │   ARM_parameter     │ <-- 初始化（RS485/TXT 點位）
+                    └──────────┬──────────┘
+                               │
+                    ┌──────────v ──────────┐
+                    │      Gateway        │ <-- 主分派器
+                    │  [0]=方向 [3]=目標   │
+                    └─┬────┬────┬────┬───┘
+                      │    │    │    │
+              ┌───────┘    │    │    └────────┐
+              v             v     v              v 
+         MOVE_LEFT    MOVE_RIGHT  INITIAL   NONE_MOVE
+              │            │        │
+    ┌─────┬──┴──┬────┐    ...   ReturnHome
+    v      v      v     v 
+  ERACK  EQ   ICOS  STK   <-- [3] 目標類型
+    │     │          │
+  PORT_1~8          TAKE/PLACE <-- [4] Port 編號
+    │
+  ┌─┴─────────────────┐
+  │  HT_9046LS_TAKE   │ <-- 設備操作
+  │  HT_9046LS_PLACE  │
+  │  MR_PORT_TAKE     │
+  │  MR_PORT_PLACE    │
+  │  ERACK_TAKE/PLACE │
+  │  STK_TAKE/PLACE   │
+  └────────────────────┘
+           | 
+    ┌──────────────┐
+    │  Vision Jobs  │ <-- TMark/AprilTag/Barcode
+    │  Sensor Check │ <-- 夾爪/雷射/IO
+    │  Log/Modbus   │ <-- 回報 AMR
+    └──────────────┘
+
+背景執行緒（常駐同時運作）：
+  - CHECK_GRIP_2        持續監控夾爪（440 節點）
+  - CHECK_ENCODER       監控編碼器（17 節點）
+  - CHECK_ALL_SENSOR_WHEN_CAR_MOVING_2  移動中安全監控（86 節點）
+  - Pause_handle        處理暫停請求（9 節點）
+  - Pub_RS485IO         發佈 I/O 狀態（7 節點）
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L5: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L6: `←` (LEFTWARDS ARROW)
+  L9: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L10: `←` (LEFTWARDS ARROW)
+  L15: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L15: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L15: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L15: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L19: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L19: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L19: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L19: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L20: `←` (LEFTWARDS ARROW)
+  L22: `←` (LEFTWARDS ARROW)
+  L25: `←` (LEFTWARDS ARROW)
+  L32: `↕` (UP DOWN ARROW)
+  L34: `←` (LEFTWARDS ARROW)
+  L35: `←` (LEFTWARDS ARROW)
+  L36: `←` (LEFTWARDS ARROW)
+
+**Width mismatches (need fixing):**
+  Group L1-L3 target=43:
+    L2: w=44 (+1)
+  Group L11-L12 target=42:
+    L11: w=44 (+2)
+  Group L26-L31 target=24:
+    L26: w=23 (-1)
+    L27: w=23 (-1)
+    L28: w=23 (-1)
+    L29: w=23 (-1)
+    L30: w=23 (-1)

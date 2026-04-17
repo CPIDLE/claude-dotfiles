@@ -1,0 +1,139 @@
+# ASCII Art LLM Review — Structural Checks
+
+The programmatic width check has already passed (every │...│ row matches its hrule width).
+Your job: catch structural issues the width checker cannot detect.
+
+## Character Width Reference (Sarasa Mono TC)
+
+- ASCII characters: 1 column each
+- Box drawing (─│┌┐└┘├┤┬┴┼ etc.): 1 column each
+- CJK characters (Chinese/Japanese/Korean): 2 columns each
+- Full-width brackets （）: 2 columns each
+- Degree ° / EN dash –: 1 column each
+
+**Display column** = sum of character widths from the start of the line (col 0).
+
+---
+
+## Rule A: Vertical Connector Column Consistency
+
+For `│` and `v` used as FLOW CONNECTORS between boxes (not as box left/right borders):
+- All connector characters in the same flow path must stay in the **same display column** across consecutive rows.
+- A connector `│` or `v` must align with the `┬` or `┴` junction it connects to (same display column).
+- A connector `v` pointing INTO a box must be within the box's column span (between left `│` col and right `│` col of that box).
+
+## Rule B: Structural Corruption
+
+Lines where box structure appears broken:
+- Inner box content spilling OUTSIDE its expected right border column (text after closing `│`)
+- Box-drawing characters (└┘┌┐├┤┬┴┼) appearing at positions not consistent with any box above/below
+- Lines where display width jumps by more than 5 columns with no structural reason
+
+## Rule C: Parallel Box Connector/Gap Parity
+
+When boxes are side by side with a connector row (e.g. `│────>│`) and gap rows (e.g. `│    │`):
+- The connector display width must **equal** the gap display width between those same borders.
+- Example: hrule `┐    ┌` has 4-char gap → the connector between those borders must also be exactly 4 display columns.
+
+## Rule D: CJK Label Row Alignment
+
+Label rows (lines with CJK text OUTSIDE box borders, typically below closing `└─┘` lines):
+- Spaces after CJK text must account for **display width** (each CJK char = 2 cols, but 1 raw byte in column count).
+- Verify: box-drawing chars (└ ┘ │) in a label row must align with the same character's display column in the bordered rows above/below.
+- Common error: using `N` ASCII spaces after CJK text when `N-1` spaces are needed (because CJK occupies 2 cols but the programmer counted 1).
+- Example (WRONG): `    可平行          └` — `可平行` takes 6 display cols but only 3 raw chars, so 10 ASCII spaces after it places `└` at display col 20 instead of 19.
+- Example (RIGHT): `    可平行         └` — 9 ASCII spaces puts `└` at display col 19.
+
+---
+
+## Output Format
+
+**If all checks pass**, output exactly:
+```
+PASS
+```
+
+**If issues found**, output each issue on its own line, then a blank line, then corrected lines:
+```
+FAIL
+- L<N>: <Rule letter>: <description of the problem with display column numbers>
+- L<N>: <Rule letter>: <description>
+
+Corrections:
+L<N>: `<corrected line content>`
+L<N>: `<corrected line content>`
+```
+
+Only flag **clear violations**. If you are unsure whether something is intentional design, output PASS.
+Do not re-check widths (already verified). Do not flag style issues.
+
+---
+
+## File: v_sample_541.md  (Review round 1)
+
+### Code Block
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                    Unified Web / HMI UI                      │
+│   (React/Vue)  設定 . 操作 . 監控 . 教導 . 模擬              │
+├──────────────────────────────────────────────────────────────┤
+│                  gRPC Gateway (Proto3)                       │
+│   統一 API 層 -- 平台無關的操作語意                          │
+├──────────────────────┬───────────────────────────────────────┤
+│   Module A           │   Module B                            │
+│   GYRO 解析層        │   硬體即時通訊層                      │
+│   (離線 / 設定)      │   (線上 / 操控)                       │
+│                      │                                       │
+│   ┌─ DSL Engine ──┐  │   ┌─ Protocol Adapters ───────────┐   │
+│   │ GYRO-DSL      │  │   │ UR:  RTDE + Modbus TCP        │   │
+│   │ GYRO-Compiler │  │   │ TM:  Modbus TCP + EtherCAT    │   │
+│   └───────────────┘  │   │ AMR: ROS2 Action/Topic        │   │
+│                      │   │ 人型: ROS2 + MoveIt2 + MCP    │   │
+│   ┌─ Platform ─────┐ │   └───────────────────────────────┘   │
+│   │ Parsers        │ │                                       │
+│   │ TM: flow_parser│ │   ┌─ Safety Layer ────────────────┐   │
+│   │ UR: script_    │ │   │ 碰撞偵測 . 力矩限制 . E-Stop  │   │
+│   │     parser     │ │   │ 安全區域 . 速度限制           │   │
+│   │ Editors        │ │   └───────────────────────────────┘   │
+│   │ Kinematics     │ │                                       │
+│   └────────────────┘ │                                       │
+├──────────────────────┴───────────────────────────────────────┤
+│              Data Layer (Git + DB)                           │
+│   task.gyro.yaml (唯一真實來源) . SQLite logs . Prometheus   │
+└──────────────────────────────────────────────────────────────┘
+
+```
+
+**Border positions (display columns):**
+```
+L  1: ┌──────────────────────────────────────────────────────────────┐  [┌@0, ┐@63]
+L  2: │                    Unified Web / HMI UI                      │  [│@0, │@63]
+L  3: │   (React/Vue)  設定 . 操作 . 監控 . 教導 . 模擬              │  [│@0, │@63]
+L  4: ├──────────────────────────────────────────────────────────────┤  [├@0, ┤@63]
+L  5: │                  gRPC Gateway (Proto3)                       │  [│@0, │@63]
+L  6: │   統一 API 層 -- 平台無關的操作語意                          │  [│@0, │@63]
+L  7: ├──────────────────────┬───────────────────────────────────────┤  [├@0, ┬@23, ┤@63]
+L  8: │   Module A           │   Module B                            │  [│@0, │@23, │@63]
+L  9: │   GYRO 解析層        │   硬體即時通訊層                      │  [│@0, │@23, │@63]
+L 10: │   (離線 / 設定)      │   (線上 / 操控)                       │  [│@0, │@23, │@63]
+L 11: │                      │                                       │  [│@0, │@23, │@63]
+L 12: │   ┌─ DSL Engine ──┐  │   ┌─ Protocol Adapters ───────────┐   │  [│@0, ┌@4, ┐@20, │@23, ┌@27, ┐@59]
+L 13: │   │ GYRO-DSL      │  │   │ UR:  RTDE + Modbus TCP        │   │  [│@0, │@4, │@20, │@23, │@27, │@59]
+L 14: │   │ GYRO-Compiler │  │   │ TM:  Modbus TCP + EtherCAT    │   │  [│@0, │@4, │@20, │@23, │@27, │@59]
+L 15: │   └───────────────┘  │   │ AMR: ROS2 Action/Topic        │   │  [│@0, └@4, ┘@20, │@23, │@27, │@59]
+L 16: │                      │   │ 人型: ROS2 + MoveIt2 + MCP    │   │  [│@0, │@23, │@27, │@59, │@63]
+L 17: │   ┌─ Platform ─────┐ │   └───────────────────────────────┘   │  [│@0, ┌@4, ┐@21, │@23, └@27, ┘@59]
+L 18: │   │ Parsers        │ │                                       │  [│@0, │@4, │@21, │@23, │@63]
+L 19: │   │ TM: flow_parser│ │   ┌─ Safety Layer ────────────────┐   │  [│@0, │@4, │@21, │@23, ┌@27, ┐@59]
+L 20: │   │ UR: script_    │ │   │ 碰撞偵測 . 力矩限制 . E-Stop  │   │  [│@0, │@4, │@21, │@23, │@27, │@59]
+L 21: │   │     parser     │ │   │ 安全區域 . 速度限制           │   │  [│@0, │@4, │@21, │@23, │@27, │@59]
+L 22: │   │ Editors        │ │   └───────────────────────────────┘   │  [│@0, │@4, │@21, │@23, └@27, ┘@59]
+L 23: │   │ Kinematics     │ │                                       │  [│@0, │@4, │@21, │@23, │@63]
+L 24: │   └────────────────┘ │                                       │  [│@0, └@4, ┘@21, │@23, │@63]
+L 25: ├──────────────────────┴───────────────────────────────────────┤  [├@0, ┴@23, ┤@63]
+L 26: │              Data Layer (Git + DB)                           │  [│@0, │@63]
+L 27: │   task.gyro.yaml (唯一真實來源) . SQLite logs . Prometheus   │  [│@0, │@63]
+L 28: └──────────────────────────────────────────────────────────────┘  [└@0, ┘@63]
+L 29: 
+```

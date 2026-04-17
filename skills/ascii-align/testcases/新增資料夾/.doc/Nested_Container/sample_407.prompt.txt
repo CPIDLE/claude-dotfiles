@@ -1,0 +1,61 @@
+# _sample_407.md
+
+## Input — Code Block
+
+```
+┌───────────────────────────────────────────────────────────┐
+│               DuelEngineSOP (Archived)                    │
+│    Delegation SOP: Claude Code <----> OpenCode              │
+├───────────────────────────────────────────────────────────┤
+│                                                           │
+│  ┌──────────────────────┐  ┌───────────────────────┐      │
+│  │   Claude Code        │   │   OpenCode             │    │
+│  │   (Decision-Maker)   │ ───>│   (Executor)           │  │
+│  └──────────────────────┘  └───────────────────────┘      │
+│                                                           │
+├───────────────────────────────────────────────────────────┤
+│  Delegation Levels                                        │
+│                                                           │
+│  ┌───────────┐ ┌──────────────┐  ┌─────────────────┐      │
+│  │ L1        │ │ L2           │  │ L3              │      │
+│  │ New Files │ │ Controlled   │  │ Task-Level      │      │
+│  │           │ │ Edits        │  │ Autonomy        │      │
+│  │           │ │              │  │ <=5 parallel     │      │
+│  │           │ │              │  │ agents          │      │
+│  └───────────┘ └──────────────┘  └─────────────────┘      │
+│                                                           │
+│  Status: Archived --> merged into claude-dotfiles          │
+└───────────────────────────────────────────────────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L3: `←` (LEFTWARDS ARROW)
+  L3: `→` (RIGHTWARDS ARROW)
+  L8: `→` (RIGHTWARDS ARROW)
+  L18: `≤` (LESS-THAN OR EQUAL TO)
+  L22: `→` (RIGHTWARDS ARROW)
+
+**Width mismatches (need fixing):**
+  Group L1-L23 target=61:
+    L3: w=63 (+2)
+    L18: w=62 (+1)
+    L22: w=62 (+1)
+
+
+## Review Issues — Round 1
+
+- L7: B: Right inner box left border at @30 (expected @29 per hrule L6); right border at @55 (expected @53)
+- L8: B: Right inner box left border at @32, right border at @57 — progressive drift from expected @29/@53
+
+**Suggested corrections:**
+L7: `│  │   Claude Code        │  │   OpenCode            │      │`
+L8: `│  │   (Decision-Maker)   │ ───>│   (Executor)      │      │`
+
+## Task — Round 2
+
+Fix the specific issues listed in 'Review Issues — Round 1' above.
+Do NOT change any part of the diagram not mentioned in those issues.
+After fixing, verify with: python ascii_align.py --check <file>

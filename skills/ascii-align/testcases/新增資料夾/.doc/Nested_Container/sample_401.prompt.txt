@@ -1,0 +1,75 @@
+# _sample_401.md
+
+## Input — Code Block
+
+```
+┌───────────────────────────────────────────────────────────┐
+│              UR Program Analysis                          │
+│      Offline Toolchain for UR30 Cobot                     │
+├───────────────────────────────────────────────────────────┤
+│                                                           │
+│  72 files, 64,503 lines                                   │
+│            │                                              │
+│            v                                              │
+│  ┌───────────────────┐                                    │
+│  │  Python CLI       │                                    │
+│  └───────────────────┘                                    │
+│           │                                               │
+│           v                                               │
+│  ┌───────────────────┐                                    │
+│  │  Parser           │                                    │
+│  └───────────────────┘                                    │
+│           │                                               │
+│           v                                               │
+│  ┌───────────────────┐                                    │
+│  │  Tree Parser      │                                    │
+│  └───────────────────┘                                    │
+│           │                                               │
+│           v                                               │
+│  ┌───────────────────┐                                    │
+│  │  Project Loader   │                                    │
+│  └───────────────────┘                                    │
+│           │                                               │
+│           v                                               │
+│  ┌───────────────────┐                                    │
+│  │  Flow Analyzer    │                                    │
+│  └───────────────────┘                                    │
+│           │                                               │
+│     ┌─────┼──────────────┐                                │
+│     │     │              │                                │
+│     v     v              v                                │
+│  ┌─────┐ ┌───────────┐ ┌───────────────┐                  │
+│  │ Doc │ │ Simplifier│ │ FK Kinematics │                  │
+│  │ Gen │ │           │ │ 91.5% pass    │                  │
+│  └─────┘ └───────────┘ └───────────────┘                  │
+│                                                           │
+│  Output: 82 analysis docs, 46 tests                       │
+└───────────────────────────────────────────────────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L8: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L13: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L18: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L23: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L28: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L35: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L35: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L35: `▼` (BLACK DOWN-POINTING TRIANGLE)
+
+
+## Review Issues — Round 1
+
+- L7: A: Flow connector │ at display col @13, but all subsequent connectors (L12, L17, L22, L27, L32) are at @12 — column inconsistency
+
+**Suggested corrections:**
+L7: `│            │                                              │`
+
+## Task — Round 2
+
+Fix the specific issues listed in 'Review Issues — Round 1' above.
+Do NOT change any part of the diagram not mentioned in those issues.
+After fixing, verify with: python ascii_align.py --check <file>

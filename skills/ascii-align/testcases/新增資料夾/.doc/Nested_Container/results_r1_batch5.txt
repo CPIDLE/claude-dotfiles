@@ -1,0 +1,40 @@
+=== sample_418 ===
+FAIL
+- L22: B: Right inner box left border drifts from ┌@23 (L21) to │@24 — the connector "---->│" shifts the │ one column right relative to the box's opening ┌ and closing └ at col 23.
+- L23: B: Same drift — right inner box left border at │@24 instead of │@23, inconsistent with ┌@23 on L21 and └@23 on L24.
+
+Corrections:
+L22: `│  │ Claude Code  │---->│ win_drive (stdio)        │        │`
+L23: `│  │ MCP Client   │<----│ JSON-RPC responses       │        │`
+
+=== sample_422 ===
+PASS
+
+=== sample_424 ===
+FAIL
+- L7: B: Right inner box left border at │@30 does not align with ┌@29 on L6 and └@29 on L9 — drifted 1 col right.
+- L8: B: Right inner box left border at │@32, drifted 3 cols right of ┌@29; the connector " --->" shifts the │ outward.
+
+Corrections:
+L7: `│  │   Claude Code        │  │   OpenCode            │      │`
+L8: `│  │   (Decision-Maker)   │--->│   (Executor)          │    │`
+
+=== sample_426 ===
+PASS
+
+=== sample_427 ===
+PASS
+
+=== sample_429 ===
+PASS
+
+=== sample_430 ===
+FAIL
+- L21: B: Inner box content ("Qdrant │ │ Gemini │ │ Ollama │") appears outside the inner box right border (┐@35 on L20); border annotations show │@54, │@68, │@70, │@83 — all outside the outer box right border at col 108 but the structure is clearly corrupted with text spilling outside the nested box cols @6–@35.
+- L22: B: Same corruption — "│ 2.5 Flash │ │ bge-m3 │" content outside inner box; border annotations show │@54, │@56, │@58, │@71.
+
+Corrections:
+(Content of L21–L22 needs full reconstruction; the inner box rows are garbled and cannot be corrected with a simple line fix.)
+
+=== sample_431 ===
+PASS

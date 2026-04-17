@@ -17,3 +17,5 @@ personal-rag_v1/
 └── .chroma/                 # ChromaDB 持久化存儲
 ```
 
+---
+

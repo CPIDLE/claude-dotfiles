@@ -8,8 +8,8 @@ src/
 ├── calibration.py     # RANSAC 地面平面校正
 ├── bev/               # BEV 投影引擎
 │   ├── config.py      # 設定參數
-│   ├── lift.py        # 像素-->3D 世界座標
-│   ├── splat.py       # 3D-->BEV 網格（Z-buffer）
+│   ├── lift.py        # 像素→3D 世界座標
+│   ├── splat.py       # 3D→BEV 網格（Z-buffer）
 │   ├── renderer.py    # 視覺化渲染
 │   └── pipeline.py    # 整合 pipeline
 └── depth/             # 深度估測模組
@@ -24,4 +24,6 @@ tools/
 ├── validate_bev.py    # BEV 離線驗證
 └── train_da.py        # DA 訓練腳本
 ```
+
+---
 

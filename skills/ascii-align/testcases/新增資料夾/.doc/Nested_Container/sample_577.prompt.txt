@@ -1,0 +1,45 @@
+# _sample_577.md
+
+## Input — Code Block
+
+```
+  task.gyro.yaml (平台無關)
+  ┌───────────────────────────────────────────────────────────────────────┐
+  │ waypoints:              │                                             │
+  │   pick_pos: [x,y,z,r]   │       GYRO-Compiler                         │
+  │ sequences:              │      ┌──────────────┐                       │
+  │   pick_and_place:       │─────>│ --target=tm  │───> .flow (TM 原生)   │
+  │     - move_linear: pick │      │ --target=ur  │───> .script (UR 原生) │
+  │     - gripper: close    │      └──────────────┘                       │
+  │     - move_linear: place│                                             │
+  │     - gripper: open     │  Git 版控 .  可 diff .  可 review             │
+  └───────────────────────────────────────────────────────────────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L6: `→` (RIGHTWARDS ARROW)
+  L6: `→` (RIGHTWARDS ARROW)
+  L7: `→` (RIGHTWARDS ARROW)
+  L10: `·` (MIDDLE DOT)
+  L10: `·` (MIDDLE DOT)
+
+**Width mismatches (need fixing):**
+  Group L2-L11 target=75:
+    L10: w=77 (+2)
+
+
+## Review Issues — Round 1
+
+- L6: Rule B: inner box left border shifts from ┌@35 (L5) to │@36 (L6) — the connector arrow ────--> pushes the │ one column right on the content row, misaligning with the box corner above and below
+
+**Suggested corrections:**
+L6: `  │   pick_and_place:       │─────-->│ --target=tm  │──--> .flow (TM 原生) │`
+
+## Task — Round 2
+
+Fix the specific issues listed in 'Review Issues — Round 1' above.
+Do NOT change any part of the diagram not mentioned in those issues.
+After fixing, verify with: python ascii_align.py --check <file>

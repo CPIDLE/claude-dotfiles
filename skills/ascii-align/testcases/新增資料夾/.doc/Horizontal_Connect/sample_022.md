@@ -5,7 +5,7 @@
 ```
 IPC (enp5s0, EtherCAT Master / SOEM)
   │
-  ╞══════════ Slave 1: 前輪轉向 (Position mode)  <-- 100% 先 lost
+  ╞══════════ Slave 1: 前輪轉向 (Position mode)  ← 100% 先 lost
   │              Alarm: M1xxxx
   │
   ╞══════════ Slave 2: 前輪驅動 (Speed mode)
@@ -17,4 +17,6 @@ IPC (enp5s0, EtherCAT Master / SOEM)
   ╘══════════ Slave 4: 後輪驅動 (Speed mode)
                  Alarm: M4xxxx
 ```
+
+---
 

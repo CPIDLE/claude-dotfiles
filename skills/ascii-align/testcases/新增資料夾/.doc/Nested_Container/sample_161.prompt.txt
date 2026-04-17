@@ -1,0 +1,65 @@
+# _sample_161.md
+
+⚠ **Complex diagram** — auto-detected as structurally complex (branching tree, mixed layout, or free-form flow without traditional box borders). Apply extra care: preserve all structural intent, fix only clear alignment errors, and do NOT simplify or restructure the diagram.
+
+## Input — Code Block
+
+```
+本機 Windows
+
+┌─────────────────────────────────────────────────┐
+│  Docker Compose                                 │
+│  ┌─────────┐  ┌───────────┐  ┌───────────────┐ │
+│  │  ngrok   │--> │  n8n      │  │  nginx        │ │
+│  │  (HTTPS) │  │  (5678)   │  │  (80, 圖片)   │ │
+│  └─────────┘  └─────┬─────┘  └───────────────┘ │
+│                     │                            │
+│              LINE webhook                        │
+│              @ai, @kb, @img...                   │
+└─────────────────┬───────────────────────────────┘
+                  │ volume mount (知識庫)
+┌─────────────────v ───────────────────────────────┐
+│  Reporter_v0                                     │
+│  ├── .doc/  知識庫（55MB, 63,752 檔案）          │
+│  ├── _index.json（7,338 筆）                     │
+│  ├── 14 個 Python 腳本                           │
+│  └── 6 個 Claude Code Skills                     │
+└─────────────────────────────────────────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L6: `→` (RIGHTWARDS ARROW)
+  L14: `▼` (BLACK DOWN-POINTING TRIANGLE)
+
+**Width mismatches (need fixing):**
+  Group L3-L12 target=51:
+    L5: w=50 (-1)
+    L6: w=53 (+2)
+    L8: w=50 (-1)
+    L9: w=52 (+1)
+    L10: w=52 (+1)
+    L11: w=52 (+1)
+  Group L14-L20 target=51:
+    L14: w=52 (+1)
+    L15: w=52 (+1)
+    L16: w=52 (+1)
+    L17: w=52 (+1)
+    L18: w=52 (+1)
+    L19: w=52 (+1)
+
+
+## Review Issues — Round 1
+
+- L7: Rule B: box1 right border at @14 instead of @13; L5 hrule has ┐@13, L8 hrule has ┘@13, but L7 '  (HTTPS) │' has a trailing space making the closing │ land at @14 instead of @13
+
+**Suggested corrections:**
+L7: `│  │  (HTTPS)│  │  (5678)   │  │  (80, 圖片)   │ │`
+
+## Task — Round 2
+
+Fix the specific issues listed in 'Review Issues — Round 1' above.
+Do NOT change any part of the diagram not mentioned in those issues.
+After fixing, verify with: python ascii_align.py --check <file>

@@ -5,13 +5,13 @@
 ```
 DGX Spark（產線機房，Air-Gapped）
 ├─ Ollama LLM Runtime
-│   ├─ Full 72B (Q4) ~42GB  --> diagnose / schedule
-│   └─ Fast 8B  (Q4) ~5GB   --> dispatch / inventory / traffic
+│   ├─ Full 72B (Q4) ~42GB  → diagnose / schedule
+│   └─ Fast 8B  (Q4) ~5GB   → dispatch / inventory / traffic
 │
 ├─ PKB v3 (本軸線交付)
-│   ├─ Qdrant Docker (on_disk) ~4GB   <-- 6 collections / 195 萬筆
-│   ├─ Ollama bge-m3 ~2GB             <-- 1024 維 embedding
-│   └─ PKB API Server (FastAPI)       <-- /kb/search /pkb/diagnose/search /pkb/sop/lookup
+│   ├─ Qdrant Docker (on_disk) ~4GB   ← 6 collections / 195 萬筆
+│   ├─ Ollama bge-m3 ~2GB             ← 1024 維 embedding
+│   └─ PKB API Server (FastAPI)       ← /kb/search /pkb/diagnose/search /pkb/sop/lookup
 │
 ├─ 監控與資料
 │   ├─ InfluxDB ~2-3GB
@@ -21,4 +21,6 @@ DGX Spark（產線機房，Air-Gapped）
     ├─ MCS-Lite / TSC / EAP
     └─ MCP Servers
 ```
+
+---
 

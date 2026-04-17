@@ -17,8 +17,9 @@
 │  │  Git-Attribution Plugin                │   │
 │  └────────────────────────────────────────┘   │
 │                                               │
-│  Status: Archived --> merged into             │
+│  Status: Archived → merged into              │
 │          claude-dotfiles                      │
 └───────────────────────────────────────────────┘
 ```
 
+---

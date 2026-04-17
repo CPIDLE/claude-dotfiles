@@ -1,0 +1,16 @@
+# _sample_072.md
+
+## Input — Code Block
+
+```
+@e1 [tag type="value"] "text content" placeholder="hint"
+│    │   │             │               │
+│    │   │             │               └─ Additional attributes
+│    │   │             └─ Visible text
+│    │   └─ Key attributes shown
+│    └─ HTML tag name
+└─ Unique ref ID
+
+```
+
+*(Code Block: no automatic issues detected — verify border alignment visually)*

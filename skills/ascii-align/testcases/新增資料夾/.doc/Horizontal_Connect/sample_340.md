@@ -4,7 +4,9 @@
 
 ```
 .claude/skills/
-  ├── doc-ingest.md    <-- Skill A prompt
-  └── doc-report.md    <-- Skill B prompt
+  ├── doc-ingest.md    ← Skill A prompt
+  └── doc-report.md    ← Skill B prompt
 ```
+
+---
 

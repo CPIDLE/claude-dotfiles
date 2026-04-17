@@ -14,7 +14,9 @@
 │       │   ├── gyro_style_template.json   # Brand design spec
 │       │   └── content_sample.json        # JSON schema example
 │       └── scripts/
-│           └── gyro_html_generator.js     # Legacy JSON-->HTML generator
+│           └── gyro_html_generator.js     # Legacy JSON→HTML generator
 └── README.md
 ```
+
+---
 

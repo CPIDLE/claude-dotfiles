@@ -6,28 +6,30 @@
 D435i（IR Emitter OFF）
     │
     ├─ RGB stream (color)
-    ├─ Left IR stream  (emitter off --> passive texture only)
+    ├─ Left IR stream  (emitter off → passive texture only)
     ├─ Right IR stream
     └─ Stereo Depth stream (sparse + holes in featureless regions)
          │
-         v 
+         ▼
   [Stage 1] librealsense Post-processing Filters
   Spatial filter + Temporal filter + Hole-filling filter
-  --> 快速修補小孔洞，零 AI 成本
+  → 快速修補小孔洞，零 AI 成本
          │
-         v 
+         ▼
   [Stage 2] AI Depth Completion
   Input:  RGB image  +  sparse depth (from Stage 1)
   Model:  SparseDC 或 NLSPN（依速度需求選擇）
   Output: Dense depth map
          │
-         v   （Stage 2 仍有大片 invalid 時的 fallback）
+         ▼  （Stage 2 仍有大片 invalid 時的 fallback）
   [Stage 3] Monocular Depth Estimation（選配）
   Input:  RGB image only
   Model:  Depth Anything V2 Small（metric depth）
   用途:   補全 Stage 2 剩餘孔洞，scale 對齊後融合
          │
-         v 
-  最終 Dense Depth Map --> 障礙物偵測 / Costmap
+         ▼
+  最終 Dense Depth Map → 障礙物偵測 / Costmap
 ```
+
+---
 

@@ -5,7 +5,7 @@
 ```
 資料源 (14,975 files + 31,990 emails)
   │
-  ├─ Phase 1: Vault ──> SHA256 dedup --> MANIFEST.csv
+  ├─ Phase 1: Vault ──> SHA256 dedup → MANIFEST.csv
   │
   ├─ Phase 2: Embed ──> Extractors (7 formats + Email + Video)
   │                     ├── Gemini 2.5-flash (Vision)
@@ -22,4 +22,6 @@
                         ├── /api/deep-query (Agentic RAG + SSE)
                         └── /api/stats (使用統計)
 ```
+
+---
 

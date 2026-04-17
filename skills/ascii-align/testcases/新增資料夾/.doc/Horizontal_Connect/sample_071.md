@@ -3,9 +3,9 @@
 **Source**: `claude-dotfiles\README.md` L106
 
 ```
-├── global-claude.md         # 全域指令（--> ~/.claude/CLAUDE.md）
+├── global-claude.md         # 全域指令（→ ~/.claude/CLAUDE.md）
 ├── settings.json            # Hooks、plugins、statusline
-├── mcp.json                 # MCP server config（--> ~/.claude/.mcp.json）
+├── mcp.json                 # MCP server config（→ ~/.claude/.mcp.json）
 ├── statusline.sh / .js      # Status Line 腳本
 ├── pm-update.sh             # /pm 狀態更新
 ├── commands/                # Claude Code slash commands
@@ -22,4 +22,6 @@
 ├── install.ps1              # Windows 安裝
 └── install.sh               # macOS/Linux 安裝
 ```
+
+---
 

@@ -1,0 +1,137 @@
+# ASCII Art LLM Review — Structural Checks
+
+The programmatic width check has already passed (every │...│ row matches its hrule width).
+Your job: catch structural issues the width checker cannot detect.
+
+## Character Width Reference (Sarasa Mono TC)
+
+- ASCII characters: 1 column each
+- Box drawing (─│┌┐└┘├┤┬┴┼ etc.): 1 column each
+- CJK characters (Chinese/Japanese/Korean): 2 columns each
+- Full-width brackets （）: 2 columns each
+- Degree ° / EN dash –: 1 column each
+
+**Display column** = sum of character widths from the start of the line (col 0).
+
+---
+
+## Rule A: Vertical Connector Column Consistency
+
+For `│` and `v` used as FLOW CONNECTORS between boxes (not as box left/right borders):
+- All connector characters in the same flow path must stay in the **same display column** across consecutive rows.
+- A connector `│` or `v` must align with the `┬` or `┴` junction it connects to (same display column).
+- A connector `v` pointing INTO a box must be within the box's column span (between left `│` col and right `│` col of that box).
+
+## Rule B: Structural Corruption
+
+Lines where box structure appears broken:
+- Inner box content spilling OUTSIDE its expected right border column (text after closing `│`)
+- Box-drawing characters (└┘┌┐├┤┬┴┼) appearing at positions not consistent with any box above/below
+- Lines where display width jumps by more than 5 columns with no structural reason
+
+## Rule C: Parallel Box Connector/Gap Parity
+
+When boxes are side by side with a connector row (e.g. `│────>│`) and gap rows (e.g. `│    │`):
+- The connector display width must **equal** the gap display width between those same borders.
+- Example: hrule `┐    ┌` has 4-char gap → the connector between those borders must also be exactly 4 display columns.
+
+## Rule D: CJK Label Row Alignment
+
+Label rows (lines with CJK text OUTSIDE box borders, typically below closing `└─┘` lines):
+- Spaces after CJK text must account for **display width** (each CJK char = 2 cols, but 1 raw byte in column count).
+- Verify: box-drawing chars (└ ┘ │) in a label row must align with the same character's display column in the bordered rows above/below.
+- Common error: using `N` ASCII spaces after CJK text when `N-1` spaces are needed (because CJK occupies 2 cols but the programmer counted 1).
+- Example (WRONG): `    可平行          └` — `可平行` takes 6 display cols but only 3 raw chars, so 10 ASCII spaces after it places `└` at display col 20 instead of 19.
+- Example (RIGHT): `    可平行         └` — 9 ASCII spaces puts `└` at display col 19.
+
+---
+
+## Output Format
+
+**If all checks pass**, output exactly:
+```
+PASS
+```
+
+**If issues found**, output each issue on its own line, then a blank line, then corrected lines:
+```
+FAIL
+- L<N>: <Rule letter>: <description of the problem with display column numbers>
+- L<N>: <Rule letter>: <description>
+
+Corrections:
+L<N>: `<corrected line content>`
+L<N>: `<corrected line content>`
+```
+
+Only flag **clear violations**. If you are unsure whether something is intentional design, output PASS.
+Do not re-check widths (already verified). Do not flag style issues.
+
+---
+
+## File: v_sample_434.md  (Review round 1)
+
+### Code Block
+
+```
+┌───────────────────────────────────────────────────────────┐
+│                    StockSage                              │
+│             ML Stock Prediction                           │
+├───────────────────────────────────────────────────────────┤
+│                                                           │
+│  ┌─────────────────────────────────────────────────┐      │
+│  │  Daily Model                                    │      │
+│  │  Transformer Encoder                            │      │
+│  │  5-day x 30 features, 3-class                   │      │
+│  │  OOS accuracy: 48.9%                            │      │
+│  └────────────────────┬────────────────────────────┘      │
+│                       │                                   │
+│                       v                                   │
+│  ┌──────────────────────────────────────────────────┐     │
+│  │  GMP Model                                       │     │
+│  │  LightGBM (~55 tickers)                          │     │
+│  │  555 features                                    │     │
+│  │  Vectorized: 4min --> 10s                        │     │
+│  └──────────────────────────────────────────────────┘     │
+│                       │                                   │
+│                       ▼                                  │
+│  ┌─────────────────────────────────────────────────┐      │
+│  │  Daily Email via Gmail API                      │      │
+│  └─────────────────────────────────────────────────┘      │
+│                                                           │
+│  Scheduler: Windows Task Scheduler                        │
+└───────────────────────────────────────────────────────────┘
+
+```
+
+**Border positions (display columns):**
+```
+L  1: ┌───────────────────────────────────────────────────────────┐  [┌@0, ┐@60]
+L  2: │                    StockSage                              │  [│@0, │@60]
+L  3: │             ML Stock Prediction                           │  [│@0, │@60]
+L  4: ├───────────────────────────────────────────────────────────┤  [├@0, ┤@60]
+L  5: │                                                           │  [│@0, │@60]
+L  6: │  ┌─────────────────────────────────────────────────┐      │  [│@0, ┌@3, ┐@53, │@60]
+L  7: │  │  Daily Model                                    │      │  [│@0, │@3, │@53, │@60]
+L  8: │  │  Transformer Encoder                            │      │  [│@0, │@3, │@53, │@60]
+L  9: │  │  5-day x 30 features, 3-class                   │      │  [│@0, │@3, │@53, │@60]
+L 10: │  │  OOS accuracy: 48.9%                            │      │  [│@0, │@3, │@53, │@60]
+L 11: │  └────────────────────┬────────────────────────────┘      │  [│@0, └@3, ┬@24, ┘@53, │@60]
+L 12: │                       │                                   │  [│@0, │@24, │@60]
+L 13: │                       v                                   │  [│@0, │@60]
+L 14: │  ┌──────────────────────────────────────────────────┐     │  [│@0, ┌@3, ┐@54, │@60]
+L 15: │  │  GMP Model                                       │     │  [│@0, │@3, │@54, │@60]
+L 16: │  │  LightGBM (~55 tickers)                          │     │  [│@0, │@3, │@54, │@60]
+L 17: │  │  555 features                                    │     │  [│@0, │@3, │@54, │@60]
+L 18: │  │  Vectorized: 4min --> 10s                        │     │  [│@0, │@3, │@54, │@60]
+L 19: │  └──────────────────────────────────────────────────┘     │  [│@0, └@3, ┘@54, │@60]
+L 20: │                       │                                   │  [│@0, │@24, │@60]
+L 21: │                       ▼                                  │  [│@0, │@60]
+L 22: │  ┌─────────────────────────────────────────────────┐      │  [│@0, ┌@3, ┐@53, │@60]
+L 23: │  │  Daily Email via Gmail API                      │      │  [│@0, │@3, │@53, │@60]
+L 24: │  └─────────────────────────────────────────────────┘      │  [│@0, └@3, ┘@53, │@60]
+L 25: │                                                           │  [│@0, │@60]
+L 26: │  Scheduler: Windows Task Scheduler                        │  [│@0, │@60]
+L 27: └───────────────────────────────────────────────────────────┘  [└@0, ┘@60]
+L 28: 
+```

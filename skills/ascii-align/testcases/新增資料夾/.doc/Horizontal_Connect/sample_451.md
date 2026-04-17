@@ -4,13 +4,15 @@
 
 ```
 ROS topics ──┐
-CSV 來源 ────┤── Bridge process ───> SQLite（本地）
+CSV 來源 ────┤── Bridge process ──→ SQLite（本地）
 E84 log ─────┘       │
                      │ 背景執行緒（每 5-10 秒）
                      │ SELECT * FROM <table> WHERE synced = 0 LIMIT 1000
-                     │ --> influxdb_client.write_points(rows)
-                     │ --> UPDATE SET synced = 1
-                     v 
+                     │ → influxdb_client.write_points(rows)
+                     │ → UPDATE SET synced = 1
+                     ▼
               Server InfluxDB
 ```
+
+---
 

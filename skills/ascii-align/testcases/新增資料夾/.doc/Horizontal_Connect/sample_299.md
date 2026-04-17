@@ -36,11 +36,13 @@ personal-rag_v2/
     │   ├── phase2_notify.py           Email 通知
     │   ├── phase2_state.py            進度追蹤 (SQLite)
     │   ├── reembed_ollama.py          Ollama bge-m3 re-embedding
-    │   ├── migrate_chroma_to_qdrant.py  ChromaDB --> Qdrant 遷移
+    │   ├── migrate_chroma_to_qdrant.py  ChromaDB → Qdrant 遷移
     │   └── qdrant_check.py            Qdrant 資料驗證
     │
     ├── templates/                     報告模板（Phase 3）
     ├── sketch/                        草圖 SVG 輸出
     └── workspace/                     任務工作區
 ```
+
+---
 

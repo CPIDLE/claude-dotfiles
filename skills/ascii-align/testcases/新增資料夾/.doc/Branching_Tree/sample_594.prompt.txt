@@ -1,0 +1,53 @@
+# _sample_594.md
+
+## Input — Code Block
+
+```
+yfinance / FinMind API
+        │
+        v 
+┌─────────────────┐     ┌───────────────────┐
+│   US Market      │     │   TW Market        │
+│   Fetcher        │     │   Fetcher          │
+│  (20+ symbols)   │     │  (法人/期貨/融資)  │
+└────────┬────────┘     └────────┬──────────┘
+         │                       │
+         v                        v 
+    ┌────────────────────────────────┐
+    │       daily_features (SQLite)  │
+    │   25 global + 8 TAIEX 技術指標 │
+    └──────────────┬─────────────────┘
+                   │
+         ┌─────────┴─────────┐
+         v                    v 
+  FeatureBuilder [5, 30]   GMP FeatureEngineer
+         │                   │
+    ┌────┴────┐         LightGBM
+    v          v          (週/月報酬)
+Transformer  RL PPO
+ (分類)     (交易)
+    │         │
+    v          v 
+ prediction_log ───> Daily Email
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L3: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L10: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L10: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L17: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L17: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L21: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L21: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L25: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L25: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L26: `►` (BLACK RIGHT-POINTING POINTER)
+
+**Width mismatches (need fixing):**
+  Group L4-L8 target=45:
+    L5: w=47 (+2)
+    L6: w=47 (+2)
+    L7: w=47 (+2)

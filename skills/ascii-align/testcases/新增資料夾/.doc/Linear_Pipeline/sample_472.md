@@ -4,12 +4,12 @@
 
 ```
 Google Chat (@gyro.com.tw)
-        v 
+        ↓
 GCP Cloud Run thin proxy (asia-east1)
   ├─ JWT (OIDC) 驗證
   ├─ Rate limiting
-  └─ 轉發 --> ngrok tunnel
-        v 
+  └─ 轉發 → ngrok tunnel
+        ↓
 本機 Backend (FastAPI)
   ├─ API key 驗證
   ├─ rag.py (async embedding)
@@ -17,4 +17,6 @@ GCP Cloud Run thin proxy (asia-east1)
   ├─ Gemini 2.5 Flash (LLM)
   └─ Qdrant Docker (並行 3 collections)
 ```
+
+---
 

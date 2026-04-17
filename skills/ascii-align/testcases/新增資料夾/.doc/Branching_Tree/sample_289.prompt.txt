@@ -1,0 +1,30 @@
+# _sample_289.md
+
+## Input — Code Block
+
+```
+┌───────┬──────────┬──────────┬────────────┐
+│ 鑰匙   │ 復位按鈕  │ 剎車旋鈕  │ 啟動/停止   │
+│ 開關   │          │          │ 按鈕       │
+│TN16-  │TN16-     │TN16-     │TN16-       │
+│KSR4B  │MBL6BL2   │SSL4B12   │MBL6W2      │
+│122A   │          │          │            │
+├───────┴──────────┴──────────┴────────────┤
+│ --> 安全繼電器（UC10F22D1449）              │
+│ --> 啟停接到 TM Stick Start/Stop           │
+└──────────────────────────────────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L8: `→` (RIGHTWARDS ARROW)
+  L9: `→` (RIGHTWARDS ARROW)
+
+**Width mismatches (need fixing):**
+  Group L2-L10 target=44:
+    L2: w=48 (+4)
+    L3: w=45 (+1)
+    L8: w=47 (+3)
+    L9: w=46 (+2)

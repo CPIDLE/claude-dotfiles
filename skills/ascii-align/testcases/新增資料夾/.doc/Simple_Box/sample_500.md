@@ -19,3 +19,5 @@ LineBot_Reporter_v1/
 └── n8n-data/                   # n8n 持久化資料
 ```
 
+---
+

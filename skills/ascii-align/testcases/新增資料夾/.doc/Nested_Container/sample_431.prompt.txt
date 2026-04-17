@@ -1,0 +1,33 @@
+# _sample_431.md
+
+## Input — Code Block
+
+```
+┌───────────────────────────────────────┐
+│          public-assets                │
+│   GitHub Static Asset Hosting         │
+├───────────────────────────────────────┤
+│                                       │
+│  ┌────────────────────────────────┐   │
+│  │  GYRO Logo (256x256 PNG)       │   │
+│  │  Version A    Version B        │   │
+│  └────────────────────────────────┘   │
+│                 │                     │
+│        GitHub raw URL                 │
+│                 │                     │
+│       ┌─────────┴─────────┐           │
+│       │                   │           │
+│       v                    v          │
+│  ┌──────────┐     ┌────────────┐      │
+│  │ Chat Bot │     │ Other      │      │
+│  │ Avatar   │     │ Projects   │      │
+│  └──────────┘     └────────────┘      │
+└──────────────────────────────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L15: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L15: `▼` (BLACK DOWN-POINTING TRIANGLE)

@@ -4,8 +4,10 @@
 
 ```
 experiments/
-├── README.md            <-- 工作流程說明
-├── baseline/            <-- TM Flow 匯出的最簡 Vision Job baseline
-└── exp_NN_<name>/       <-- 每個 GUI 設定變更的快照
+├── README.md            ← 工作流程說明
+├── baseline/            ← TM Flow 匯出的最簡 Vision Job baseline
+└── exp_NN_<name>/       ← 每個 GUI 設定變更的快照
 ```
+
+---
 

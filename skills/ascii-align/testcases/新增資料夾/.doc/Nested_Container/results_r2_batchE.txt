@@ -1,0 +1,45 @@
+=== sample_148 ===
+PASS
+
+=== sample_161 ===
+PASS
+
+=== sample_164 ===
+PASS
+
+=== sample_360 ===
+PASS
+
+=== sample_365 ===
+FAIL
+- L8: Rule A: flow connector v is at display col 13, but the │ connector above (L7) is at col 12 — 1-column misalignment. Same pattern repeats on L13, L18, L23, L28.
+- L13: Rule A: v at col 13, │ connector at col 12.
+- L18: Rule A: v at col 13, │ connector at col 12.
+- L23: Rule A: v at col 13, │ connector at col 12.
+- L28: Rule A: v at col 13, │ connector at col 12.
+
+Corrections:
+L8: `│           v                                              │`
+L13: `│           v                                               │`
+L18: `│           v                                               │`
+L23: `│           v                                               │`
+L28: `│           v                                               │`
+
+=== sample_371 ===
+FAIL
+- L8: Rule A: flow connector v is at display col 13, but the │ connector above (L7) is at col 12 — 1-column misalignment. Same pattern repeats on L13, L18, L23.
+- L13: Rule A: v at col 13, │ connector at col 12.
+- L18: Rule A: v at col 13, │ connector at col 12.
+- L23: Rule A: v at col 13, │ connector at col 12.
+
+Corrections:
+L8: `│           v                                                │`
+L13: `│           v                                                │`
+L18: `│           v                                                │`
+L23: `│           v                                                │`
+
+=== sample_373 ===
+PASS
+
+=== sample_376 ===
+PASS

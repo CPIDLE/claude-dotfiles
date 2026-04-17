@@ -1,0 +1,47 @@
+# _sample_025.md
+
+## Input — Code Block
+
+```
+        ┌─────────────────────────────────────────────┐
+        │              AP Mesh 網路                     │
+        │  (各車自建 AP: ASEK-AMRA04STR-L4K3-xxx)     │
+        │  wlp1s0 未使用，car ip 走其他介面            │
+        └─────────────┬───────────────────────────────┘
+                      │
+    ┌─────────────────┼──────────────────┐
+    │                 │                  │
+  AMR01             AMR02             AMR03
+    │                 │                  │
+    │  ┌──────────────┴──────────────┐   │
+    │  │     MQTT Broker             │   │
+    │  │  (車對車位置廣播)           │   │
+    │  └──────────────┬──────────────┘   │
+    │                 │                  │
+    │  inter_robot_comm --> ROS topic --> GyrobotLayer
+    │  (5 秒 timeout --> "Treating it as offline")
+    │
+    │  ┌──────────────────────────────┐
+    │  │     TCP Bridge (TSC)         │
+    │  │  (指令/狀態，~1.1s 週期)    │
+    │  └──────────────────────────────┘
+    │
+    │  ┌──────────────────────────────┐
+    │  │     mqtt_bridge.py (TSC)     │
+    │  │  (TSC<->AMR 指令，非車對車)   │
+    │  └──────────────────────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L16: `→` (RIGHTWARDS ARROW)
+  L16: `→` (RIGHTWARDS ARROW)
+  L17: `→` (RIGHTWARDS ARROW)
+  L26: `↔` (LEFT RIGHT ARROW)
+
+**Width mismatches (need fixing):**
+  Group L1-L5 target=55:
+    L2: w=57 (+2)
+    L4: w=56 (+1)

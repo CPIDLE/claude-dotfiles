@@ -1,0 +1,71 @@
+# _sample_468.md
+
+## Input — Code Block
+
+```
+┌────────────────────────────────────────────────────────┐
+│  Server（DGX Spark, 128GB 統一記憶體）                  │
+│                                                          │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │
+│  │  InfluxDB     │  │  Qdrant/PKB  │  │  Ollama LLM  │  │
+│  │  時序資料     │  │  企業知識    │  │  Full 72B    │  │
+│  │  (過去)       │  │  (知識)  *    │  │  Fast  8B    │  │
+│  └──────────────┘  └──────────────┘  └──────────────┘  │
+│         ^                   ^                   ^           │
+│         └────── 5 個 Skill ─────────┐         │          │
+│                                      │         │          │
+│  MCS-Lite / TSC / EAP <─── MCP Servers ─── Agent          │
+│  (現在 -- 即時狀態 + 指令)                                 │
+└─────────────────────────────────────────────────────────┘
+              ^ 
+              │ heartbeat / batch push
+              v 
+┌─────────────────────────────────────────────────────────┐
+│  Edge（AMR / Stocker / OHCV IPC）                       │
+│  ROS + Bridge + SQLite buffer + Tiny 1.7B (斷線備援)    │
+└──────────────────────────────────────────────────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L7: `★` (BLACK STAR)
+  L9: `▲` (BLACK UP-POINTING TRIANGLE)
+  L9: `▲` (BLACK UP-POINTING TRIANGLE)
+  L9: `▲` (BLACK UP-POINTING TRIANGLE)
+  L12: `←` (LEFTWARDS ARROW)
+  L13: `—` (EM DASH)
+  L15: `▲` (BLACK UP-POINTING TRIANGLE)
+  L17: `▼` (BLACK DOWN-POINTING TRIANGLE)
+
+**Width mismatches (need fixing):**
+  Group L1-L8 target=58:
+    L2: w=59 (+1)
+    L3: w=60 (+2)
+    L5: w=59 (+1)
+    L6: w=59 (+1)
+    L7: w=60 (+2)
+  Group L9-L14 target=59:
+    L9: w=63 (+4)
+    L10: w=60 (+1)
+    L11: w=61 (+2)
+    L12: w=61 (+2)
+    L13: w=62 (+3)
+  Group L18-L21 target=60:
+    L19: w=59 (-1)
+    L20: w=59 (-1)
+
+
+## Review Issues — Round 1
+
+- L10: Rule A: bracket corner ┐@38 but L11 continues with │@39 (1-col rightward shift); similarly │@48 on L10 vs │@49 on L11 — connectors drift by 1 column between rows
+
+**Suggested corrections:**
+L11: `│                                     │         │        │`
+
+## Task — Round 2
+
+Fix the specific issues listed in 'Review Issues — Round 1' above.
+Do NOT change any part of the diagram not mentioned in those issues.
+After fixing, verify with: python ascii_align.py --check <file>

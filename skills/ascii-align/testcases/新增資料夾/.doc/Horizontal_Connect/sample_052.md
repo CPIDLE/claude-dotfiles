@@ -17,7 +17,9 @@ Chat_bot_v1/
 ├── architecture.md        # 架構與帳號歸屬文件
 ├── conv_logger.py         # （已停用）本地 JSONL 對話記錄
 ├── drive_logger.py        # （已停用）Google Drive 記錄同步
-├── drive_sync.py          # （已停用）JSONL --> Drive 增量同步
+├── drive_sync.py          # （已停用）JSONL → Drive 增量同步
 └── reviews/               # 程式碼審核報告
 ```
+
+---
 

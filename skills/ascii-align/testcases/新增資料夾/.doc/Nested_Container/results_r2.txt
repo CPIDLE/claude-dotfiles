@@ -1,0 +1,96 @@
+=== sample_148 ===
+PASS
+
+=== sample_161 ===
+PASS
+
+=== sample_164 ===
+PASS
+
+=== sample_360 ===
+PASS
+
+=== sample_365 ===
+FAIL
+- L8: Rule A: flow connector v is at display col 13, but the │ connector above (L7) is at col 12 — 1-column misalignment. Same pattern repeats on L13, L18, L23, L28.
+- L13: Rule A: v at col 13, │ connector at col 12.
+- L18: Rule A: v at col 13, │ connector at col 12.
+- L23: Rule A: v at col 13, │ connector at col 12.
+- L28: Rule A: v at col 13, │ connector at col 12.
+
+Corrections:
+L8: `│           v                                              │`
+L13: `│           v                                               │`
+L18: `│           v                                               │`
+L23: `│           v                                               │`
+L28: `│           v                                               │`
+
+=== sample_371 ===
+FAIL
+- L8: Rule A: flow connector v is at display col 13, but the │ connector above (L7) is at col 12 — 1-column misalignment. Same pattern repeats on L13, L18, L23.
+- L13: Rule A: v at col 13, │ connector at col 12.
+- L18: Rule A: v at col 13, │ connector at col 12.
+- L23: Rule A: v at col 13, │ connector at col 12.
+
+Corrections:
+L8: `│           v                                                │`
+L13: `│           v                                                │`
+L18: `│           v                                                │`
+L23: `│           v                                                │`
+
+=== sample_373 ===
+PASS
+
+=== sample_376 ===
+PASS
+=== sample_382 ===
+PASS
+
+=== sample_401 ===
+PASS
+
+=== sample_407 ===
+PASS
+
+=== sample_409 ===
+FAIL
+- L7: A: Flow connector │ at display col 13, but all subsequent connector rows (L12, L17, L22, L27, L32) have │ at col 12. Inconsistent column across the same flow path.
+
+Corrections:
+L7: `│           │                                               │`
+
+=== sample_412 ===
+PASS
+
+=== sample_413 ===
+PASS
+
+=== sample_418 ===
+PASS
+
+=== sample_424 ===
+FAIL
+- L8: B: Connector row `--->` shifts right box borders to col 31/55, but surrounding rows (L7, L9) have right box at col 29/53. Box right border jumps +2 cols on connector row only.
+
+Corrections:
+L8: `│  │   (Decision-Maker)   │  │   (Executor)          │      │`
+=== sample_430 ===
+PASS
+
+=== sample_435 ===
+PASS
+
+=== sample_468 ===
+PASS
+
+=== sample_513 ===
+PASS
+
+=== sample_551 ===
+PASS
+
+=== sample_564 ===
+PASS
+
+=== sample_577 ===
+PASS

@@ -4,10 +4,12 @@
 
 ```
 .claude/skills/report-gyro/
-├── SKILL.md                              <-- 主要 skill 定義檔
+├── SKILL.md                              ← 主要 skill 定義檔
 ├── assets/
-│   └── gyro-marp-theme.css               <-- Marp theme
+│   └── gyro-marp-theme.css               ← Marp theme
 └── scripts/
-    └── gen_verification.py               <-- Excel 驗算產生器
+    └── gen_verification.py               ← Excel 驗算產生器
 ```
+
+---
 

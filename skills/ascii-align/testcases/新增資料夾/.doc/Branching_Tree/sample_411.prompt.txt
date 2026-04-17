@@ -1,0 +1,53 @@
+# _sample_411.md
+
+⚠ **Complex diagram** — auto-detected as structurally complex (branching tree, mixed layout, or free-form flow without traditional box borders). Apply extra care: preserve all structural intent, fix only clear alignment errors, and do NOT simplify or restructure the diagram.
+
+## Input — Code Block
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                  Personal RAG (PKB)                                                                             │
+├─────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                                                 │
+│  Sources                                                                                                        │
+│  ┌──────────────┐ ┌──────────────┐ ┌──────────────────┐                                                         │
+│  │ Engineering  │ │ Email        │ │ Images           │                                                         │
+│  │ Docs         │ │ (.mbox)      │ │                  │                                                         │
+│  └──────┬───────┘ └──────┬───────┘ └────────┬─────────┘                                                         │
+│         └────────────────┼──────────────────┘                                                                   │
+│                          │                                                                                      │
+│                          v                                                                                      │
+│  ┌──────────────────────────────────────────────────────┐                                                       │
+│  │  Dual Embedding                                      │                                                       │
+│  │  ┌─────────────────────┐  ┌────────────────────────┐ │                                                       │
+│  │                                                      │ Gemini              │  │ Ollama bge-m3          │ │   │
+│  │                                                      │ embedding-2-preview │  │ 1024d                  │ │   │
+│  │                                                      │ 3072d               │  │                        │ │   │
+│  │  └─────────┬───────────┘  └───────────┬────────────┘ │                                                       │
+│  └──────────────────────────────────────────────────────┘                                                       │
+│               └─────────────┬────────────┘                                                                      │
+│                             v                                                                                   │
+│           ┌─────────────────────────────────┐                                                                   │
+│           │  Qdrant (Docker)                │                                                                   │
+│           │  6 collections, ~1.95M vectors  │                                                                   │
+│           └───────────────┬─────────────────┘                                                                   │
+│                           │                                                                                     │
+│                           v                                                                                     │
+│           ┌─────────────────────────────────┐                                                                   │
+│           │  FastAPI                        │                                                                   │
+│           │  Gemini 2.5 Flash (Vision+LLM)  │                                                                   │
+│           ├─────────────────────────────────┤                                                                   │
+│           │  /api/search                    │                                                                   │
+│           │  /api/deep-query (SSE)          │                                                                   │
+│           │  /api/stats                     │                                                                   │
+│           └─────────────────────────────────┘                                                                   │
+└─────────────────────────────────────────────────────────────┘
+
+```
+
+## Issues — Code Block
+
+**Symbol replacements applied:**
+  L12: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L22: `▼` (BLACK DOWN-POINTING TRIANGLE)
+  L28: `▼` (BLACK DOWN-POINTING TRIANGLE)

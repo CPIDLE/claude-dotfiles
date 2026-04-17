@@ -4,9 +4,9 @@
 
 ```
 RobotAdapter
-├── URAdapter          (單臂 -- UR30)
-├── TMAdapter          (單臂 -- TM12/TM14M)
-├── AMRAdapter         (移動平台 -- AMRA04/AMRW)
+├── URAdapter          (單臂 — UR30)
+├── TMAdapter          (單臂 — TM12/TM14M)
+├── AMRAdapter         (移動平台 — AMRA04/AMRW)
 │   └── nav2_client    (ROS2 Action)
 ├── DualArmAdapter     (雙臂組合)
 │   ├── left: TMAdapter
@@ -16,4 +16,6 @@ RobotAdapter
     ├── arms: [TMAdapter, TMAdapter, URAdapter]
     └── coordinator: TriArmCoordinator
 ```
+
+---
 

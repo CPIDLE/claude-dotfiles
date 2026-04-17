@@ -18,3 +18,5 @@ tmflow_domain_client/
    └─ test_integration.py             # 需連真機，gated by env var
 ```
 
+---
+

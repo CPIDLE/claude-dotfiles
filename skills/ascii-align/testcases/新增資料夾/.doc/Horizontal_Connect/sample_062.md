@@ -4,8 +4,10 @@
 
 ```
 /pm sync
-  ├── curl POST ───────────────────> Google Chat Space (Webhook)
-  └── curl GET (Base64 payload) ───> Apps Script Web App
+  ├── curl POST ──────────────────→ Google Chat Space (Webhook)
+  └── curl GET (Base64 payload) ──→ Apps Script Web App
                                           └── Google Sheet (Dashboard)
 ```
+
+---
 

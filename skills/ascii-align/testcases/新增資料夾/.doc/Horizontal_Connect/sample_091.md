@@ -6,22 +6,22 @@
 Input: points[N, 3], rotation R[3, 3], LiDAR model specs
 
 Step A: Load scan parameters from LiDAR model
-    Model selected  --> use model's FOV, resolution, range, n_steps
-    Custom mode     --> use CLI args, D435i native FOV (~87°)
+    Model selected  → use model's FOV, resolution, range, n_steps
+    Custom mode     → use CLI args, D435i native FOV (~87°)
 
 Step B: Transform to ground-aligned frame
-    aligned = R @ points.T  -->  [N, 3]  (Y=up, XZ=ground)
+    aligned = R @ points.T  →  [N, 3]  (Y=up, XZ=ground)
 
 Step C: Height filtering
     heights = aligned[:, 1]  (Y axis = height)
-    keep where: height_min <= height <= height_max
+    keep where: height_min ≤ height ≤ height_max
 
-    Example: 0.1m <= height <= 1.8m
-    ┌─────────────┐ 1.8m  <-- max
+    Example: 0.1m ≤ height ≤ 1.8m
+    ┌─────────────┐ 1.8m  ← max
     │ /////////// │
-    │ // KEEP /// │  <-- obstacles in this height band
+    │ // KEEP /// │  ← obstacles in this height band
     │ /////////// │
-    ├─────────────┤ 0.1m  <-- min
+    ├─────────────┤ 0.1m  ← min
     │  (ground)   │ 0.0m
     └─────────────┘
 
@@ -30,11 +30,11 @@ Step D: Project to 2D ground plane (XZ)
     z = filtered[:, 2]   (Z axis = forward)
 
 Step E: Convert to polar coordinates
-    range = sqrt(x^2 + z^2)
-    angle = atan2(x, z)     <-- angle from forward (Z), positive = right
+    range = sqrt(x² + z²)
+    angle = atan2(x, z)     ← angle from forward (Z), positive = right
 
 Step F: Range filtering (using model specs)
-    keep where: range_min <= range <= range_max
+    keep where: range_min ≤ range ≤ range_max
 
 Step G: Discretize into angular bins (using model specs)
     Example (Hokuyo UST-10LX):
@@ -45,7 +45,7 @@ Step G: Discretize into angular bins (using model specs)
     bin_index = (angle - angle_min) / angle_increment
     For each bin: keep MINIMUM range (closest obstacle)
 
-    D435i coverage: ~87° centered --> fills ~348 of 1081 bins
+    D435i coverage: ~87° centered → fills ~348 of 1081 bins
     Remaining bins = inf (no data)
 
 Output: LaserScan
@@ -55,4 +55,6 @@ Output: LaserScan
     ├── ranges[n_steps]          (meters, inf = no obstacle)
     └── model_name               (e.g., "Hokuyo UST-10LX")
 ```
+
+---
 

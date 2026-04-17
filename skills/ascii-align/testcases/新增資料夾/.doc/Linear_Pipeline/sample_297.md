@@ -6,7 +6,7 @@
 personal-rag_v2\PKB\
 ├── .env                    GEMINI_API_KEY / GOOGLE_API_KEY
 ├── CLAUDE.md               Claude Code 規則 + 草圖引擎邏輯
-├── GYRO_context.md         產品規格 / 客戶 / 公式（<=150 行）
+├── GYRO_context.md         產品規格 / 客戶 / 公式（≤150 行）
 ├── MANIFEST.csv            Phase 1 處理清單（SHA256 去重）
 ├── SKIPPED_ARCHIVES.csv    跳過的壓縮檔清單（302 個）
 ├── images_index.csv        圖片精確標籤
@@ -33,4 +33,6 @@ personal-rag_v2\PKB\
 ├── logs\                   執行日誌
 └── db\chroma\              ChromaDB legacy（唯讀，待清除）
 ```
+
+---
 

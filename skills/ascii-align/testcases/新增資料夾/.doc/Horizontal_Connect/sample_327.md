@@ -5,7 +5,9 @@
 ```
 .claude/
 └── skills/
-    ├── doc-ingest.md    <-- Skill A 的 prompt
-    └── doc-report.md    <-- Skill B 的 prompt
+    ├── doc-ingest.md    ← Skill A 的 prompt
+    └── doc-report.md    ← Skill B 的 prompt
 ```
+
+---
 

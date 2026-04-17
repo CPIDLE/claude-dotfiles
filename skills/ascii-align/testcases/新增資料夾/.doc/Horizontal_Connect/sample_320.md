@@ -6,7 +6,7 @@
 C:\Users\benth\Documents\GitHub\draft-draw\
 ├── generate_images.py          # Gemini Imagen API image generation script
 ├── generate_prompts.py         # Gemini Vision API batch prompt generation script
-├── filter_by_date.py           # Date filter: .images_full --> .images_main
+├── filter_by_date.py           # Date filter: .images_full → .images_main
 ├── SESSION_NOTES.md            # This file
 ├── .generate_prompts_checkpoint.json  # Prompt generation checkpoint/resume
 ├── .generate_prompts.log       # Prompt generation log file
@@ -33,4 +33,6 @@ C:\Users\benth\Documents\GitHub\draft-draw\
 └── .claude/
     └── settings.local.json
 ```
+
+---
 
