@@ -16,10 +16,17 @@
 [CmdletBinding()]
 param(
   [string]$TaskName = 'WifiWatchdog',
-  [string]$ScriptPath = (Join-Path $PSScriptRoot 'wifi-watchdog.ps1')
+  [string]$ScriptPath = ''
 )
 
 $ErrorActionPreference = 'Stop'
+
+if (-not $ScriptPath) {
+  # PS 5.1 can leave $PSScriptRoot empty in param defaults; resolve here.
+  $scriptDir = $PSScriptRoot
+  if (-not $scriptDir) { $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path }
+  $ScriptPath = Join-Path $scriptDir 'wifi-watchdog.ps1'
+}
 
 if (-not (Test-Path -LiteralPath $ScriptPath)) {
   throw "Watchdog script not found: $ScriptPath"
