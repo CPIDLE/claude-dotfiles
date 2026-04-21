@@ -187,6 +187,60 @@ Verify: python ascii_align.py --check "<abs_path>"
 ===
 ```
 
+## Rescue Mode（deterministic, no-ML）
+
+When the standard linter (`ascii_align.py --check`) fails and you'd normally hand off
+to an LLM subagent, **try the rescue pipeline first** — it's char-level deterministic
+and often recovers Unicode-symbol issues without any model call.
+
+Ported from AsciiArtViewer_v0 skeleton denoiser production pipeline (71% coverage
+on 659-block corpus). Pure Python stdlib, no torch / transformers.
+
+### What rescue can do
+
+- **Char-width normalization**: Apply `SYMBOL_MAP` — Unicode arrows, math, geometric,
+  decorative symbols → ASCII width-preserving equivalents
+- **Slot canonicalization**: mask text runs to `█`, then fill back to canonical slot
+  widths (redistributes off-by-1 spacing inside `│...│` slots)
+- **Idempotent**: already-clean blocks pass through unchanged
+
+### What rescue CANNOT do
+
+- **Structural geometry**: crooked borders, mismatched corners (`┌...┘`), row indent drift
+- **Cross-row `│` column alignment** beyond single-slot redistribution
+- **Width-nonconserving content** (e.g. CJK added without 2-col accounting)
+
+Those still need the LLM subagent or manual Claude edit.
+
+### API
+
+```bash
+# stdin → stdout
+cat block.txt | python SKILL_DIR/scripts/denoiser_rescue.py --stdin
+
+# file → stdout
+python SKILL_DIR/scripts/denoiser_rescue.py block.txt
+```
+
+Exit 0 = success; exit 1 with `RESCUE FAILED` on stderr = fill_text couldn't
+place all runs (usually structural skew — fall through to LLM).
+
+### Per-block integration
+
+Insert between step 4 (linter --check FAIL) and step 5 (LLM handoff):
+
+```
+4. --check FAIL → rename v_ → x_ + write x_.txt diagnostic
+4.5. python SKILL_DIR/scripts/denoiser_rescue.py x_.md > x_rescue.md
+     python SKILL_DIR/scripts/ascii_align.py --check x_rescue.md
+     PASS → inject x_rescue.md + done
+     FAIL → delete x_rescue.md, continue to step 5 (LLM)
+5. LLM fix agent handles x_.md as before
+```
+
+Rescue is cheap (<100ms per block) and non-destructive — even if it fails, the
+original `x_.md` is untouched.
+
 ## Workflow
 
 `SKILL_DIR` = directory containing this SKILL.md (installed: `~/.claude/skills/ascii-align`)

@@ -101,3 +101,74 @@ Non-trivial tasks follow 3 phases：
 - 避免模糊命名（`data2`、`result2`）
 - 不 hardcode secrets — 用環境變數或 config
 - 處理使用者輸入和外部 API 回應時加基本驗證
+
+## ASCII Art Diagrams（Sarasa Mono TC）
+
+產生含 box-drawing 的圖表時必須遵守（規則來自 AsciiArtViewer_v0 專案 659-block 語料教訓 +
+71% coverage pipeline 驗證）：
+
+### 字元白名單
+
+- **允許**：ASCII (0x20-0x7E) + 11 個 box-drawing: `─ │ ┌ ┐ └ ┘ ├ ┤ ┬ ┴ ┼`
+- **不建議**：其他 box-drawing (`═║━┃┏┓┗┛╞╘╪┊╱╲` — Sarasa 可顯示 w1，但語意重複)
+- **禁用**：Unicode 箭頭、數學符號、emoji、裝飾 — 用下表的 ASCII 替代（皆寬度守恆）
+
+### Unicode → ASCII 替代對照（必須主動避免 Unicode）
+
+| 類別 | Unicode (w=2) | ASCII (w=2) | 備註 |
+|---|---|---|---|
+| 箭頭 | `→` | `->` | 最常見陷阱，~1400+ 案例 |
+| 箭頭 | `←` | `<-` | |
+| 箭頭 | `↔` | `<>` | |
+| 箭頭組合 | `──→` / `──►` / `──▶` | `───>` | 3-char Unicode → 4-char ASCII（依寬度重算） |
+| 箭頭組合 | `◄──` / `←──` | `<───` | |
+| 箭頭組合 | `←→` | `<-->` | 4 cols 守恆 |
+| 上下箭頭 | `▲` / `↑` | `^ ` | 尾巴空白補齊 |
+| 上下箭頭 | `▼` / `↓` | `v ` | |
+| 三角指示 | `►` / `▶` / `▸` | `->` | |
+| 三角指示 | `◄` | `<-` | |
+| 數學 | `×` / `÷` / `±` | `x ` / `/ ` / `+-` | |
+| 數學 | `≤` / `≥` / `≠` | `<=` / `>=` / `!=` | |
+| 數學 | `≈` / `∞` / `√` | `~=` / `oo` / `V ` | |
+| 邏輯 | `∧` / `∨` / `∈` | `&&` / `\|\|` / `in` | |
+| 裝飾 | `●` / `○` / `■` | `* ` / `o ` / `# ` | |
+| 裝飾 | `★` / `☆` / `◆` / `◇` | `* ` / `* ` / `* ` / `<>` | |
+| 裝飾 | `•` / `·` / `…` / `—` | `* ` / `. ` / `..` / `--` | |
+| 確認 | `✓` / `✔` / `✗` / `✘` | `v ` / `v ` / `x ` / `x ` | |
+| 希臘 | `α β θ μ π σ Δ` | `a b th u pi s D ` | 尾巴補空白 |
+| 圈號 | `① … ⑩` | `1 … 10` | |
+| 其他 | `⚠` / `§` / `²` / `‖` / `█` | `! ` / `S.` / `^2` / `\|\|` / `##` | |
+
+全表在 `~/.claude/skills/ascii-align/scripts/symbol_fix.py::SYMBOL_MAP`。
+
+### 寬度守則（Sarasa Mono TC）
+
+- **規則**：CJK 中文 / fullwidth = 2 cols，ASCII + 上述 box-drawing = 1 cols，East Asian Width = Ambiguous 多數 2 cols（例外：`°` / `–` / 本 11 個 box-drawing 為 1 cols）
+- 同一 box 內每 row（含 top/bottom border）**display width 必須相等**
+- 跨 row 的 `│` 分隔線必須同 col；上下邊界 `┌─┐` / `└─┘` 的角 col 必須對齊
+- 箭頭 `v`/`^` 對齊上下 `┬/┴/│`
+
+### 產生流程
+
+1. 先定 canonical width（最寬 row）
+2. 每 row 補 trailing space 到 canonical（中文 row 記得算 2 cols）
+3. 不確定就退回純文字 — 歪 box 比 flat text 糟
+4. 產出後若有疑慮，跑 `/ascii-align <file.md>` 自動檢查
+
+### Pipeline 能自動處理 vs 產生時就要避免
+
+| 自動可救 | 產生時必須避免 |
+|---|---|
+| Unicode 符號 → ASCII（char-level，`denoiser_rescue.py` 覆蓋全表） | **箱體幾何歪斜**（歪邊界、錯角 `┌...┐` 變 `┌...┘`） |
+| 右 hrule 長度不足（`ascii_align.py` 自動補 `─`） | **跨 row `│` col 漂移**（結構錯位，無工具救） |
+| Mask+fill 重分配 canonical slot 寬度（slot 內空白錯位） | **CJK 未算 2-col 導致 row 寬不一** |
+| — | **混用 `┏/┗` 與 `┌/└`**（風格不一，無法 auto-normalize） |
+
+產生時先確保「幾何」正確（box 對齊、寬度守恆），工具只能救「字元」層。
+
+### Anti-patterns
+
+- ❌ `1280×720 → 640×360` ✅ `1280x720 -> 640x360`
+- ❌ `──►` + 下行 `│` 漂 col ✅ 整段用 `-->` + `|`
+- ❌ 中英混合不計 2-col ✅ 明確補齊
+- ❌ 用 `┏━┓` / `╔═╗` 等厚框 ✅ 統一用 `┌─┐`（最常見）
