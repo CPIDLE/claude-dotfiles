@@ -160,7 +160,7 @@ bash ~/.claude/pm-update.sh reset && bash ~/.claude/pm-update.sh pm running
 
 ### Dashboard 更新規則
 
-- Dashboard 使用 Google Sheet（ID 從 CLAUDE.md 的 `Dashboard Sheet` 讀取）
+- Dashboard 使用 Google Sheet（ID 從 `~/.claude/.env` 的 `DASHBOARD_SHEET_ID` 讀取）
 - 以 B 欄「專案名稱」為唯一鍵，更新 C~H 欄
 - 新增時在最後列 append，A 欄自動分配 ID（`A-001` 格式）
 - Dashboard 是總覽，每欄用最短的詞描述
@@ -168,7 +168,7 @@ bash ~/.claude/pm-update.sh reset && bash ~/.claude/pm-update.sh pm running
 
 ### Google 工具可用性
 
-Google 同步依賴：Apps Script Web App + Chat Webhook（CLAUDE.md 中的關鍵 ID）。
+Google 同步依賴：Apps Script Web App + Chat Webhook（`~/.claude/.env` 裡的 `APPS_SCRIPT_WEB_APP_ID` / `CHAT_WEBHOOK_URL`）。
 任一不可用時 graceful skip，本地 progress.md 照常更新。
 
 ---

@@ -25,7 +25,7 @@ bash ~/.claude/pm-update.sh sync running
 - Tasks：從 TodoWrite 目前的 task 狀態計算
 - Git：執行 `git status --short` 統計
 - 上次同步：從 progress.md 的「最後同步」時間讀取
-- Dashboard：檢查 CLAUDE.md 中的 `Dashboard Sheet` 和 `Apps Script Web App` ID 是否已設定
+- Dashboard：檢查 `~/.claude/.env` 中的 `DASHBOARD_SHEET_ID` 和 `APPS_SCRIPT_WEB_APP_ID` 是否已設定
 
 ## 選單
 
@@ -60,8 +60,15 @@ bash ~/.claude/pm-update.sh sync running
 
 ### Step PRE：Google 工具可用性檢查
 
-讀取 CLAUDE.md 中的 `Dashboard Sheet`、`Chat Webhook`、`Apps Script Web App` ID。
-如果任一 ID 仍為 placeholder（包含 `<` 字元）或缺少 → 視為未設定。
+從 `~/.claude/.env` 讀取 ID（用 `sed` 取值，避免 URL 裡的 `&` 被 bash 當背景運算子）：
+
+```bash
+CHAT_WEBHOOK_URL=$(sed -n 's/^CHAT_WEBHOOK_URL=//p' ~/.claude/.env)
+DASHBOARD_SHEET_ID=$(sed -n 's/^DASHBOARD_SHEET_ID=//p' ~/.claude/.env)
+APPS_SCRIPT_WEB_APP_ID=$(sed -n 's/^APPS_SCRIPT_WEB_APP_ID=//p' ~/.claude/.env)
+```
+
+任一值為空或以 `<` 開頭（placeholder）→ 視為未設定。
 
 **若 ID 未設定：**
 ```
@@ -85,7 +92,7 @@ bash ~/.claude/pm-update.sh sync running
 
 **C — 發送摘要到 Google Chat Space（via Webhook）**
 
-Chat Webhook URL：從 CLAUDE.md 的關鍵 ID 表讀取。
+Chat Webhook URL：使用 Step PRE 已載入的 `$CHAT_WEBHOOK_URL`。
 
 1. 構建 JSON body：
    ```json
@@ -97,7 +104,7 @@ Chat Webhook URL：從 CLAUDE.md 的關鍵 ID 表讀取。
    {"text":"📋 *<專案名稱> — 進度更新*\n\n• <重點 1>\n• <重點 2>"}
    ENDJSON
    )
-   printf '%s' "$BODY" | curl -s -X POST '<Chat Webhook URL>' \
+   printf '%s' "$BODY" | curl -s -X POST "$CHAT_WEBHOOK_URL" \
      -H 'Content-Type: application/json; charset=UTF-8' -d @-
    ```
 3. 如果 curl 回應不含 `"name":"spaces/` → 顯示 `⚠️ Chat 通知失敗` 並繼續
@@ -106,7 +113,7 @@ Chat Webhook URL：從 CLAUDE.md 的關鍵 ID 表讀取。
 
 **D — 更新 Dashboard Sheet（via Apps Script）**
 
-`APPS_SCRIPT_URL` = `https://script.google.com/macros/s/<Apps Script Web App ID>/exec`
+`APPS_SCRIPT_URL` = `https://script.google.com/macros/s/${APPS_SCRIPT_WEB_APP_ID}/exec`（使用 Step PRE 載入的變數）
 
 1. 從 progress.md 擷取精簡資訊，構建 JSON payload：
    ```json

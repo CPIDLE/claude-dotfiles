@@ -78,8 +78,8 @@ git remote -v
 
 ## Step 5：Google 同步（自動，不需確認）
 
-先檢查 CLAUDE.md 中的 Dashboard Sheet、Chat Webhook、Apps Script Web App ID 是否已設定。
-如果 ID 未設定或為 placeholder → 跳過 Google 同步。
+先依 `/pm-sync` Step PRE 的方式，從 `~/.claude/.env` 讀取 `CHAT_WEBHOOK_URL` / `DASHBOARD_SHEET_ID` / `APPS_SCRIPT_WEB_APP_ID`。
+如果任一 ID 未設定或為 placeholder → 跳過 Google 同步。
 
 執行 `/pm-sync` 選 1 的 Step PRE → Step B → Step C+D（**跳過 Step 0 smart-commit**，已在 Step 3 完成）：
 - 顯示：`📤 已同步 Dashboard Sheet、Chat Space！`
