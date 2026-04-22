@@ -132,6 +132,19 @@ if (Test-Path "$ScriptDir\skills") {
     }
 }
 
+# 8.5. Hooks
+Write-Host ""
+Write-Host "--- Hooks ---"
+if (Test-Path "$ScriptDir\hooks") {
+    $hooksDest = "$ClaudeDir\hooks"
+    if (-not (Test-Path $hooksDest)) {
+        New-Item -ItemType Directory -Path $hooksDest | Out-Null
+    }
+    Get-ChildItem "$ScriptDir\hooks\*" -File | ForEach-Object {
+        Backup-And-Copy $_.FullName "$hooksDest\$($_.Name)"
+    }
+}
+
 # 9. Docs
 Write-Host ""
 Write-Host "--- Docs ---"

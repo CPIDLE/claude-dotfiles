@@ -128,6 +128,17 @@ if [ -d "$SCRIPT_DIR/skills" ]; then
     done
 fi
 
+# 8.5. Hooks
+echo ""
+echo "--- Hooks ---"
+if [ -d "$SCRIPT_DIR/hooks" ]; then
+    mkdir -p "$CLAUDE_DIR/hooks"
+    for f in "$SCRIPT_DIR/hooks/"*; do
+        [ -f "$f" ] || continue
+        backup_and_copy "$f" "$CLAUDE_DIR/hooks/$(basename "$f")"
+    done
+fi
+
 # 9. Docs
 echo ""
 echo "--- Docs ---"
