@@ -44,6 +44,14 @@ git status --short
 
 同時用 Glob 掃描專案結構，列出所有變更檔案的完整路徑。
 
+### Step 1.5：若含程式碼變更，先跑 CodeRabbit
+
+判斷變更檔案是否含程式碼（副檔名：`.ts .tsx .js .jsx .py .go .rs .java .rb .php .c .cpp .h .hpp .cs .swift .kt .scala .lua .sh`）。
+
+- **含程式碼** → 呼叫 `coderabbit:code-review` skill 審當前 diff，產出存為 `reviews/_coderabbit-YYYY-MM-DD-HH-MM.md`（或 skill 原生輸出），摘要附到 Step 2 subagent 的輸入素材中，標註「CodeRabbit 已審過的項目請交叉驗證，不需重複列出，但可反駁或補充」
+- **純文件 / 設定變更**（`.md .yaml .json .toml` 等） → 跳過 CodeRabbit，直接進 Step 2
+- CodeRabbit 失敗 → 標記 `⚠️ CodeRabbit 跳過`，照常進 Step 2
+
 ### Step 2：啟動審核 Agent
 
 使用 Agent tool 啟動獨立 subagent，prompt：
@@ -66,6 +74,7 @@ git status --short
 1. 偵測並執行測試框架
 2. 偵測並執行 linter
 3. 掃描 debug 程式碼
+4. 若提供 CodeRabbit 報告：交叉驗證其發現（確認、反駁、補充），不重複條列
 
 ## 嚴重度
 - 🔴 阻塞：照做會壞 → MUST FIX
