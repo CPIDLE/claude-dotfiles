@@ -166,6 +166,78 @@ if (-not (Test-Path "$ClaudeDir\.env")) {
     Write-Host "       Copy-Item $ScriptDir\.env.example $ClaudeDir\.env" -ForegroundColor Yellow
 }
 
+# 10.5. Notepad++ MarkdownPanel CSS + Sarasa Mono TC fonts (Windows-only, best-effort)
+Write-Host ""
+Write-Host "--- Notepad++ MarkdownPanel CSS ---"
+$NppPluginDir = "C:\Program Files\Notepad++\plugins\NppMarkdownPanel"
+if (Test-Path $NppPluginDir) {
+    $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    if ($isAdmin) {
+        foreach ($f in @("style.css", "style-dark.css")) {
+            $src = "$ScriptDir\notepad++-config\$f"
+            if (Test-Path $src) {
+                Backup-And-Copy $src "$NppPluginDir\$f"
+            }
+        }
+    } else {
+        Write-Host "  [SKIP] Need admin. Manual copy:" -ForegroundColor Yellow
+        Write-Host "    Copy-Item '$ScriptDir\notepad++-config\*.css' '$NppPluginDir\' -Force" -ForegroundColor Yellow
+    }
+} else {
+    Write-Host "  [SKIP] Notepad++ NppMarkdownPanel not installed" -ForegroundColor Yellow
+}
+
+Write-Host ""
+Write-Host "--- Sarasa Mono TC fonts ---"
+$FontDir = "$env:WINDIR\Fonts"
+$FontRegKey = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts"
+$FontFiles = @{
+    "SarasaMonoTC-Regular.ttf"    = "Sarasa Mono TC (TrueType)"
+    "SarasaMonoTC-Bold.ttf"       = "Sarasa Mono TC Bold (TrueType)"
+    "SarasaMonoTC-Italic.ttf"     = "Sarasa Mono TC Italic (TrueType)"
+    "SarasaMonoTC-BoldItalic.ttf" = "Sarasa Mono TC Bold Italic (TrueType)"
+}
+$allPresent = $true
+foreach ($f in $FontFiles.Keys) {
+    if (-not (Test-Path "$FontDir\$f")) { $allPresent = $false; break }
+}
+if ($allPresent) {
+    Write-Host "  [OK]  All 4 Sarasa Mono TC fonts already installed" -ForegroundColor Green
+} else {
+    $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    $SevenZip = "C:\Program Files\7-Zip\7z.exe"
+    if (-not $isAdmin) {
+        Write-Host "  [SKIP] Need admin to install fonts. Run installer as Administrator." -ForegroundColor Yellow
+    } elseif (-not (Test-Path $SevenZip)) {
+        Write-Host "  [SKIP] 7-Zip not found at $SevenZip. Install 7-Zip first." -ForegroundColor Yellow
+    } else {
+        try {
+            Write-Host "  Fetching latest Sarasa Gothic release info..." -ForegroundColor Cyan
+            $api = Invoke-RestMethod -Uri "https://api.github.com/repos/be5invis/Sarasa-Gothic/releases/latest" -UseBasicParsing
+            $asset = $api.assets | Where-Object { $_.name -match '^SarasaMonoTC-TTF-[\d.]+\.7z$' } | Select-Object -First 1
+            if (-not $asset) { throw "No SarasaMonoTC-TTF archive in latest release" }
+            $tmp = Join-Path $env:TEMP "sarasa-dotfiles"
+            New-Item -ItemType Directory -Path $tmp -Force | Out-Null
+            $archive = Join-Path $tmp $asset.name
+            Write-Host "  Downloading $($asset.name) ($([math]::Round($asset.size/1MB,1)) MB)..." -ForegroundColor Cyan
+            Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $archive -UseBasicParsing
+            Write-Host "  Extracting..." -ForegroundColor Cyan
+            & $SevenZip x $archive "-o$tmp" -y | Out-Null
+            foreach ($f in $FontFiles.Keys) {
+                $fp = Get-ChildItem -Path $tmp -Filter $f -Recurse -File | Select-Object -First 1
+                if ($fp) {
+                    Copy-Item $fp.FullName -Destination $FontDir -Force
+                    New-ItemProperty -Path $FontRegKey -Name $FontFiles[$f] -Value $f -PropertyType String -Force | Out-Null
+                    Write-Host "  [OK]  Installed $f" -ForegroundColor Green
+                }
+            }
+            Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
+        } catch {
+            Write-Host "  [FAIL] $($_.Exception.Message)" -ForegroundColor Red
+        }
+    }
+}
+
 # 11. Plugin summary
 Write-Host ""
 Write-Host "--- Plugins ---"
