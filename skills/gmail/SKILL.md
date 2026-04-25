@@ -40,7 +40,7 @@ PYTHONIOENCODING=utf-8 python "C:/Users/benth/.claude/skills/gmail/scripts/gmail
 | `read` | Read a full message | `--message-id` |
 | `thread` | Read entire thread | `--thread-id` |
 | `send` | Send an email | `--to`, `--subject`, `--body`, `--cc`, `--bcc`, `--html` |
-| `draft` | Create a draft | `--to`, `--subject`, `--body`, `--thread-id` |
+| `draft` | Create a draft | `--to`, `--subject`, `--body`, `--cc`, `--bcc`, `--thread-id`, `--attachments`, `--html` |
 | `send-draft` | Send an existing draft | `--draft-id` |
 | `reply` | Reply to a message | `--message-id`, `--body`, `--html` |
 | `labels` | List all labels | (no options) |
@@ -67,6 +67,9 @@ python gmail_ops.py send --to "someone@example.com" --subject "Report" --body "<
 
 # Create a draft reply
 python gmail_ops.py draft --to "someone@example.com" --subject "Re: Topic" --body "Draft reply" --thread-id "18e3a4b5c6d7e8f9"
+
+# Create a draft with attachments
+python gmail_ops.py draft --to "someone@example.com" --subject "Files" --body "See attached" --attachments file1.pdf file2.png
 
 # Reply to a message
 python gmail_ops.py reply --message-id "18e3a4b5c6d7e8f9" --body "Thanks for the update!"

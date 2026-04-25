@@ -259,13 +259,35 @@ def cmd_send_attach(args):
 def cmd_draft(args):
     svc = get_service()
 
-    if args.html:
-        msg = MIMEText(args.body, "html")
+    attachments = getattr(args, "attachments", None) or []
+
+    if attachments:
+        msg = MIMEMultipart()
+        msg.attach(MIMEText(args.body, "html" if args.html else "plain", "utf-8"))
+        for filepath in attachments:
+            path = Path(filepath)
+            if not path.exists():
+                print(json.dumps({"error": f"File not found: {filepath}"}), file=sys.stderr)
+                sys.exit(1)
+            content_type, _ = mimetypes.guess_type(str(path))
+            if content_type is None:
+                content_type = "application/octet-stream"
+            main_type, sub_type = content_type.split("/", 1)
+            with open(path, "rb") as f:
+                part = MIMEBase(main_type, sub_type)
+                part.set_payload(f.read())
+            encoders.encode_base64(part)
+            part.add_header("Content-Disposition", "attachment", filename=path.name)
+            msg.attach(part)
     else:
-        msg = MIMEText(args.body, "plain")
+        msg = MIMEText(args.body, "html" if args.html else "plain")
 
     msg["to"] = args.to
     msg["subject"] = args.subject
+    if args.cc:
+        msg["cc"] = args.cc
+    if args.bcc:
+        msg["bcc"] = args.bcc
 
     raw = base64.urlsafe_b64encode(msg.as_bytes()).decode()
     body = {"message": {"raw": raw}}
@@ -405,8 +427,11 @@ def main():
     p.add_argument("--to", required=True, help="Recipient(s)")
     p.add_argument("--subject", "-s", required=True, help="Subject")
     p.add_argument("--body", "-b", required=True, help="Body text")
+    p.add_argument("--cc", default=None, help="CC recipients")
+    p.add_argument("--bcc", default=None, help="BCC recipients")
     p.add_argument("--html", action="store_true", help="HTML body")
     p.add_argument("--thread-id", default=None, help="Thread ID for reply draft")
+    p.add_argument("--attachments", nargs="+", default=None, help="File paths")
 
     # send-draft
     p = sub.add_parser("send-draft", help="Send an existing draft")
