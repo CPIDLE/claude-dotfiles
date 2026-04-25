@@ -1,3 +1,6 @@
+# Personal team-share notes (not for repo)
+.tips/
+
 # Secrets
 .env
 **/token.json
