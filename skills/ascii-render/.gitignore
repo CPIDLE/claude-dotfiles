@@ -1,0 +1,7 @@
+rendered/
+.render/
+.data/
+__pycache__/
+*.pyc
+*.png
+!testcase/**/*.png
