@@ -42,6 +42,7 @@ Non-trivial tasks 走三階段：
 - 每完成一步驟跑相關 test（有對應 test 跑該檔、沒有跑 suite、無 test 設定則跳過）
 - 發現需額外修改先回報，不自行擴大範圍
 - 避免 `data2` / `result2` 類模糊命名
+- **Edit/Write 前必先 Read 該檔**（即使你「以為記得」內容或檔案剛被你建立）。Edit tool 會 reject 未 Read 的檔，硬上一定失敗 — 第一次就 Read，不要靠重試
 
 ## ASCII Art Diagrams（Sarasa Mono TC）
 
