@@ -34,6 +34,25 @@
 
 啟動**完全獨立的 subagent**，以嚴格否定立場審查所有產出。
 
+### Step 0：事實基礎層前置檢查（30 秒）
+
+在 Step 1 之前，grep 被審文件 / git diff 的引用清單，偵測是否引用 cc 衍生檔。
+
+**黑名單模式**（regex）：
+```
+reviews/|review-|-review\.md|整理|筆記|統整|summary|analysis-v|v[0-9]+\.md
+```
+
+- **未命中** → 靜默繼續 Step 1
+- **命中** → 印一行警告，**自動執行 `/rt-fact`**：
+  ```
+  ⚠️ 偵測到引用 cc 衍生檔 N 處，先跑 /rt-fact 排除事實污染
+  ```
+  - rt-fact 結果 ✅ PASS → 繼續 Step 1
+  - rt-fact 結果 ⚠️ / ❌ → **暫停 pm-review**，詢問：「事實基礎層發現污染，要先修正再 review 嗎？」
+
+> 用意：論點層 review（Step 1+）建立在事實之上；若事實已污染，論點審無意義。
+
 ### Step 1：收集審核範圍
 
 ```bash
