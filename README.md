@@ -1,6 +1,6 @@
 # Claude Code Dotfiles
 
-Claude Code 個人設定框架 — 一次安裝，完整配置所有 commands、skills、MCP、plugins。提供 `/pm` 專案管理指令、`/do` Gemini API 委派、即時 Status Line，自動化開工→同步→收工的完整工作流程。
+Claude Code 個人設定框架 — 一次安裝，完整配置所有 commands、skills、MCP、plugins。提供 `/pm` 專案管理指令、即時 Status Line，自動化開工→同步→收工的完整工作流程。
 
 ## 功能特色
 
@@ -46,31 +46,11 @@ claude-dotfiles │ master │ pm▸sync▸bye     Opus 4.6 │ ctx:6% 5h:2%▸0
 | `/pm-sync` | 中期同步 — 儲存進度、自動 commit、同步到外部服務 |
 | `/pm-bye` | 收工 — 自動審核 + git 整理 + 進度儲存 |
 | `/pm-review` | 獨立程式碼審核（AI 紅隊審核員） |
-| `/do easy` | 委派簡單任務給 Gemini API（flash-lite，快速便宜） |
-| `/do deep` | 委派複雜任務給 Gemini API（flash，多輪生成→審核→修正） |
 | `/smart-commit` | 智慧 commit |
 | `/report-gyro` | 產生 GYRO 報告（Marp/Gamma） |
 | `/report-easy` | Markdown → A4 列印就緒 HTML（含 D2/Mermaid 圖表） |
 | `/clip` | 剪貼簿截圖分析 |
 | `/ascii-align` | CJK-aware ASCII box-drawing 對齊（rule engine + LLM pipeline） |
-
-### 任務委派（`/do`）
-
-透過 `/do` 指令，Claude Code 自動產 spec 並委派給 Gemini API 執行，減少 Claude Code 用量：
-
-| 模式 | Model | 適用 | 價格 |
-|---|---|---|---|
-| `/do easy` | gemini-3.1-flash-lite | L1 新模組、簡單文件 | $0.25/$1.50 per 1M |
-| `/do deep` | gemini-3-flash-preview | 複雜模組、L2 修改 | $0.50/$3.00 per 1M |
-
-支援三種引擎（`DO_ENGINE` 環境變數切換）：
-- `gemini`（預設）— Google Gemini API
-- `ollama` — 本地 Ollama（DGX Spark 離線部署）
-- `opencode` — OpenCode CLI
-
-Quota-aware 自動委派：UserPromptSubmit hook 偵測 5h session 用量 ≥ 50% 時注入 `⚠️ QUOTA WARN`，Claude 收到後強制委派適合的任務。
-
-Benchmark 驗證：Gemini API 品質 5.0/5.0，flash-lite 4.85/5.0。
 
 ### 建議工作流程
 
@@ -79,8 +59,6 @@ Benchmark 驗證：Gemini API 品質 5.0/5.0，flash-lite 4.85/5.0。
   ↓
   工作
   ├─ 完成功能 → /smart-commit
-  ├─ 簡單任務 → /do easy <任務>
-  ├─ 複雜任務 → /do deep <任務>
   ├─ ctx ≈ 60% → /pm-bye → /clear → /pm
   ↓
 /pm-bye                      # 收工
@@ -114,9 +92,6 @@ bash install.sh
 ├── commands/                # Claude Code slash commands
 ├── skills/                  # Custom skills（11 個）
 ├── hooks/                   # PreToolUse hooks（rm → 回收桶）
-├── benchmark.py             # Gemini API 品質評測
-├── benchmark-results/       # 評測結果 + 產出檔案
-├── langgraph-migration.md   # LangGraph 遷移計畫（參考）
 ├── dual-engine/             # Dual Engine SOP + 範例
 ├── docs/                    # 設定指南
 │   ├── google-workspace-setup.md
@@ -152,4 +127,3 @@ bash install.sh                                        # macOS / Linux
 - 安裝時已存在的同名檔案會備份為 `.bak`
 - Marketplace plugins 在 `settings.json` 中設定，首次啟動自動安裝（見 [docs/plugins.md](docs/plugins.md)）
 - Status line 的配額資訊需要 Anthropic OAuth token（首次使用時自動取得）
-- `/do` 委派需要 `GEMINI_API_KEY` 環境變數 + `pip install google-genai`
