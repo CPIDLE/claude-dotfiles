@@ -32,10 +32,13 @@ Non-trivial tasks 走三階段：
 
 ## ASCII Art Diagrams（Sarasa Mono TC）
 
-### 字元白名單
-- **允許**：ASCII (0x20-0x7E) + 11 個 box-drawing: `─ │ ┌ ┐ └ ┘ ├ ┤ ┬ ┴ ┼`
-- **禁用**：Unicode 箭頭/數學/emoji/裝飾、厚框 (`═║━┃┏┓┗┛╔╗╚╝`)、斜線盒 (`╱╲`) — 全改 ASCII
-- 替代對照表（箭頭 `→`→`->`、`▲/▼`→`^/v` 補空白、數學/裝飾/希臘等數十項）：`~/.claude/skills/ascii-align/scripts/symbol_fix.py::SYMBOL_MAP`
+### 字元優先序
+1. **首選**：`─ │ ┌ ┐ └ ┘ ├ ┤ ┬ ┴ ┼`（連續框線）
+2. **可用**：`- | +`（ASCII，當不確定渲染環境時）
+3. **禁用**：厚框 `═║━┃┏┓┗┛╔╗╚╝`、斜線盒 `╱╲`、Unicode 箭頭/數學/emoji
+
+對齊不確定就跑 `/ascii-align`，不行才退回 ASCII。
+替代對照表：`~/.claude/skills/ascii-align/scripts/symbol_fix.py::SYMBOL_MAP`
 
 ### 寬度守則
 - CJK / fullwidth = 2 cols；ASCII + 本 11 個 box = 1 col；EAW=Ambiguous 多數 2 cols（例外 `°` `–` 本 11 個 box = 1 col）
