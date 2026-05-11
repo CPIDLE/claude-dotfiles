@@ -43,8 +43,8 @@ source.md
    │  Stage 0a: emit Marp MD（auto-split 過的內容、加 frontmatter + `---` 分頁）
    ▼
 <stem>_marp.md
-   │  Stage 0b: marp --theme gyro-marp-theme.css --html
-   │    （重用 report-gyro skill 的 GYRO 樣式，不重複造輪）
+   │  Stage 0b: marp --theme assets/gyro-marp-theme.css --html
+   │    （本 skill 內附 GYRO Marp theme，無外部依賴）
    ▼
 <stem>_slides.html  ← **視覺基準**，Marp 內建翻頁 / GYRO 配色 / 1280×720
    │  人工 review：版型 / 配色 / 表格 / 切點 OK 嗎？
@@ -63,7 +63,7 @@ source.md
 
 **為什麼必須先 HTML**：PPTX 在腳本裡硬寫座標（PptxGenJS 是 imperative，沒 flex/grid），錯了重跑慢。HTML 即時在瀏覽器看，調整成本低 — **先 HTML 定樣式省下大量試錯**。版型有問題優先在 .md / .html 階段修。
 
-**為什麼用 Marp**：`report-gyro` skill 已有 `gyro-marp-theme.css`（GYRO 磚紅 #BD442C、Inter+Noto Sans TC、16:9）+ `marp` CLI 內建翻頁、PDF/PPTX/HTML 三合一匯出。**重用，不重複造輪**。
+**為什麼用 Marp**：本 skill 內附 `assets/gyro-marp-theme.css`（GYRO 磚紅 #BD442C、Inter+Noto Sans TC、16:9）+ `marp` CLI 內建翻頁、PDF/PPTX/HTML 三合一匯出。Stage 0 只當 PPTX 視覺基準，不對外交付。
 
 剩下手動工作（Stage 1 產出後）：mermaid block 改手繪 `flowChain`、客製化視覺頁、補真實照片。
 

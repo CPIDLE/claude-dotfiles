@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-report-easy: build 直/橫 HTML from a markdown report.
+md-to-paper: build A4 直/橫 HTML whitepaper from a markdown report.
 
 Usage:
   python build_html.py <source.md> [title]

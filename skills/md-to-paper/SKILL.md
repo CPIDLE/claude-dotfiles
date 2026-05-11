@@ -1,17 +1,18 @@
 ---
-name: report-easy
+name: md-to-paper
 description: >
-  Convert a plain ASCII Markdown report into a print-ready deliverable in 3 stages:
+  Convert a plain ASCII Markdown report into a print-ready A4 whitepaper deliverable in 3 stages:
   (1) ASCII .md → diagram-enriched .md (D2/ELK PNGs preferred, Mermaid only when D2 is unsuitable),
   (2) diagram-enriched .md → A4 portrait HTML (`_直.html`),
   (3) same .md → A4 landscape HTML (`_橫.html`).
+  Use for long-form documents / whitepapers / printable reports — NOT for slide decks (see md-to-deck) or PPTX (see md-to-pptx).
   Fully self-contained: HTML templates and helper script live inside this skill folder,
   so it works on any machine without external file dependencies.
-  Trigger when: 報告轉 HTML, 直橫版本, 產生白皮書, ASCII 報告加圖, report-easy, /report-easy.
+  Trigger when: 報告轉 HTML, 直橫版本, 產生白皮書, A4 報告, ASCII 報告加圖, md-to-paper, /md-to-paper.
 argument-hint: <source.md>
 ---
 
-# Report Easy — ASCII MD → D2/ELK Diagrams → 直/橫 HTML
+# md-to-paper — ASCII MD → D2/ELK Diagrams → A4 直/橫 HTML（白皮書）
 
 ## 三階段流程
 
@@ -106,7 +107,7 @@ python build_html.py /abs/path/source_elk.md
 ## 檔案結構（自包含）
 
 ```
-skills/report-easy/
+skills/md-to-paper/
 ├── SKILL.md                  ← 本檔案
 ├── assets/
 │   ├── template_直.html      ← A4 portrait 模板（含 {{TITLE}} / {{MARKDOWN_CONTENT}} 占位）

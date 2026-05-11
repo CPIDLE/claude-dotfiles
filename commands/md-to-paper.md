@@ -1,6 +1,6 @@
 使用者需求：$ARGUMENTS
 
-請使用 **report-easy** skill 將指定的 ASCII Markdown 報告轉為印刷就緒的 HTML（A4 橫）。
+請使用 **md-to-paper** skill 將指定的 ASCII Markdown 報告轉為印刷就緒的 A4 白皮書 HTML。
 
 ## 三階段流程
 
@@ -11,13 +11,13 @@
 ## 用法
 
 ```
-/report-easy <source.md>
+/md-to-paper <source.md>
 ```
 
 直接呼叫腳本（自包含、無外部路徑依賴）：
 
 ```bash
-python ~/.claude/skills/report-easy/scripts/build_html.py <source_elk.md>
+python ~/.claude/skills/md-to-paper/scripts/build_html.py <source_elk.md>
 ```
 
 ## 注意事項

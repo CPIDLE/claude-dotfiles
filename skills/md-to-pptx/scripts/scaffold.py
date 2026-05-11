@@ -396,7 +396,7 @@ def split_content_slides(slides: list[dict]) -> list[dict]:
     return final
 
 
-# ---------- Marp MD emission (Stage 0: delegate to report-gyro's Marp pipeline) ----------
+# ---------- Marp MD emission (Stage 0: HTML preview via Marp + bundled GYRO theme) ----------
 
 def serialize_block_md(b: dict) -> str:
     t = b["type"]
@@ -562,8 +562,8 @@ def main() -> int:
     ap.add_argument("--skip-html", action="store_true",
                     help="skip Stage 0 (Marp HTML preview). NOT recommended — HTML is the visual baseline")
     ap.add_argument("--marp-theme",
-                    default=str((here.parent.parent / "report-gyro" / "assets" / "gyro-marp-theme.css").resolve()),
-                    help="path to GYRO Marp theme CSS (auto-detected via sibling report-gyro skill)")
+                    default=str((here.parent / "assets" / "gyro-marp-theme.css").resolve()),
+                    help="path to GYRO Marp theme CSS (bundled with md-to-pptx skill)")
     args = ap.parse_args()
 
     md_path = Path(args.md).resolve()
@@ -583,7 +583,7 @@ def main() -> int:
     slides_raw = group_slides(blocks)
     slides_final = split_content_slides(slides_raw)
 
-    # Stage 0: produce Marp slide HTML using report-gyro's GYRO theme.
+    # Stage 0: produce Marp slide HTML using the bundled GYRO theme (assets/gyro-marp-theme.css).
     # V1 playbook §0 — PPTX 樣式以 HTML 為視覺基準。每個 `---` 切點對應一張 PPTX slide。
     if not args.skip_html:
         marp_md_path = md_path.with_name(md_path.stem + "_marp.md")
