@@ -47,8 +47,9 @@ claude-dotfiles │ master │ pm▸sync▸bye     Opus 4.6 │ ctx:6% 5h:2%▸0
 | `/pm-bye` | 收工 — 自動審核 + git 整理 + 進度儲存 |
 | `/pm-review` | 獨立程式碼審核（AI 紅隊審核員） |
 | `/smart-commit` | 智慧 commit |
-| `/report-gyro` | 產生 GYRO 報告（Marp/Gamma） |
-| `/report-easy` | Markdown → A4 列印就緒 HTML（含 D2/Mermaid 圖表） |
+| `/md-to-paper` | Markdown → A4 列印就緒 HTML 白皮書（含 D2/Mermaid 圖表） |
+| `/md-to-deck` | Markdown → GYRO 品牌 single-file HTML 投影片（→ PDF） |
+| `/md-to-pptx` | Markdown → PptxGenJS `.pptx` 簡報 |
 | `/clip` | 剪貼簿截圖分析 |
 | `/ascii-align` | CJK-aware ASCII box-drawing 對齊（rule engine + LLM pipeline） |
 
