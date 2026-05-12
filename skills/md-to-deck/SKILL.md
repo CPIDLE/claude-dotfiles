@@ -18,7 +18,8 @@ Read a Markdown source document and generate a professional GYRO-branded HTML sl
 
 ## Workflow
 
-1. **Read** the source `.md` file
+0. **Stage 0 (optional) — 投影片稿精簡**：若來源 `.md` 是長文白皮書，先精簡為 slide-friendly 中介稿 `<stem>_slides.md`。由 command 層用 AskUserQuestion 控制是否啟用，詳見下方「Stage 0：投影片稿精簡」一節
+1. **Read** the source `.md` file（Stage 0 啟用時讀 `_slides.md`，否則讀原檔）
 2. **Analyze** the document structure — map sections to slide types
 3. **Generate** a single-file HTML with all CSS/JS/Mermaid embedded
 4. **Write** the output `.html` file
@@ -29,7 +30,62 @@ Read a Markdown source document and generate a professional GYRO-branded HTML sl
 > **No JSON intermediate step needed for HTML.** Claude reads MD and produces HTML directly.
 > **Excel requires a JSON intermediate.** Claude extracts params → runs `gen_verification.py`.
 
+## Stage 0：投影片稿精簡（optional）
+
+把長文白皮書精簡成 slide-friendly 中介稿（`<stem>_slides.md`），再餵步驟 1–4。
+
+### 何時啟用
+
+- 來源 `.md` 是說明文 / 長文白皮書 / 提案書，章節長度不均、單節超過 1 頁可容納的量
+- 來源 `.md` 已是 slide-friendly（H2/H3 結構清楚、每節 ≤ 1 頁、表格 / ASCII / 列表化過）→ **跳過 Stage 0**
+
+### 精簡規格
+
+| 項目 | 規格 |
+|---|---|
+| 主題數 | **8–12 個**（含封面、結語），目標 10 |
+| 每主題長度 | 一頁可容納（純文字 ≤ 15 行、表格 ≤ 10 列、ASCII ≤ 20 行） |
+| 內容形式 | **大量** Markdown 表格 + ASCII art 圖、**精簡** prose（每段 ≤ 3 行） |
+| ASCII art | 流程圖 / 矩陣 / 巢狀框 / 比例 bar chart 等；遵循全域 CLAUDE.md「ASCII Art Diagrams」規範（Unicode box-drawing 優先、Sarasa Mono TC 寬度）|
+| 標題層級 | `# 簡報標題` 一個 → `## 各主題` 8–12 個 → 必要時 `### 子段`，**不要再深** |
+| 表格 | 原文密集敘述 → 改寫為對照表 / 比較表 / 規格表 |
+| 引用塊 | `> ` 用於封面 metadata / 主題下方關鍵 callout |
+
+### 流程
+
+1. **讀完全文**（>300 行用分段讀）
+2. **提 ~10 主題大綱**給使用者用 AskUserQuestion confirm（允許微調主題數 / 順序）
+3. **寫 `<stem>_slides.md`**，依精簡規格產出
+4. **跑 ascii-align**（強制）— ASCII art 圖容易在生成時對齊有誤，必須校正：
+   ```
+   python ~/.claude/skills/ascii-align/scripts/ascii_align.py <stem>_slides.md
+   ```
+   若 `--check` 仍報錯，視 ascii-align skill 規範處理（修字元、退回純文字、或手調幾何）。**未過 ascii-align 不續跑下一步**
+5. **回報** outline 與檔案路徑，由 command 決定是否續跑步驟 1–4 轉 HTML
+
 ## MD to Slide Mapping Rules
+
+**先判斷輸入類型**：
+
+| 類型 | 判斷依據 | 套用規則 |
+|---|---|---|
+| **Slide-draft**（Stage 0 產出 / 已精簡） | 檔名 `*_slides.md` **或** Stage 0 選 A/C 剛產出 **或** 全文 `##` 區塊數 ≈ 8–12 且每區塊 ≤ 1 頁內容 | **Slide-draft 規則**（見下）— 每 `##` = 1 頁 |
+| **Long-form**（白皮書 / 報告） | 章節長度不均、節點深、`##` + `###` 多層 | **Long-form 規則**（原規則） |
+
+### Slide-draft 規則（**每 `##` = 1 頁**）
+
+| MD Pattern | Slide Type |
+|---|---|
+| `# Title` + 副標 + blockquote meta | **cover** |
+| 每個 `## Topic`（連同其下所有 `###` / 表格 / 列表 / ASCII / callout） | **一張 content slide**（**不插 section divider**） |
+| 最後一個 `## ` 含「結語 / 收尾 / Closing / Thank You」字樣 | **closing-slide** |
+
+**絕對禁止**：
+- 為每個 `##` 插 `section-slide`（slide-draft 已預設每節 ≤ 1 頁，再加 divider 會膨脹 2–3 倍）
+- 把單一 `##` 下的 `###` 拆成多張 slide（一頁內以 `h4` / 區段標題呈現即可）
+- 預期投影片數量 ≠ `##` 數量 + 1（封面）
+
+### Long-form 規則（原規則，用於未走 Stage 0 的長文）
 
 | MD Pattern | Slide Type | HTML Class |
 |------------|-----------|------------|
