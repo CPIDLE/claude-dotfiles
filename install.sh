@@ -7,6 +7,16 @@ set -e
 CLAUDE_DIR="$HOME/.claude"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
+# Skip-deploy lists — files kept in repo but NOT copied to ~/.claude/
+EXCLUDED_SKILLS=("md-to-paper")
+EXCLUDED_COMMANDS=("md-to-paper.md")
+
+is_excluded() {
+    local name="$1"; shift
+    for item in "$@"; do [ "$item" = "$name" ] && return 0; done
+    return 1
+}
+
 echo "=== Claude Code Dotfiles Installer ==="
 echo ""
 
@@ -53,6 +63,7 @@ echo "--- Commands ---"
 mkdir -p "$CLAUDE_DIR/commands"
 for f in "$SCRIPT_DIR/commands/"*.md; do
     [ -e "$f" ] || continue
+    is_excluded "$(basename "$f")" "${EXCLUDED_COMMANDS[@]}" && continue
     backup_and_copy "$f" "$CLAUDE_DIR/commands/$(basename "$f")"
 done
 
@@ -117,6 +128,7 @@ if [ -d "$SCRIPT_DIR/skills" ]; then
     for skill_dir in "$SCRIPT_DIR/skills/"*/; do
         [ -d "$skill_dir" ] || continue
         skill_name=$(basename "$skill_dir")
+        is_excluded "$skill_name" "${EXCLUDED_SKILLS[@]}" && continue
         mkdir -p "$CLAUDE_DIR/skills/$skill_name"
         cp -r "$skill_dir"* "$CLAUDE_DIR/skills/$skill_name/" 2>/dev/null
         echo "  [OK]  ~/.claude/skills/$skill_name/"

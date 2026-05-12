@@ -5,6 +5,10 @@ $ErrorActionPreference = "Stop"
 $ClaudeDir = "$env:USERPROFILE\.claude"
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
+# Skip-deploy lists — files kept in repo but NOT copied to ~/.claude/
+$ExcludedSkills   = @("md-to-paper")
+$ExcludedCommands = @("md-to-paper.md")
+
 Write-Host "=== Claude Code Dotfiles Installer ===" -ForegroundColor Cyan
 Write-Host ""
 
@@ -56,7 +60,7 @@ Write-Host "--- Commands ---"
 if (-not (Test-Path "$ClaudeDir\commands")) {
     New-Item -ItemType Directory -Path "$ClaudeDir\commands" | Out-Null
 }
-Get-ChildItem "$ScriptDir\commands\*.md" | ForEach-Object {
+Get-ChildItem "$ScriptDir\commands\*.md" | Where-Object { $ExcludedCommands -notcontains $_.Name } | ForEach-Object {
     Backup-And-Copy $_.FullName "$ClaudeDir\commands\$($_.Name)"
 }
 
@@ -118,7 +122,7 @@ if (Test-Path "$ScriptDir\skills") {
         New-Item -ItemType Directory -Path $skillsDest | Out-Null
     }
     # Copy skill directories
-    Get-ChildItem "$ScriptDir\skills" -Directory | ForEach-Object {
+    Get-ChildItem "$ScriptDir\skills" -Directory | Where-Object { $ExcludedSkills -notcontains $_.Name } | ForEach-Object {
         $destSkill = "$skillsDest\$($_.Name)"
         if (-not (Test-Path $destSkill)) {
             New-Item -ItemType Directory -Path $destSkill | Out-Null
