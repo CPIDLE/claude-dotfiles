@@ -82,8 +82,12 @@ Read a Markdown source document and generate a professional GYRO-branded HTML sl
 
 **絕對禁止**：
 - 為每個 `##` 插 `section-slide`（slide-draft 已預設每節 ≤ 1 頁，再加 divider 會膨脹 2–3 倍）
-- 把單一 `##` 下的 `###` 拆成多張 slide（一頁內以 `h4` / 區段標題呈現即可）
-- 預期投影片數量 ≠ `##` 數量 + 1（封面）
+
+**允許微調**：
+- **預設**：投影片數量 = `##` 數量 + 1（封面）
+- **可拆**：若單一 `##` 內含**語意明顯獨立**的兩個區塊（例：「風險十項表 + 結語」、「比較表 + 行動清單」），允許拆成 2 張 slide — 投影片總數可比 `##` 數略多
+- **不可亂拆**：單純把 `###` 各自一頁、或把連續表格拆開，是 long-form 模式的做法，slide-draft 不採
+- **closing 偵測**：若最後一個 `##` 含「結語 / Closing / Thank You」字樣，**該區塊單獨一頁 closing-slide**；同 `##` 內若另含風險 / 限制 / 待辦 等獨立區塊，先拆出來當 content slide 再接 closing-slide
 
 ### Long-form 規則（原規則，用於未走 Stage 0 的長文）
 
