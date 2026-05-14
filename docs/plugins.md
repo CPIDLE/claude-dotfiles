@@ -12,6 +12,8 @@
 | `coderabbit` | AI 程式碼審查 |
 | `claude-md-management` | CLAUDE.md 審計與改善 |
 | `playwright` | 瀏覽器自動化 |
+| `pyright-lsp` | Python 型別檢查 LSP（改 .py 自動回報錯誤/警告） |
+| `hookify` | 用 markdown rule 建 hook 硬擋不該做的事（regex 比對 tool call） |
 
 ## 可選（手動安裝）
 
