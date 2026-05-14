@@ -97,6 +97,46 @@ git remote -v
 - 有值得記住的 → 寫入 memory 檔案（依標準格式含 frontmatter）
 - 沒有 → 跳過，不提示
 
+## Step 6.5：Hookify 候選檢查（自動）
+
+掃描本次 session 寫入或更新的 memory feedback 檔，挑出能變成硬阻擋 hook 的紅線。
+
+**掃描範圍：**
+1. 找出 memory 資料夾下 mtime 在本次 session 期間內的 `feedback_*.md`
+   - 用 `find <memory_dir> -name 'feedback_*.md' -newer <session_start_marker>` 或 mmin 近似
+   - 若無法判定 session 起點 → fallback 掃今日（mtime < 1 day）新增/修改的 feedback
+2. 沒有新 feedback → 一行帶過「🪝 Hookify：本次無新候選」，直接跳到 Step 7
+
+**分類規則：**
+
+| 等級 | 判準 | 行為 |
+|---|---|---|
+| 🔴 強 | 規則能對應到具體 tool call regex（Bash command 含特定字串、Write/Edit 目標檔副檔名 + 內容 pattern） | 列出來、附建議 regex、問 user 要不要寫 |
+| 🟡 中 | pattern 鬆（如「不要用 `data2` 變數名」）或誤擋率高 | 列出來但標註「斟酌」，預設不問 |
+| ⚪ 工作流 | 需 sequence/context 判斷、純人工流程、judgment call | 不列 |
+
+**輸出範例：**
+
+```
+🪝 Hookify 候選（本次 session 新增 3 條 feedback）
+
+🔴 強候選：
+  1. 禁 reqty 改量
+     pattern: Bash/Write/Edit 含 `reqty|FunctionCode\s*=\s*0?5|TradeKind\s*=\s*0?3`
+     來源: feedback_no_reqty.md
+
+🟡 中候選（斟酌）：
+  - feedback_pre_trade_protocol.md（workflow 層，hookify 易誤擋合法流程）
+
+要把強候選寫成 hookify rule 嗎？
+[1] 全部 [2] 選擇 [3] 跳過（記錄到 progress.md 下次再說）
+```
+
+**選 1 / 2 → 接著跑 `/hookify` 把 rule 寫進 `.claude/hookify.*.local.md`**
+**選 3 → 把候選清單追加到 progress.md 「📌 下次建議」區段**
+
+無強候選 → 顯示 `🪝 Hookify：本次無強候選（N 條中候選已略過）`，不打斷流程。
+
 ## Step 7：顯示進度摘要
 
 ```
