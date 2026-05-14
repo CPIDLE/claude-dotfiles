@@ -246,8 +246,13 @@ if ($allPresent) {
 Write-Host ""
 Write-Host "--- Plugins ---"
 Write-Host "  Configured in settings.json (auto-install on first launch):"
-Write-Host "    skill-creator, code-simplifier, context7, coderabbit,"
-Write-Host "    claude-md-management, playwright"
+try {
+    $enabledPlugins = (Get-Content "$ScriptDir\settings.json" -Raw | ConvertFrom-Json).enabledPlugins
+    $names = $enabledPlugins.PSObject.Properties.Name | ForEach-Object { $_ -replace '@.*$','' }
+    Write-Host "    $($names -join ', ')"
+} catch {
+    Write-Host "    (unable to read enabledPlugins from settings.json)" -ForegroundColor Yellow
+}
 Write-Host "  Optional plugins: see docs/plugins.md"
 
 # Summary

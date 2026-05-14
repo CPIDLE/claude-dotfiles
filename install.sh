@@ -174,8 +174,18 @@ fi
 echo ""
 echo "--- Plugins ---"
 echo "  Configured in settings.json (auto-install on first launch):"
-echo "    skill-creator, code-simplifier, context7, coderabbit,"
-echo "    claude-md-management, playwright"
+if command -v jq >/dev/null 2>&1; then
+    names=$(jq -r '.enabledPlugins | keys[] | sub("@.*$"; "")' "$SCRIPT_DIR/settings.json" 2>/dev/null | paste -sd ', ' -)
+else
+    # jq absent: grep keys between "enabledPlugins": { ... }, then strip @suffix
+    names=$(sed -n '/"enabledPlugins"[[:space:]]*:/,/^[[:space:]]*}/p' "$SCRIPT_DIR/settings.json" \
+        | grep -oE '"[^"]+@[^"]+"' | sed -E 's/"([^@]+)@.*"/\1/' | paste -sd ', ' -)
+fi
+if [ -n "$names" ]; then
+    echo "    $names"
+else
+    echo "    (unable to read enabledPlugins from settings.json)"
+fi
 echo "  Optional plugins: see docs/plugins.md"
 
 echo ""
