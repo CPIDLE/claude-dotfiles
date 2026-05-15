@@ -61,6 +61,16 @@ metadata:
 | 主題重定義 | 改成今天 | 今天 | 等於新 memo，舊的砍掉 |
 | 過時刪除 | — | — | 直接砍 + 同步 MEMORY.md |
 
+### 週期保養（人工為主）
+- **觸發式**：cc 引用 memo 後發現過時 → **當下就改/砍**，不留到下次
+- **每月一次**：使用者主動或 `/pm-bye` 觸發時，掃 `updated` > 30 天未動的 memo 問「還準嗎？」
+- **紅旗 pattern**（看到就提醒使用者收）：
+  - 檔名含 `progress` / `wip` / `_v2` 或具體日期（多半結案後該收）
+  - body 出現「待」「下一步」「TODO」（進行式，結案後該刪）
+  - feedback / project 缺 `**Why:**` / `**How to apply:**`（結構不完整）
+  - `created == updated` 且 > 60 天（寫完沒人碰，可能根本沒用）
+- 同主題 memo > 1 個 → 合併（依重整動作規範）
+
 ## ASCII Art Diagrams（Sarasa Mono TC）
 
 ### 字元優先序
