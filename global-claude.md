@@ -10,6 +10,9 @@
 - 改檔後不逐行解釋（看 diff 就懂）；不重複輸出檔案完整內容
 - 錯誤貼關鍵行 + 修正方式，不貼完整 stack
 
+## AskUserQuestion 選單
+cc 有偏好時，**該選項排第一位** + label 結尾加「**（建議）**」（繁中括號）。中立題（純偏好）才不標。
+
 ## Notification Sounds
 Beep 由 `settings.json` hooks 處理（AskUserQuestion → 1 聲、Stop → 3 聲）。**不要手動 beep**。
 
