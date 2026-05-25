@@ -55,7 +55,7 @@
     "type": "command",
     "command": "bash ~/.claude/statusline.sh"
   },
-  "effortLevel": "xhigh",
+  "effortLevel": "high",
   "skipDangerousModePermissionPrompt": true,
   "agentPushNotifEnabled": true,
   "env": {
