@@ -128,9 +128,15 @@ process.stdin.on('end', async () => {
       + `${DIM}\u25b8${RESET}`
       + colorize('bye', pmState.bye);
 
+    const effortRaw = j.effort?.level || '';
+    const effortMap = { low: 'L', medium: 'M', high: 'H', xhigh: 'xH', max: 'MX' };
+    const effortLabel = effortMap[effortRaw] || '?';
+    const effortColor = (effortRaw === 'xhigh' || effortRaw === 'max') ? '\x1b[31m' : '\x1b[32m';
+    const effortTag = `${DIM}ef:${RESET}${effortColor}${effortLabel}${RESET}`;
+
     const ctxColor = sessionColor(pct);
     const GREEN = '\x1b[32m';
-    process.stdout.write(`${BRIGHT}${dir}${RESET} ${DIM}\u2502${RESET} ${DIM}__BRANCH__${RESET} ${DIM}\u2502${RESET} ${pmTag}     ${DIM}Opus ${RESET}${GREEN}${model.replace(/^.*\s/, '')}${RESET} ${DIM}\u2502 ctx:${RESET}${ctxColor}${pct}%${RESET}${quotaTag(cache)}`);
+    process.stdout.write(`${BRIGHT}${dir}${RESET} ${DIM}\u2502${RESET} ${DIM}__BRANCH__${RESET} ${DIM}\u2502${RESET} ${pmTag}     ${effortTag} ${DIM}Opus ${RESET}${GREEN}${model.replace(/^.*\s/, '')}${RESET} ${DIM}\u2502 ctx:${RESET}${ctxColor}${pct}%${RESET}${quotaTag(cache)}`);
   } catch {
     process.stdout.write(`\x1b[90mClaude\x1b[0m  \x1b[97m?\x1b[0m \u2502 pm \u2502 \x1b[32mctx 0%\x1b[0m${quotaTag(cache)}`);
   }
