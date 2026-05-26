@@ -20,6 +20,17 @@
         ]
       }
     ],
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python ~/.claude/hooks/index-append.py"
+          }
+        ]
+      }
+    ],
     "SessionStart": [
       {
         "hooks": [

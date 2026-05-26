@@ -39,6 +39,36 @@ bash ~/.claude/pm-update.sh bye running
 
 **不觸發時**：靜默跳過。**無 README.md 或非 git repo** → 跳過。
 
+## Step 1.8：INDEX.md 清理掃描（自動）
+
+檢查當前工作目錄是否有 `INDEX.md`。
+
+**無 INDEX.md** → 靜默跳過。
+
+**有 INDEX.md** → 執行兩項掃描：
+
+1. **過期條目**：列出狀態為 `one-off` 或 `archived` 的檔案
+2. **未列檔案**：掃描目錄中的非隱藏檔（排除 `.git/`、`node_modules/`、`__pycache__/`、`.venv/`、INDEX.md 本身），找出不在 INDEX.md 表格中的檔案
+
+**有發現時**：
+```
+📋 INDEX.md 清理建議
+
+🗑️ 可清理（one-off/archived）：
+  - helper.py（one-off, 2026-05-20）
+  - PROPOSAL_v3.md（archived, 2026-05-10）
+
+📝 未列入 INDEX.md：
+  - notes.txt
+  - debug_output.log
+
+要處理嗎？
+[1] 逐一確認 [2] 跳過
+```
+
+**選 1** → 逐一詢問：刪除（send2trash）/ 改 status / 加入 INDEX.md
+**選 2 或無發現** → 靜默跳過
+
 ## Step 2：審核（review easy，自動）
 
 執行 `/pm-review easy` 的流程：

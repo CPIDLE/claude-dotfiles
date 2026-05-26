@@ -12,6 +12,7 @@
 | `/pm new` | 首次開工（掃描專案 + 建立 progress.md + README.md） |
 | `/pm status` | 快速查看進度（唯讀） |
 | `/pm resume` | 接續上次 session |
+| `/pm index` | 掃描目錄，產生/更新 INDEX.md（獨立使用，不需 /pm 工作流） |
 
 ## Status Line
 
@@ -125,6 +126,48 @@ bash ~/.claude/pm-update.sh reset && bash ~/.claude/pm-update.sh pm running
 1. 從 progress.md 的 Session 區段讀取 session ID
 2. 找到 → `💡 請在終端機執行：claude --resume <sessionId>`
 3. 找不到 → `⚠️ 找不到 session ID。請使用 /pm 正常開工。`
+
+---
+
+## `/pm index` — 工作區檔案索引
+
+獨立子指令，可隨時使用，不需 `/pm` 完整工作流。不更新狀態檔。
+
+### 行為
+
+1. 掃描當前目錄所有非隱藏檔（排除 `.git/`、`node_modules/`、`__pycache__/`、`.venv/`、`INDEX.md` 本身）
+2. 判斷 INDEX.md 是否已存在：
+   - **不存在** → 建立新 INDEX.md，含表頭 + 所有檔案
+   - **已存在** → 讀取現有內容，只新增未列出的檔案，保留已有 annotations
+3. 按版本 lineage 分組：
+   - 偵測 `_v0` ~ `_vN`、`-v0` ~ `-vN`、`_v5_1` 等版本化檔名
+   - 同一 base name 的版本系列，「來源」欄位填 `← vN-1`
+   - 最新版標 `active`，舊版標 `archived`
+4. 日期取檔案 mtime（`YYYY-MM-DD`）
+5. 「用途」欄：cc 有上下文時自動填入，否則填 `—`
+
+### INDEX.md 格式
+
+```markdown
+# INDEX
+
+<!-- cc: 自動維護。hook 自動 append 新檔，/pm index 全量更新，/pm bye 清理掃描 -->
+
+| 檔名 | 用途 | 狀態 | 日期 | 來源 |
+|---|---|---|---|---|
+| PROPOSAL_v7.md | 機器人轉型提案 | final | 2026-05-25 | ← v6 |
+| helper.py | 資料遷移腳本 | one-off | 2026-05-20 | — |
+```
+
+### 狀態值
+
+| 狀態 | 意義 |
+|---|---|
+| `final` | 交付物，不再修改 |
+| `active` | 還在使用/迭代中 |
+| `draft` | 中間版本，被新版取代後改 `archived` |
+| `one-off` | 一次性腳本/工具，用完可刪 |
+| `archived` | 已被取代，保留參考但可隨時清 |
 
 ---
 

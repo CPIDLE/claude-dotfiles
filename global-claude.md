@@ -74,6 +74,46 @@ metadata:
   - `created == updated` 且 > 60 天（寫完沒人碰，可能根本沒用）
 - 同主題 memo > 1 個 → 合併（依重整動作規範）
 
+## Workspace Artifact Management
+
+cc 在專案目錄（非 memory/）建立檔案時，透過 INDEX.md 追蹤產物。
+
+### INDEX.md 格式
+
+```markdown
+# INDEX
+
+<!-- cc: 自動維護。hook 自動 append 新檔，/pm index 全量更新，/pm bye 清理掃描 -->
+
+| 檔名 | 用途 | 狀態 | 日期 | 來源 |
+|---|---|---|---|---|
+```
+
+| 欄位 | 值 | 說明 |
+|---|---|---|
+| 檔名 | 檔案名稱 | 不含路徑，INDEX.md 本身不列 |
+| 用途 | 一句話描述 | hook 新增時填 `—`，cc 工作中補上 |
+| 狀態 | `final` / `active` / `draft` / `one-off` / `archived` | — |
+| 日期 | `YYYY-MM-DD` | 建檔日期 |
+| 來源 | `← vN` 或 `—` | 版本系列前一版 |
+
+### 維護時機
+
+| 場景 | 動作 | 誰做 |
+|---|---|---|
+| Write 新檔 | 自動 append 一行（status=draft, purpose=—） | hook（`index-append.py`） |
+| 工作中產出檔案 | 填入正確的 purpose 和 status | cc（Edit INDEX.md） |
+| `/pm index` | 全量掃描，新增未列檔案，保留已有 annotations | cc |
+| `/pm bye` | 掃描 one-off/archived，提醒清理；找出未列檔案 | cc |
+
+### cc 行為規則
+
+- **不主動建立 INDEX.md**：只有 `/pm new` 或 `/pm index` 才建立
+- **有 INDEX.md 時**：Write 新檔後 hook 自動 append，cc 不需額外動作
+- **填 purpose**：cc 在工作中知道為何產檔時，順手 Edit INDEX.md 補上用途（不需使用者指示）
+- **不讀 INDEX.md 來 append**：hook 直接做 file I/O，不消耗 cc tokens
+- **讀 INDEX.md 時機**：只在 `/pm index`、`/pm bye`、或使用者要求時
+
 ## ASCII Art Diagrams（Sarasa Mono TC）
 
 ### 字元優先序
