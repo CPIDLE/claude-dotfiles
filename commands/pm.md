@@ -133,9 +133,16 @@ bash ~/.claude/pm-update.sh reset && bash ~/.claude/pm-update.sh pm running
 
 獨立子指令，可隨時使用，不需 `/pm` 完整工作流。不更新狀態檔。
 
+### 掃描策略
+
+- **首選** PowerShell `Get-ChildItem -Recurse -File`（不受 Glob 截斷限制）
+- 排除：`.git/`、`node_modules/`、`__pycache__/`、`.venv/`、`INDEX.md` 本身
+- 檔案數 > 80 時，先掃 root，再逐一掃各子目錄（避免單次輸出截斷）
+- macOS/Linux 用 Bash `find` 替代
+
 ### 行為
 
-1. 掃描當前目錄所有非隱藏檔（排除 `.git/`、`node_modules/`、`__pycache__/`、`.venv/`、`INDEX.md` 本身）
+1. 依上述掃描策略列出當前目錄所有非隱藏檔
 2. 判斷 INDEX.md 是否已存在：
    - **不存在** → 建立新 INDEX.md，含表頭 + 所有檔案
    - **已存在** → 讀取現有內容，只新增未列出的檔案，保留已有 annotations
