@@ -11,9 +11,9 @@ Claude Code 個人設定框架 — 一次安裝，完整配置所有 commands、
 | 安裝項目 | 目標位置 |
 |---|---|
 | CLAUDE.md、settings.json | `~/.claude/` |
-| 11 個 slash commands | `~/.claude/commands/` |
-| 11 個 custom skills | `~/.claude/skills/` |
-| Hooks（rm → 回收桶） | `~/.claude/hooks/` |
+| 7 個 slash commands | `~/.claude/commands/` |
+| 13 個 custom skills | `~/.claude/skills/` |
+| Hooks（rm → 回收桶、INDEX.md auto-append） | `~/.claude/hooks/` |
 | MCP server config | `~/.claude/.mcp.json` |
 | Status Line 腳本 | `~/.claude/` |
 | Docs | `~/.claude/docs/` |
@@ -23,7 +23,7 @@ Claude Code 個人設定框架 — 一次安裝，完整配置所有 commands、
 安裝後 Claude Code 狀態列會顯示即時資訊：
 
 ```
-claude-dotfiles │ master │ pm▸sync▸bye     Opus 4.6 │ ctx:6% 5h:2%▸03:00 7d:78%▸4/3
+claude-dotfiles │ master │ pm▸sync▸bye  ef:H   Opus 4.7 │ ctx:6% 5h:2%▸03:00 7d:78%▸4/3
 ```
 
 | 項目 | 範例 | 說明 |
@@ -31,7 +31,8 @@ claude-dotfiles │ master │ pm▸sync▸bye     Opus 4.6 │ ctx:6% 5h:2%▸0
 | 目錄名稱 | `claude-dotfiles` | 目前工作目錄 |
 | Git branch | `master` | 目前分支 |
 | 工作流狀態 | `pm▸sync▸bye` | /pm 各階段完成指示器 |
-| 模型版本 | `Opus 4.6` | 目前使用的 Claude 模型 |
+| Effort Level | `ef:H` | 推理力度（L/M/H/xH/MX） |
+| 模型版本 | `Opus 4.7` | 目前使用的 Claude 模型 |
 | Context | `ctx:6%` | Context window 使用率 |
 | 5h / 7d 配額 | `5h:2%▸03:00` | 配額使用率 + 重置時間 |
 
@@ -43,14 +44,15 @@ claude-dotfiles │ master │ pm▸sync▸bye     Opus 4.6 │ ctx:6% 5h:2%▸0
 |------|------|
 | `/pm` | 開工 — 自動偵測專案狀態，顯示上次進度 |
 | `/pm new` | 首次開工 — 掃描專案，建立 progress.md + README |
+| `/pm index` | 掃描目錄，產生/更新 INDEX.md（工作區檔案索引） |
 | `/pm-sync` | 中期同步 — 儲存進度、自動 commit、同步到外部服務 |
 | `/pm-bye` | 收工 — 自動審核 + git 整理 + 進度儲存 |
 | `/pm-review` | 獨立程式碼審核（AI 紅隊審核員） |
+| `/rt-fact` | 事實基礎層紅隊審核 |
 | `/smart-commit` | 智慧 commit |
 | `/md-to-paper` | Markdown → A4 列印就緒 HTML 白皮書（含 D2/Mermaid 圖表） |
 | `/md-to-deck` | Markdown → GYRO 品牌 single-file HTML 投影片（→ PDF） |
 | `/md-to-pptx` | Markdown → PptxGenJS `.pptx` 簡報 |
-| `/clip` | 剪貼簿截圖分析 |
 | `/ascii-align` | CJK-aware ASCII box-drawing 對齊（rule engine + LLM pipeline） |
 
 ### 建議工作流程
@@ -91,8 +93,9 @@ bash install.sh
 ├── statusline.sh / .js      # Status Line 腳本
 ├── pm-update.sh             # /pm 狀態更新
 ├── commands/                # Claude Code slash commands
-├── skills/                  # Custom skills（11 個）
-├── hooks/                   # PreToolUse hooks（rm → 回收桶）
+├── skills/                  # Custom skills（13 個）
+├── hooks/                   # PreToolUse hooks（rm → 回收桶、INDEX.md auto-append）
+├── scripts/                 # 共用 helper 腳本
 ├── dual-engine/             # Dual Engine SOP + 範例
 ├── docs/                    # 設定指南
 │   ├── google-workspace-setup.md
