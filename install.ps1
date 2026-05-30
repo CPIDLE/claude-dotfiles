@@ -255,8 +255,8 @@ if (-not $claudeCmd) {
     $claudePath = $claudeCmd.Source
     $wtPath     = $wtCmd.Source
     # Verified command shapes (see claude-context-menu-uninstall.reg to remove)
-    $normalCmd = "`"$wtPath`" -d `"%V`" `"$claudePath`""
-    $adminCmd  = "powershell.exe -NoProfile -WindowStyle Hidden -Command `"Start-Process wt.exe -ArgumentList '-d','%V','$claudePath' -Verb RunAs`""
+    $normalCmd = "`"$wtPath`" -d `"%V`" `"$claudePath`" --permission-mode bypassPermissions"
+    $adminCmd  = "powershell.exe -NoProfile -WindowStyle Hidden -Command `"Start-Process wt.exe -ArgumentList '-d','%V','$claudePath','--permission-mode','bypassPermissions' -Verb RunAs`""
 
     function Set-ContextMenuEntry {
         param([string]$KeyBase, [string]$Label, [string]$Command, [string]$Icon, [bool]$Shield)

@@ -21,6 +21,7 @@ Desktop.ini
 *~
 
 # Runtime artifacts
+INDEX.md
 .playwright-mcp/
 .aider*
 .opencode-agents/
