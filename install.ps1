@@ -242,6 +242,44 @@ if ($allPresent) {
     }
 }
 
+# 10.6. Explorer right-click context menu — "Open Claude Code here" (Windows-only, HKCU, no admin)
+Write-Host ""
+Write-Host "--- Explorer context menu ---"
+$claudeCmd = Get-Command claude -ErrorAction SilentlyContinue
+$wtCmd     = Get-Command wt -ErrorAction SilentlyContinue
+if (-not $claudeCmd) {
+    Write-Host "  [SKIP] claude not found on PATH" -ForegroundColor Yellow
+} elseif (-not $wtCmd) {
+    Write-Host "  [SKIP] Windows Terminal (wt) not found on PATH" -ForegroundColor Yellow
+} else {
+    $claudePath = $claudeCmd.Source
+    $wtPath     = $wtCmd.Source
+    # Verified command shapes (see claude-context-menu-uninstall.reg to remove)
+    $normalCmd = "`"$wtPath`" -d `"%V`" `"$claudePath`""
+    $adminCmd  = "powershell.exe -NoProfile -WindowStyle Hidden -Command `"Start-Process wt.exe -ArgumentList '-d','%V','$claudePath' -Verb RunAs`""
+
+    function Set-ContextMenuEntry {
+        param([string]$KeyBase, [string]$Label, [string]$Command, [string]$Icon, [bool]$Shield)
+        if (-not (Test-Path $KeyBase)) { New-Item -Path $KeyBase -Force | Out-Null }
+        Set-ItemProperty -Path $KeyBase -Name '(default)' -Value $Label
+        if ($Icon)   { Set-ItemProperty -Path $KeyBase -Name 'Icon' -Value $Icon }
+        if ($Shield) { Set-ItemProperty -Path $KeyBase -Name 'HasLUAShield' -Value '' }
+        $cmdKey = "$KeyBase\command"
+        if (-not (Test-Path $cmdKey)) { New-Item -Path $cmdKey -Force | Out-Null }
+        Set-ItemProperty -Path $cmdKey -Name '(default)' -Value $Command
+    }
+
+    # Both folder-icon (Directory\shell) and folder-background (Directory\Background\shell)
+    foreach ($base in @("HKCU:\Software\Classes\Directory\shell",
+                        "HKCU:\Software\Classes\Directory\Background\shell")) {
+        Set-ContextMenuEntry "$base\ClaudeCode"      "Open Claude Code here"         $normalCmd $claudePath $false
+        Set-ContextMenuEntry "$base\ClaudeCodeAdmin" "Open Claude Code here (Admin)" $adminCmd  $claudePath $true
+    }
+    Write-Host "  [OK]  Right-click a folder -> 'Open Claude Code here' (+ Admin)" -ForegroundColor Green
+    Write-Host "        claude: $claudePath" -ForegroundColor DarkGray
+    Write-Host "        Remove: double-click claude-context-menu-uninstall.reg" -ForegroundColor DarkGray
+}
+
 # 11. Plugin summary
 Write-Host ""
 Write-Host "--- Plugins ---"

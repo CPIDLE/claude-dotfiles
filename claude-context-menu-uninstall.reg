@@ -1,0 +1,7 @@
+Windows Registry Editor Version 5.00
+
+; 移除右鍵選單（前面加 - 代表刪除整個 key）
+[-HKEY_CURRENT_USER\Software\Classes\Directory\shell\ClaudeCode]
+[-HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell\ClaudeCode]
+[-HKEY_CURRENT_USER\Software\Classes\Directory\shell\ClaudeCodeAdmin]
+[-HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell\ClaudeCodeAdmin]
