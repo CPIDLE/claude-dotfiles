@@ -256,7 +256,8 @@ if (-not $claudeCmd) {
     $wtPath     = $wtCmd.Source
     # Verified command shapes (see claude-context-menu-uninstall.reg to remove)
     $normalCmd = "`"$wtPath`" -d `"%V`" `"$claudePath`" --permission-mode bypassPermissions"
-    $adminCmd  = "powershell.exe -NoProfile -WindowStyle Hidden -Command `"Start-Process wt.exe -ArgumentList '-d','%V','$claudePath','--permission-mode','bypassPermissions' -Verb RunAs`""
+    # Admin entry intentionally keeps permission prompts (admin + bypass = no guardrails)
+    $adminCmd  = "powershell.exe -NoProfile -WindowStyle Hidden -Command `"Start-Process wt.exe -ArgumentList '-d','%V','$claudePath' -Verb RunAs`""
 
     function Set-ContextMenuEntry {
         param([string]$KeyBase, [string]$Label, [string]$Command, [string]$Icon, [bool]$Shield)
