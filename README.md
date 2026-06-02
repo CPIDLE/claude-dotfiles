@@ -23,7 +23,7 @@ Claude Code 個人設定框架 — 一次安裝，完整配置所有 commands、
 安裝後 Claude Code 狀態列會顯示即時資訊：
 
 ```
-claude-dotfiles │ master │ pm▸sync▸bye  ef:H   Opus 4.7 │ ctx:6% 5h:2%▸03:00 7d:78%▸4/3
+claude-dotfiles │ master │ pm▸sync▸bye  ef:H   Opus 4.8 │ ctx:6% 5h:2%▸03:00 7d:78%▸4/3
 ```
 
 | 項目 | 範例 | 說明 |
@@ -32,7 +32,7 @@ claude-dotfiles │ master │ pm▸sync▸bye  ef:H   Opus 4.7 │ ctx:6% 5h:2%
 | Git branch | `master` | 目前分支 |
 | 工作流狀態 | `pm▸sync▸bye` | /pm 各階段完成指示器 |
 | Effort Level | `ef:H` | 推理力度（L/M/H/xH/MX） |
-| 模型版本 | `Opus 4.7` | 目前使用的 Claude 模型 |
+| 模型版本 | `Opus 4.8` | 目前使用的 Claude 模型 |
 | Context | `ctx:6%` | Context window 使用率 |
 | 5h / 7d 配額 | `5h:2%▸03:00` | 配額使用率 + 重置時間 |
 
@@ -54,6 +54,18 @@ claude-dotfiles │ master │ pm▸sync▸bye  ef:H   Opus 4.7 │ ctx:6% 5h:2%
 | `/md-to-deck` | Markdown → GYRO 品牌 single-file HTML 投影片（→ PDF） |
 | `/md-to-pptx` | Markdown → PptxGenJS `.pptx` 簡報 |
 | `/ascii-align` | CJK-aware ASCII box-drawing 對齊（rule engine + LLM pipeline） |
+
+### Explorer 右鍵選單（Windows）
+
+`install.ps1` 會在 Windows 檔案總管註冊右鍵選單（HKCU，免 admin），對著資料夾或資料夾空白處按右鍵即可：
+
+| 選單項目 | 行為 |
+|---|---|
+| **Open Claude Code here** | 在該目錄開 Windows Terminal 跑 `claude --permission-mode bypassPermissions`（免逐次確認） |
+| **Open Claude Code here (Admin)** | 以系統管理員身分開啟；**刻意保留**權限確認（admin + bypass 等於毫無護欄） |
+
+需要 `claude` 與 `wt`（Windows Terminal）都在 PATH 上，否則該步驟自動略過。
+移除：雙擊 repo 內的 `claude-context-menu-uninstall.reg`。
 
 ### 建議工作流程
 
