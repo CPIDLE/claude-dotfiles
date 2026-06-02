@@ -54,13 +54,15 @@
   },
   "enabledPlugins": {
     "skill-creator@claude-plugins-official": true,
-    "code-simplifier@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": false,
     "context7@claude-plugins-official": true,
     "coderabbit@claude-plugins-official": true,
     "claude-md-management@claude-plugins-official": true,
     "playwright@claude-plugins-official": true,
     "pyright-lsp@claude-plugins-official": true,
-    "hookify@claude-plugins-official": true
+    "hookify@claude-plugins-official": true,
+    "playground@claude-plugins-official": false,
+    "qodo-skills@claude-plugins-official": false
   },
   "statusLine": {
     "type": "command",
