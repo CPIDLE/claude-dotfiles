@@ -70,8 +70,8 @@
     "type": "command",
     "command": "bash ~/.claude/statusline.sh"
   },
-  "model": "claude-fable-5",
-  "effortLevel": "high",
+  "model": "claude-opus-4-8",
+  "effortLevel": "ultracode",
   "skipDangerousModePermissionPrompt": true,
   "agentPushNotifEnabled": true,
   "env": {
