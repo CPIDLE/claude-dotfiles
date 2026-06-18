@@ -71,8 +71,8 @@
     "command": "bash ~/.claude/statusline.sh"
   },
   "model": "claude-opus-4-8",
-  "effortLevel": "xhigh",
-  "ultracode": true,
+  "effortLevel": "max",
+  "ultracode": false,
   "skipDangerousModePermissionPrompt": true,
   "agentPushNotifEnabled": true,
   "env": {
