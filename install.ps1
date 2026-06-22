@@ -162,6 +162,24 @@ if (Test-Path "$ScriptDir\docs") {
     }
 }
 
+# 9.5. Templates (new-project scaffold)
+Write-Host ""
+Write-Host "--- Templates ---"
+if (Test-Path "$ScriptDir\templates") {
+    $templatesDest = "$ClaudeDir\templates"
+    if (-not (Test-Path $templatesDest)) {
+        New-Item -ItemType Directory -Path $templatesDest | Out-Null
+    }
+    Get-ChildItem "$ScriptDir\templates" -Directory | ForEach-Object {
+        $destSub = "$templatesDest\$($_.Name)"
+        if (-not (Test-Path $destSub)) {
+            New-Item -ItemType Directory -Path $destSub | Out-Null
+        }
+        Copy-Item -Path "$($_.FullName)\*" -Destination $destSub -Recurse -Force
+        Write-Host "  [OK]  ~\.claude\templates\$($_.Name)\" -ForegroundColor Green
+    }
+}
+
 # 10. .env reminder
 Write-Host ""
 if (-not (Test-Path "$ClaudeDir\.env")) {

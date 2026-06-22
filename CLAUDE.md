@@ -13,6 +13,7 @@ Custom commands（`/hello`、`/sc`、`/bye`、`/pm` 等）的原始碼：
 | `hooks/` | `~/.claude/hooks/` | UserPromptSubmit / Stop / 等 hook 腳本 |
 | `scripts/` | `~/.claude/scripts/` | 共用 helper |
 | `docs/` | `~/.claude/docs/` | 設計文件 |
+| `templates/<name>/` | `~/.claude/templates/<name>/` | 新專案 scaffold 起手式（`/pm new`、`/pm health` 共用）。如 `new-project/` 含 CLAUDE.md / gitignore.snippet / settings.json / check.sh |
 | `global-claude.md` | `~/.claude/CLAUDE.md` | **全域使用者偏好的 source**。改 deployed 檔會被 install 覆蓋 |
 | `settings.json` | `~/.claude/settings.json` | hooks / permissions / env vars |
 | `mcp.json` | `~/.claude/mcp.json` | MCP server 設定 |

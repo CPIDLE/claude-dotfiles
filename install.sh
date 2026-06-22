@@ -162,6 +162,20 @@ if [ -d "$SCRIPT_DIR/docs" ]; then
     done
 fi
 
+# 9.5. Templates (new-project scaffold)
+echo ""
+echo "--- Templates ---"
+if [ -d "$SCRIPT_DIR/templates" ]; then
+    mkdir -p "$CLAUDE_DIR/templates"
+    for tdir in "$SCRIPT_DIR/templates/"*/; do
+        [ -d "$tdir" ] || continue
+        tname=$(basename "$tdir")
+        mkdir -p "$CLAUDE_DIR/templates/$tname"
+        cp -r "$tdir"* "$CLAUDE_DIR/templates/$tname/" 2>/dev/null
+        echo "  [OK]  ~/.claude/templates/$tname/"
+    done
+fi
+
 # 10. .env reminder
 echo ""
 if [ ! -e "$CLAUDE_DIR/.env" ]; then
