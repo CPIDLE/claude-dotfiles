@@ -39,6 +39,25 @@ bash ~/.claude/pm-update.sh bye running
 
 **不觸發時**：靜默跳過。**無 README.md 或非 git repo** → 跳過。
 
+## Step 1.6：GROUNDTRUTH.md 新鮮度檢查（自動）
+
+如果專案根目錄有 `GROUNDTRUTH.md`，檢查是否需要更新：
+
+1. 用 `git log -1 --format="%ai" -- GROUNDTRUTH.md` 取得最後修改日期
+2. 用 `git diff --stat $(git log -1 --format="%H" -- GROUNDTRUTH.md)..HEAD -- '*.md' ':!GROUNDTRUTH.md' ':!INDEX.md'` 統計期間其他文件性 .md 變動數
+
+**觸發條件**（同時滿足）：GROUNDTRUTH.md 最後修改距今 ≥ 1 天 且 期間其他 .md 變動 ≥ 3 個
+
+**觸發時**：
+```
+📌 GROUNDTRUTH.md 已 N 天未更新，期間有 M 個文件異動，可能有新事實還沒同步。
+   要現在跑 /groundtruth 補充嗎？
+```
+- 同意 → 執行 `/groundtruth`
+- 不同意 → 跳過
+
+**不觸發時**：靜默跳過。**無 GROUNDTRUTH.md 或非 git repo** → 跳過。
+
 ## Step 1.8：INDEX.md 清理掃描（自動）
 
 檢查當前工作目錄是否有 `INDEX.md`。

@@ -49,6 +49,7 @@ claude-dotfiles │ master │ pm▸sync▸bye  ef:H   Opus 4.8 │ ctx:6% 5h:2%
 | `/pm-bye` | 收工 — 自動審核 + git 整理 + 進度儲存 |
 | `/pm-review` | 獨立程式碼審核（AI 紅隊審核員） |
 | `/rt-fact` | 事實基礎層紅隊審核 |
+| `/groundtruth` | 維護 GROUNDTRUTH.md（事實基礎，供衍生文件取值） |
 | `/smart-commit` | 智慧 commit |
 | `/md-to-paper` | Markdown → A4 列印就緒 HTML 白皮書（含 D2/Mermaid 圖表） |
 | `/md-to-deck` | Markdown → GYRO 品牌 single-file HTML 投影片（→ PDF） |
