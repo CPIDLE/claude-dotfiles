@@ -136,7 +136,7 @@ process.stdin.on('end', async () => {
 
     const ctxColor = sessionColor(pct);
     const GREEN = '\x1b[32m';
-    process.stdout.write(`${BRIGHT}${dir}${RESET} ${DIM}\u2502${RESET} ${DIM}__BRANCH__${RESET} ${DIM}\u2502${RESET} ${pmTag}     ${effortTag} ${DIM}Opus ${RESET}${GREEN}${model.replace(/^.*\s/, '')}${RESET} ${DIM}\u2502 ctx:${RESET}${ctxColor}${pct}%${RESET}${quotaTag(cache)}`);
+    process.stdout.write(`${BRIGHT}${dir}${RESET} ${DIM}\u2502${RESET} ${DIM}__BRANCH__${RESET} ${DIM}\u2502${RESET} ${pmTag}     ${effortTag} ${GREEN}${model}${RESET} ${DIM}\u2502 ctx:${RESET}${ctxColor}${pct}%${RESET}${quotaTag(cache)}`);
   } catch {
     process.stdout.write(`\x1b[90mClaude\x1b[0m  \x1b[97m?\x1b[0m \u2502 pm \u2502 \x1b[32mctx 0%\x1b[0m${quotaTag(cache)}`);
   }
