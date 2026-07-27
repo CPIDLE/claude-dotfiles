@@ -81,6 +81,8 @@ git status --short
 - **純文件 / 設定變更**（`.md .yaml .json .toml` 等） → 跳過 CodeRabbit，直接進 Step 2
 - CodeRabbit 失敗 → 標記 `⚠️ CodeRabbit 跳過`，照常進 Step 2
 
+> **spec 偵測**：同時檢查專案有無 `specs/<slug>.md`（`/to-spec` 產物）。有 → 把對應 spec 附進 Step 2 subagent 素材，啟用「spec 一致性」審核軸；無 → 靜默跳過該軸，其餘照常。
+
 ### Step 2：啟動審核 Agent
 
 使用 Agent tool 啟動獨立 subagent，prompt：
@@ -98,6 +100,7 @@ git status --short
 2. 內部一致性：文件各段有無矛盾
 3. 可行性驗證：建議的操作照做會不會壞
 4. 遺漏偵測：缺少的邊界條件、未定義的預設行為
+5. spec 一致性（**僅當提供 specs/<slug>.md**）：對照 spec，實作有沒有偏離 spec 的決策、漏做 User Story、動到 Out of Scope 的東西。偏離以 🟠 起跳。未提供 spec → 跳過本條。
 
 ## 自動檢查
 1. 偵測並執行測試框架
