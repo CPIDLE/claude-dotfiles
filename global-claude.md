@@ -127,20 +127,13 @@ cc 在專案目錄（非 memory/）建立檔案時，透過 INDEX.md 追蹤產�
 - **不讀 INDEX.md 來 append**：hook 直接做 file I/O，不消耗 cc tokens
 - **讀 INDEX.md 時機**：只在 `/pm index`、`/pm bye`、或使用者要求時
 
-## ASCII Art Diagrams（Sarasa Mono TC）
+## ASCII Art Diagrams
 
 ### 字元優先序
 1. **首選**：`─ │ ┌ ┐ └ ┘ ├ ┤ ┬ ┴ ┼`（連續框線）
 2. **可用**：`- | +`（ASCII，當不確定渲染環境時）
 3. **禁用**：厚框 `═║━┃┏┓┗┛╔╗╚╝`、斜線盒 `╱╲`、Unicode 箭頭/數學/emoji
 
-對齊不確定就跑 `/ascii-align`，不行才退回 ASCII。
-替代對照表：`~/.claude/skills/ascii-align/scripts/symbol_fix.py::SYMBOL_MAP`
+寬度規則、EAW 校正表、符號替換對照表見 `ascii-align` skill（單一事實來源，不在此重複）。
 
-### 寬度守則
-- CJK / fullwidth = 2 cols；ASCII + 本 11 個 box = 1 col；EAW=Ambiguous 多數 2 cols（例外 `°` `–` 本 11 個 box = 1 col）
-- 同 box 內每 row display width 必須相等；跨 row `│` 同 col；`┌─┐`/`└─┘` 角對齊；箭頭 `v`/`^` 對齊上下 `┬`/`┴`/`│`
-- 產出後跑 `/ascii-align <file.md>` 自動檢查；不確定就退回純文字（歪 box 比 flat text 糟）
-
-### Pipeline 救不了的（生成時就要對）
-工具只救「字元」層，「幾何」層必須生成時對：箱體歪斜、跨 row `│` col 漂移、CJK 沒算 2 cols、混用 `┏/┗` 與 `┌/└`。
+產出後主動跑 `/ascii-align <file.md>` 檢查對齊；工具只救字元層，幾何層（箱體歪斜、跨 row 漂移、CJK 寬度）生成時就要自己對；仍不確定就退回純文字，歪 box 比 flat text 糟。
