@@ -16,6 +16,19 @@ cc 有偏好時，**該選項排第一位** + label 結尾加「**（建議）**
 ## Notification Sounds
 Beep 由 `settings.json` hooks 處理（AskUserQuestion → 1 聲、Stop → 3 聲）。**不要手動 beep**。
 
+## Model / Effort 檔位（三層分工）
+
+預設 **Sonnet 5 + high**（日常檔）；難題（架構設計、深度 debug、長程重構）才升 **Fable 5 + xhigh**，需地毯式驗證再加開 ultracode。升降檔一律由使用者 `/model` 手動切，cc 不自動動手。
+
+| 層級 | cc 的角色 |
+|---|---|
+| ① 主線 model/effort | **只建議、不動手**。不限 session 開頭——對話中任何時點發現任務性質變了就主動建議升檔（轉為架構設計/深度 debug/長程重構）或降檔（難題結束回日常），由使用者 `/model` 拍板 |
+| ② 派 `Agent` subagent | **自動指派 model，不用問**：簡單子任務（找檔案、格式轉換、單純查詢、機械操作）帶 `model: haiku`；需高階推理（架構判斷、複雜 debug、跨檔案綜合）維持繼承或帶 opus/fable |
+| ③ Workflow 編排 | **自動編排每個 `agent()` 的 model + effort**：機械 stage 用 low/haiku、驗證/judge stage 用高檔，這是寫 script 的一部分，不另請示 |
+
+- 純日常任務（一般改檔、簡單問答、機械操作）不提醒，維持預設即可
+- **Agent tool 只有 `model` 參數、沒有 `effort`**（effort 跟著所選 model 預設走）；`opts.effort` 是 Workflow script 內 `agent()` 才有的欄位，兩者不要混用
+
 ## 關鍵 ID / Secrets
 所有 webhook、Sheet ID、Apps Script ID 都在 `~/.claude/.env`（`CHAT_WEBHOOK_URL` / `DASHBOARD_SHEET_ID` / `APPS_SCRIPT_WEB_APP_ID`）。**絕不把這些值寫進 CLAUDE.md 或任何會 commit 的檔**。
 
