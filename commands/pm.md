@@ -313,4 +313,4 @@ Google 同步依賴：Apps Script Web App + Chat Webhook（`~/.claude/.env` 裡�
 - 所有輸出使用繁體中文
 - 預設自動 — 每個階段有 happy path
 - 需要時才問 — 只在分歧點才跳選單
-- `/pm` 是 `/hello` 的升級版；收工用 `/pm-bye`，同步用 `/pm-sync`，審核用 `/pm-review`，需要無人值守自主模式用 `/pm-auto`
+- `/pm` 是 `/hello` 的升級版；收工用 `/pm-bye`，同步用 `/pm-sync`，審核用 `/pm-review`
