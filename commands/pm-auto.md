@@ -118,6 +118,97 @@ Prompt：
 
 ---
 
+## 使用範例
+
+> 以下純屬示意（walkthrough），不是真的對某個外部 repo 動手，用來說明五個 Phase 實際跑起來的樣子。
+
+**觸發**：
+
+```
+/pm-auto 幫這個 Node.js 專案的 .gitignore 加一條規則，忽略 build/ 產出目錄
+```
+
+**Phase 1：Plan**
+
+```
+Goal：.gitignore 新增一條忽略 build/ 的規則
+Steps：
+  1. Read .gitignore 確認現有規則與換行慣例
+  2. Edit .gitignore 加入規則
+  3. Write reviews/*.md（仲裁記錄 + 收尾 review 共用同一份）
+Scope boundary：只改 .gitignore；不刪改任何既有規則
+權限：Read、Edit、Write（reviews/ log）、Agent（仲裁 subagent）、Agent（收尾審核 subagent）
+影響：低風險，純設定檔異動，不改動既有規則內容
+```
+
+使用者核准（呼叫 `ExitPlanMode`）。
+
+**Phase 2：Permission Summary**
+
+```
+--- Permission Summary ---
+- Read：.gitignore
+- Edit：.gitignore
+- Write：reviews/YYYY-MM-DD-HH-MM-pmauto.md（示意檔名，非真實存在的檔案；時戳取本次執行第一次寫入 log 的時間，之後同一次執行都 append 進同一份，不會改變）
+- Agent：仲裁 subagent（model: opus）
+- Agent：收尾審核 subagent（model: opus）
+```
+
+**Phase 3：Autonomous Execution — 仲裁分流範例**
+
+執行 Edit 時，`.gitignore` 混雜 CRLF/LF 換行且檔尾沒有換行字元，直接在檔尾附加新行的嘗試連續失敗兩次（精確字串比對不到預期的行尾）。這是「步驟失敗無法自修」——可仲裁範圍，派仲裁 subagent：
+
+```
+決策：(a) 改用讀取原始位元組偵測檔案主要換行慣例，在檔尾補上一個換行字元後插入新規則；不改動任何既有行的內容或順序
+理由：純粹修正插入方式本身，不觸碰既有規則，風險低
+信心程度：高
+```
+
+寫入仲裁記錄：
+
+```markdown
+## 仲裁記錄
+
+| 時間 | 卡點描述 | 仲裁決策 | 理由 |
+|---|---|---|---|
+| 14:32 | .gitignore 換行不一致，附加新行連續失敗 | (a) 偵測換行慣例後插入，不動既有行 | 只改插入方式，不觸碰既有規則，風險低 |
+```
+
+> 這次只走到分支 (a)。若卡點的性質是「這其實已經超出原本 Plan 核准的範圍」（例如發現 `.gitignore` 其實是由另一個工具自動生成、手動改了下次會被覆蓋）→ 仲裁會選 (b)，回報建議升級問使用者，不會自己硬做決定。而如果這一步原本是「刪掉舊的 build/ 目錄」這類破壞性操作，不管仲裁怎麼判斷都不會走到這裡——那是硬停條件，直接停下問使用者，跳過仲裁。
+
+**Phase 4：收尾 Redteam Review**
+
+獨立審核 subagent 檢查這次 `.gitignore` 異動，發現：
+
+```
+編號：F-001
+位置：.gitignore 新增行
+嚴重度：🟠 中等
+問題：新規則寫成 build/（沒有開頭 /），會遞迴比對到專案任何層級、名為 build 的目錄；若該目錄底下未來新增檔案，會被 git 自動忽略而不會出現在 git status/git add 的結果中，即使該目錄不是建置產物
+裁決：SHOULD FIX
+```
+
+總評：⚠️ REVISE（附加進同一份 `reviews/YYYY-MM-DD-HH-MM-pmauto.md`）
+
+🟠 屬於自動修正範圍 → 把規則錨定成 `/build/`（限定在專案根目錄）。非 test 型變更，改跑 `git ls-files | grep -E '(^|/)build(/|$)'` 確認目前沒有已追蹤的路徑落在某個名為 build 的目錄下。
+
+> Phase 4 本體沒有定義「修正後重新出總評」的機制（不做第二輪重審）：修正完成後，這次執行的總評仍是審核 subagent 當下給的 ⚠️ REVISE，不會被主 agent 自行改判成 ✅ PASS。
+
+**Phase 5：結尾摘要**
+
+```
+🤖 PM Auto 完成
+
+✅ 完成項目：.gitignore 新增 /build/ 規則（含換行慣例修正 + 錨定修正）
+🧭 仲裁次數：1（詳見 log）
+🔧 review 後自動修正：1 項（🔴 0 / 🟠 1）
+🟡 待人工評估：0 項
+⚠️ 升級詢問：0 次（無）
+📋 Log：reviews/YYYY-MM-DD-HH-MM-pmauto.md（示意，非本 repo 實際檔案）
+```
+
+---
+
 ## 注意事項
 
 - 所有輸出使用繁體中文
