@@ -62,6 +62,8 @@ reviews/|review-|-review\.md|整理|筆記|統整|summary|analysis-v|v[0-9]+\.md
 - ⚠️ / ❌ → 暫停 pm-review，詢問：「事實基礎層發現污染，要先修正再 review 嗎？」
 
 > 用意：論點層 review（Step 1+）建立在事實之上；若事實已污染，論點審無意義。高風險訊號不自動跑 deep（成本 30–60 分鐘），但提示讓使用者知道有此選項。
+>
+> **已知模糊點**：本 Step 沒有明講兩道掃描的範圍是「本次變更的檔案」還是「整個專案樹」。實務上影響面較窄——已 commit 且本次未變動的檔案不會出現在 Step 1 的 `git diff`/`git status` 範圍裡，所以多半不會誤觸發；只有當 session 自己這次新增/改動了衍生檔（例如自己寫的 review 報告）才會真的撞到 (A) 黑名單。暫不修，登記備查。
 
 ### Step 1：收集審核範圍
 
@@ -75,7 +77,7 @@ git status --short
 
 ### Step 1.5：若含程式碼變更，先跑 CodeRabbit
 
-判斷變更檔案是否含程式碼（副檔名：`.ts .tsx .js .jsx .py .go .rs .java .rb .php .c .cpp .h .hpp .cs .swift .kt .scala .lua .sh`）。
+判斷變更檔案是否含程式碼（副檔名：`.ts .tsx .js .jsx .py .go .rs .java .rb .php .c .cpp .h .hpp .cs .swift .kt .scala .lua .sh .ps1`）。
 
 - **含程式碼** → 呼叫 `coderabbit:code-review` skill 審當前 diff，產出存為 `reviews/_coderabbit-YYYY-MM-DD-HH-MM.md`（或 skill 原生輸出），摘要附到 Step 2 subagent 的輸入素材中，標註「CodeRabbit 已審過的項目請交叉驗證，不需重複列出，但可反駁或補充」
 - **純文件 / 設定變更**（`.md .yaml .json .toml` 等） → 跳過 CodeRabbit，直接進 Step 2
