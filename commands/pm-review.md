@@ -73,7 +73,7 @@ git log --oneline -10
 git status --short
 ```
 
-同時用 Glob 掃描專案結構，列出所有變更檔案的完整路徑。
+同時用 Glob 掃描專案結構，列出所有變更檔案的完整路徑。**untracked 新檔（`git status --short` 顯示 `??`）逐一 `Read` 附全文**——`git diff` 對這類檔案完全沒有輸出，只有路徑清單看不到內容，審核方法第 1 條「回原始碼核對」對它們才做得到。
 
 ### Step 1.5：若含程式碼變更，先跑 CodeRabbit
 
@@ -139,7 +139,7 @@ git status --short
 ### Step 3：顯示結果
 
 subagent 完成後：
-1. 讀取 `reviews/` 下最新報告
+1. 讀取 `reviews/` 下最新報告——**依修改時間（mtime）判定，不要用檔名字母排序**：`_coderabbit-*.md` 開頭是底線，字母排序會排在所有 `YYYY-MM-DD-*.md` 之後而誤判成「最新」，即使它是 Step 1.5 較早寫的 CodeRabbit 報告
 2. 顯示摘要：
    ```
    🔍 審核完成
