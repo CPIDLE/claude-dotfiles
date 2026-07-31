@@ -1,0 +1,5 @@
+# 統一用 LF，避免 Windows autocrlf=true 造成的行尾轉換警告與混雜狀態
+* text=auto eol=lf
+
+# 明確排除二進位檔，不做任何行尾/文字轉換
+*.wav binary
