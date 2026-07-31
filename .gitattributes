@@ -3,3 +3,6 @@
 
 # 明確排除二進位檔，不做任何行尾/文字轉換
 *.wav binary
+
+# 2026-07-31 新增：解決 Windows Git 系統層 core.autocrlf=true 造成的行尾警告，
+# 已對全部既有追蹤檔案做過一次 renormalize（見對應 commit）
