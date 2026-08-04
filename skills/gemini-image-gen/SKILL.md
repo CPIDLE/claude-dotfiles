@@ -45,9 +45,22 @@ python ~/.claude/skills/gemini-image-gen/scripts/gemini_image_gen.py --prompt-fi
 
 Key 讀取順序：環境變數 `GEMINI_API_KEY` → 找不到就讀 `~/.claude/.env` 裡的 `GEMINI_API_KEY`。
 
+## 版型選擇（避免每次都長一樣）
+
+`references/` 下有 6 種版型範例，都是同一套配色/圖示質感規則，只換版面骨架。**依主題性質挑版型，不要每次都預設用卡片型**：
+
+| 檔案 | 版型 | 適用主題 |
+|---|---|---|
+| `example_prompt.md` | 卡片型（五欄卡片＋頂部流程列） | 多個平行步驟／類別，各自有條列說明 |
+| `example_prompt_timeline.md` | 時間軸型 | 分階段推進、里程碑、專案時程、演進歷史 |
+| `example_prompt_comparison.md` | 左右對比型 | Before/After、方案 A vs B、優劣對照 |
+| `example_prompt_hub_spoke.md` | 輪輻型 | 一個核心概念＋4-6 個同等重要的支撐項（無先後順序） |
+| `example_prompt_matrix.md` | 矩陣／象限型 | 兩個維度交叉分類（優先級、風險分級） |
+| `example_prompt_dashboard.md` | 儀表板型 | 定期彙報、數據總結、KPI 追蹤，強調大數字 |
+
 ## 迭代流程
 
-1. 寫 / 改 prompt 檔（`references/example_prompt.md` 是完整結構範例：標題區／流程列／卡片區／底部列／配色與風格，換主題複製結構即可）
+1. 先判斷主題屬於哪種版型（見上表），開對應的 reference 檔複製**結構**，內容換成自己的主題
 2. 不帶 `--size` 先跑一次快速看效果（省時間）
 3. 確認方向對了，再帶 `--size 4K` 跑正式版
 4. 檔名遞增版本號（`_v6`、`_v7`…），比對後把過時版本標成 archived，只留最新一版
