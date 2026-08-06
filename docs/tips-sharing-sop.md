@@ -9,7 +9,6 @@
 ├── A01-slug.md                      <- 標準化 Markdown 稿（主要維護這個）
 ├── A01-slug.html                    <- Gmail draft 用的渲染 HTML
 ├── A01-slug-附件slug.md             <- 附件（範例報告、補充資料，同 prefix）
-├── [分享A01-分類] 標題.eml           <- 寄出後匯出的 Outlook/Gmail 備份（本機留存）
 └── .template/
     ├── A01-claude-memory.md         <- 視覺基準原稿
     ├── [...].eml                    <- 視覺基準寄出版
@@ -93,7 +92,6 @@ Gmail 渲染**必須走 inline styles**（`<style>` block 會被 Gmail 剝掉）
    - Drive 資料夾連結是固定的，不用每篇另外產生專屬連結重傳。
 3. 轉成 HTML 草稿（見上「HTML 渲染規則」）。
 4. 從 Gmail 介面手動補附件、檢查、寄出。
-5. 寄出後把 `.eml` 匯出（Gmail API `format=raw` 或介面「下載郵件」）備份回本機 `.tips/` 資料夾——這份是「真實寄出信」的完整存檔（含附件），只留本機，不上傳 Drive（Drive 那份是給別人看的 `.md`，用途不同）。
 
 ## Mailbox fallback 順序
 
