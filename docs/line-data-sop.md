@@ -19,7 +19,7 @@ PC 關機不影響接收——雲端 GAS 24/7 收訊，開機後 sync 自動補�
 ## 資料庫位置與 Schema
 
 - **路徑**：`<AnnSinHome_v0 repo>/data/annsinhome.db`（docker-compose 用 `./data:/app/data` volume 掛進容器，host 上直接讀這個檔案就是即時資料，不需要進容器）
-- **格式**：SQLite，WAL 模式
+- **格式**：SQLite，journal_mode=DELETE（單 worker + 寫入已用 lock 序列化，不需要 WAL；2026-08-06 前是 WAL，因 Docker Desktop for Windows 的 volume 會讓 WAL 的 `-wal`/`-shm` 檔案存取失效才改掉，見下方）
 
 | 表 | 用途 | 關鍵欄位 |
 |---|---|---|
@@ -51,6 +51,27 @@ sqlite3 <repo>/data/annsinhome.db \
 - **多群組**：`group_id` 是分區鍵，多個家庭群組天生分開存，不用額外過濾
 - **去重**：`message_id` 是 PK，LINE webhook redelivery 不會造成重複列
 - **原始 JSON**：`messages.raw_event` 存完整 LINE event，schema 之外需要的欄位可以從這裡挖
+
+## 本機 SQLite 找不到時（換一台電腦、或本機查詢失敗）
+
+`data/annsinhome.db` **只存在跑 docker-compose 的那台 PC 上**（目前是主機那台，路徑 `AnnSinHome_v0/data/annsinhome.db`）。在其他電腦上找不到這個檔案是正常狀況，不是資料遺失——直接跳過本機 SQLite，去查雲端來源。這條路徑不需要 `AnnSinHome_v0` repo、不需要 docker，任何裝了 Python 的電腦都能跑：
+
+- **文字訊息／對話記錄** → 直接打 GAS Web App 的 pull API（本機 sync 用的就是同一支），比本機 SQLite 更即時（本機每 5 分鐘才 sync 一次，Sheet 是 GAS 即時寫入）。用 `scripts/gas_query.py`（跟本文件同目錄，deploy 後在 `~/.claude/docs/line-data-sop/scripts/gas_query.py`）：
+  ```bash
+  export GAS_PULL_URL=...   # 見下方「這台電腦沒有這兩個值時」
+  export GAS_TOKEN=...
+  python scripts/gas_query.py latest <group_id>      # 某群組最新一則
+  python scripts/gas_query.py pull --after 1 --limit 200   # 原始分頁拉取，含 groupId/groupName 對照
+  python scripts/gas_query.py health                 # 只想知道 log 表目前總列數
+  ```
+- **媒體檔（照片/影片/文件）** → Google Drive `AnnSinHome/{群名}/{年}/{月}/`，每群一個資料夾，可直接當相簿瀏覽，不用查資料庫
+- 不知道 `group_id` 對應哪個群組：`pull` 結果每列都帶 `groupId` + `groupName`，掃一批就能對照
+
+**這台電腦沒有 `GAS_PULL_URL`/`GAS_TOKEN` 這兩個值時**：它們是 secret，存在 `AnnSinHome_v0/.env`（故意不進 git）。如果這台電腦連 `AnnSinHome_v0` repo 都沒有，代表也沒有這兩個值——跟有的那台要，或問使用者，不要用猜的或留空硬跑。
+
+## 查詢報 `disk I/O error`
+
+2026-08-06 曾因 WAL 模式在 Docker Desktop for Windows 的 volume 上失效而發生，已改成 `journal_mode=DELETE` 修掉根因（見上方 schema 說明）。若之後又出現同類錯誤：檢查 `PRAGMA journal_mode` 是不是又被改回 WAL；真的查不到才退回 Google Sheet/Drive（見上一節）。
 
 ## 完整部署/設定（GAS 部署步驟、LINE Developers Console、token 輪替）
 
