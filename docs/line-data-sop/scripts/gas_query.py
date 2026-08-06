@@ -32,6 +32,11 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+# Windows 主控台代碼頁常是 cp950/cp1252，不是 UTF-8——print() 預設用主控台代碼頁編碼，
+# 會讓 CJK 輸出在別的機器/程式（假設 UTF-8）讀起來變 replacement char。強制 stdout 走 UTF-8，
+# 讓輸出真的「換到哪台電腦都一樣」。
+sys.stdout.reconfigure(encoding="utf-8")
+
 
 def load_claude_env():
     path = os.path.expanduser("~/.claude/.env")
