@@ -160,6 +160,15 @@ if (Test-Path "$ScriptDir\docs") {
     Get-ChildItem "$ScriptDir\docs\*.md" | ForEach-Object {
         Backup-And-Copy $_.FullName "$docsDest\$($_.Name)"
     }
+    # Subdirectories under docs/ (e.g. <doc-name>/scripts/ bundled alongside a SOP)
+    Get-ChildItem "$ScriptDir\docs" -Directory | ForEach-Object {
+        $destSub = "$docsDest\$($_.Name)"
+        if (-not (Test-Path $destSub)) {
+            New-Item -ItemType Directory -Path $destSub | Out-Null
+        }
+        Copy-Item -Path "$($_.FullName)\*" -Destination $destSub -Recurse -Force
+        Write-Host "  [OK]  ~\.claude\docs\$($_.Name)\" -ForegroundColor Green
+    }
 }
 
 # 9.5. Templates (new-project scaffold)

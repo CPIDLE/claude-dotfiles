@@ -160,6 +160,14 @@ if [ -d "$SCRIPT_DIR/docs" ]; then
         [ -e "$f" ] || continue
         backup_and_copy "$f" "$CLAUDE_DIR/docs/$(basename "$f")"
     done
+    # Subdirectories under docs/ (e.g. <doc-name>/scripts/ bundled alongside a SOP)
+    for d in "$SCRIPT_DIR/docs/"*/; do
+        [ -d "$d" ] || continue
+        name="$(basename "$d")"
+        mkdir -p "$CLAUDE_DIR/docs/$name"
+        cp -rf "$d"* "$CLAUDE_DIR/docs/$name/"
+        echo "  [OK]  ~/.claude/docs/$name/"
+    done
 fi
 
 # 9.5. Templates (new-project scaffold)
