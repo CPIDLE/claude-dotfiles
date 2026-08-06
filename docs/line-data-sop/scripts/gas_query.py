@@ -3,13 +3,15 @@
 只用 Python 標準庫（urllib），不需要 AnnSinHome_v0 repo、不需要 docker、不需要裝任何套件——
 只要有 GAS_PULL_URL 和 GAS_TOKEN 兩個值就能跑，換到哪台電腦都一樣。
 
-這兩個值本身是 secret，存在 AnnSinHome_v0/.env（不在 git 裡）。這台電腦如果沒有
-AnnSinHome_v0 這個 repo，代表也沒有這兩個值——跟有這兩個值的機器要，或問使用者。
+這兩個值本身是 secret。優先順序：
+  1. 環境變數 GAS_PULL_URL / GAS_TOKEN（有設就用這個）
+  2. ~/.claude/.env 裡的 ANNSINHOME_GAS_PULL_URL / ANNSINHOME_GAS_TOKEN
+
+第 2 項是預設路徑——這份 .env 本來就是這台電腦裝 claude-dotfiles 時該手動填好的機密清單
+（跟 CHAT_WEBHOOK_URL 那些放一起），不用每次額外 export。新機器上如果兩個管道都沒有，代表
+這兩個值還沒同步過來，跟有的機器要，或問使用者，不要用猜的。
 
 用法：
-    export GAS_PULL_URL=...
-    export GAS_TOKEN=...
-
     python gas_query.py health
         # 回傳 {"status":"ok","lastRow":<目前 log 表總列數>}
 
@@ -25,21 +27,50 @@ AnnSinHome_v0 這個 repo，代表也沒有這兩個值——跟有這兩個值�
 import json
 import os
 import sys
+import time
+import urllib.error
 import urllib.parse
 import urllib.request
 
 
-def call(url, token, params):
+def load_claude_env():
+    path = os.path.expanduser("~/.claude/.env")
+    values = {}
+    if not os.path.isfile(path):
+        return values
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, _, val = line.partition("=")
+            values[key.strip()] = val.strip()
+    return values
+
+
+def call(url, token, params, attempts=3, backoff=1.5):
+    """GAS Web App 的 302 -> script.googleusercontent.com 轉址間歇性 404（Google 端已知
+    flaky 行為，跟 client library 無關，同一組請求連跑會有時成功有時 404），失敗就重試。"""
     q = urllib.parse.urlencode({**params, "token": token})
-    with urllib.request.urlopen(f"{url}?{q}", timeout=30) as resp:
-        return json.loads(resp.read())
+    last_err = RuntimeError("call() ran with attempts=0")
+    for i in range(attempts):
+        try:
+            with urllib.request.urlopen(f"{url}?{q}", timeout=30) as resp:
+                return json.loads(resp.read())
+        except urllib.error.HTTPError as e:
+            last_err = e
+            if i < attempts - 1:
+                time.sleep(backoff * (i + 1))
+    raise last_err
 
 
 def main():
-    url = os.environ.get("GAS_PULL_URL")
-    token = os.environ.get("GAS_TOKEN")
+    claude_env = load_claude_env()
+    url = os.environ.get("GAS_PULL_URL") or claude_env.get("ANNSINHOME_GAS_PULL_URL")
+    token = os.environ.get("GAS_TOKEN") or claude_env.get("ANNSINHOME_GAS_TOKEN")
     if not url or not token:
-        print("缺 GAS_PULL_URL / GAS_TOKEN 環境變數（見 AnnSinHome_v0/.env，或跟有這兩個值的機器要）",
+        print("缺 GAS_PULL_URL/GAS_TOKEN——沒設環境變數，~/.claude/.env 裡也沒有 "
+              "ANNSINHOME_GAS_PULL_URL/ANNSINHOME_GAS_TOKEN。跟有這兩個值的機器要，或問使用者。",
               file=sys.stderr)
         sys.exit(1)
 

@@ -58,16 +58,15 @@ sqlite3 <repo>/data/annsinhome.db \
 
 - **文字訊息／對話記錄** → 直接打 GAS Web App 的 pull API（本機 sync 用的就是同一支），比本機 SQLite 更即時（本機每 5 分鐘才 sync 一次，Sheet 是 GAS 即時寫入）。用 `scripts/gas_query.py`（跟本文件同目錄，deploy 後在 `~/.claude/docs/line-data-sop/scripts/gas_query.py`）：
   ```bash
-  export GAS_PULL_URL=...   # 見下方「這台電腦沒有這兩個值時」
-  export GAS_TOKEN=...
   python scripts/gas_query.py latest <group_id>      # 某群組最新一則
   python scripts/gas_query.py pull --after 1 --limit 200   # 原始分頁拉取，含 groupId/groupName 對照
   python scripts/gas_query.py health                 # 只想知道 log 表目前總列數
   ```
 - **媒體檔（照片/影片/文件）** → Google Drive `AnnSinHome/{群名}/{年}/{月}/`，每群一個資料夾，可直接當相簿瀏覽，不用查資料庫
 - 不知道 `group_id` 對應哪個群組：`pull` 結果每列都帶 `groupId` + `groupName`，掃一批就能對照
+- GAS 的 302 轉址間歇性 404（Google 端已知 flaky 行為，同組請求連跑會時好時壞，跟哪個 HTTP client 無關）——`gas_query.py` 已內建 retry，正常不用管；萬一連 3 次都失敗才是真的異常
 
-**這台電腦沒有 `GAS_PULL_URL`/`GAS_TOKEN` 這兩個值時**：它們是 secret，存在 `AnnSinHome_v0/.env`（故意不進 git）。如果這台電腦連 `AnnSinHome_v0` repo 都沒有，代表也沒有這兩個值——跟有的那台要，或問使用者，不要用猜的或留空硬跑。
+**這台電腦沒有 `GAS_PULL_URL`/`GAS_TOKEN` 這兩個值時**：`gas_query.py` 會自動讀 `~/.claude/.env` 的 `ANNSINHOME_GAS_PULL_URL` / `ANNSINHOME_GAS_TOKEN`（見 `.env.example`）——這份 `.env` 本來就是裝 claude-dotfiles 時該手動同步好的機密清單，不用為這兩個值另外想辦法。真的兩邊都沒設，跟有的那台要，或問使用者，不要用猜的或留空硬跑。
 
 ## 查詢報 `disk I/O error`
 
