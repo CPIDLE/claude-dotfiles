@@ -29,6 +29,9 @@ Beep 由 `settings.json` hooks 處理（AskUserQuestion → 1 聲、Stop → 3 �
 - 純日常任務（一般改檔、簡單問答、機械操作）不提醒，維持預設即可
 - **Agent tool 只有 `model` 參數、沒有 `effort`**（effort 跟著所選 model 預設走）；`opts.effort` 是 Workflow script 內 `agent()` 才有的欄位，兩者不要混用
 
+## Skill Fallback
+現成 skill 都不合用時，cc 可自行嘗試 `mem-skill`（搜 `docs/` 靜態 SOP）作為 fallback，非強制、視需要判斷。
+
 ## 關鍵 ID / Secrets
 所有 webhook、Sheet ID、Apps Script ID 都在 `~/.claude/.env`（`CHAT_WEBHOOK_URL` / `DASHBOARD_SHEET_ID` / `APPS_SCRIPT_WEB_APP_ID`）。**絕不把這些值寫進 CLAUDE.md 或任何會 commit 的檔**。
 
