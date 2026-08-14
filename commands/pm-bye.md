@@ -146,6 +146,41 @@ git remote -v
 - 有值得記住的 → 寫入 memory 檔案（依標準格式含 frontmatter）
 - 沒有 → 跳過，不提示
 
+## Step 6.3：Memory 週期保養掃描（自動，月頻）
+
+檢查 memory 資料夾下的 `.pm-bye-mem-check` marker 檔（純文字，存上次掃描日期 `YYYY-MM-DD`）：
+
+1. marker 不存在，或內容日期距今 ≥ 30 天 → 觸發掃描
+2. 否則 → 靜默跳過，直接到 Step 6.5
+
+**觸發時**，掃描 memory 資料夾下的 `*.md`（排除 `MEMORY.md`、`progress.md`），檢查每份 feedback/project 類型 memo：
+
+1. **逾期未動**：frontmatter `updated` 距今 > 30 天
+2. **紅旗 pattern**：
+   - 檔名含 `progress` / `wip` / `_v2` 或具體日期
+   - body 出現「待」「下一步」「TODO」
+   - feedback / project 缺 `**Why:**` 或 `**How to apply:**`
+   - `created == updated` 且 > 60 天
+
+**有發現時**：
+```
+🧹 Memory 週期保養（距上次掃描 N 天）
+
+⏳ 逾期未動（> 30 天）：
+  - feedback_xxx.md（updated 2026-06-01，45 天）
+
+🚩 紅旗：
+  - project_wip_foo.md（檔名含 wip）
+  - feedback_bar.md（缺 How to apply）
+
+要處理嗎？
+[1] 逐一確認（還準嗎？） [2] 跳過本次
+```
+- **選 1** → 逐一問使用者：保留不動 / 更新 body 並同步 `updated` / 刪除（同步清 `MEMORY.md` 索引行）
+- **選 2 或無發現** → 跳過
+
+**無論是否觸發掃描，若本次確有跑掃描（含 0 發現）→ 把 marker 檔內容改寫為今日日期**，避免下次 session 重複問。
+
 ## Step 6.5：Hookify 候選檢查（自動）
 
 掃描本次 session 寫入或更新的 memory feedback 檔，挑出能變成硬阻擋 hook 的紅線。
