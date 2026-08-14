@@ -9,7 +9,7 @@
 | 指令 | 行為 |
 |---|---|
 | `/pm` | 開工（自動判斷首次/正常模式） |
-| `/pm new` | 首次開工（掃描專案 + 建立 progress.md + README.md） |
+| `/pm new` | 首次開工（掃描專案 + 建立 progress.md + README.md + INDEX.md） |
 | `/pm status` | 快速查看進度（唯讀） |
 | `/pm resume` | 接續上次 session |
 | `/pm index` | 掃描目錄，產生/更新 INDEX.md（獨立使用，不需 /pm 工作流） |
@@ -70,6 +70,7 @@ bash ~/.claude/pm-update.sh reset && bash ~/.claude/pm-update.sh pm running
 4. 產生文件：
    - 寫入 `progress.md`（memory 資料夾中）
    - 產生 `README.md`（專案根目錄，已存在則跳過）
+   - 建立 `INDEX.md`（依下方 §`/pm index` 的建立邏輯；已存在則跳過，不覆蓋）
 5. **健康起手式 scaffold**（詳見下方 §健康起手式 scaffold）
 6. 顯示摘要讓使用者確認
 7. 全新空目錄 → 額外詢問目標、技術棧 → 補寫
