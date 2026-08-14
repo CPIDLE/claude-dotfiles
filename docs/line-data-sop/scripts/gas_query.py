@@ -53,16 +53,25 @@ def load_claude_env():
     return values
 
 
+# GAS 同一支端點的回應時間實測從 2.6s 到 60s 都有（冷啟動 + Sheet 列數多時特別慢），
+# 30s 會把「還在算」誤判成失敗。給到 90s 留餘裕。
+TIMEOUT = 90
+
+
 def call(url, token, params, attempts=3, backoff=1.5):
     """GAS Web App 的 302 -> script.googleusercontent.com 轉址間歇性 404（Google 端已知
-    flaky 行為，跟 client library 無關，同一組請求連跑會有時成功有時 404），失敗就重試。"""
+    flaky 行為，跟 client library 無關，同一組請求連跑會有時成功有時 404），失敗就重試。
+
+    除了 HTTP 層的錯，socket 層也會噴 TimeoutError（連 header 都還沒回來，不是 HTTPError），
+    2026-08-14 實測 health 就直接 traceback、完全沒觸發重試。這裡一併吃下 URLError
+    （HTTPError 是它的子類，同一個 except 就涵蓋）跟 TimeoutError，兩者都走同一套 backoff。"""
     q = urllib.parse.urlencode({**params, "token": token})
     last_err = RuntimeError("call() ran with attempts=0")
     for i in range(attempts):
         try:
-            with urllib.request.urlopen(f"{url}?{q}", timeout=30) as resp:
+            with urllib.request.urlopen(f"{url}?{q}", timeout=TIMEOUT) as resp:
                 return json.loads(resp.read())
-        except urllib.error.HTTPError as e:
+        except (urllib.error.URLError, TimeoutError) as e:
             last_err = e
             if i < attempts - 1:
                 time.sleep(backoff * (i + 1))
