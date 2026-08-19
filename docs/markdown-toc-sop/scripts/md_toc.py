@@ -50,10 +50,16 @@ def split_toc_block(lines):
     return lines[:i] + lines[j + 1:], i
 
 
-def collect_headings(lines, max_level):
-    """Yield (index, level, text, existing_id) for headings outside code fences."""
+def collect_headings(lines, max_level, h3_under=None):
+    """Yield (index, level, text, existing_id) for headings outside code fences.
+
+    h3_under: list of substrings. When given, a heading deeper than h2 is kept
+    only if the h2 it sits under contains one of them — lets a long file list
+    every section but expand sub-sections in just the parts worth expanding.
+    """
     in_fence = False
     out = []
+    parent = ""
     for idx, line in enumerate(lines):
         if FENCE_RE.match(line):
             in_fence = not in_fence
@@ -64,9 +70,13 @@ def collect_headings(lines, max_level):
         if not m:
             continue
         level = len(m.group(1))
+        text = m.group(2)
+        if level == 2:
+            parent = ANCHOR_RE.sub("", text)
         if level < 2 or level > max_level:
             continue
-        text = m.group(2)
+        if level > 2 and h3_under and not any(k in parent for k in h3_under):
+            continue
         anchor = ANCHOR_RE.search(text)
         existing = anchor.group(1) if anchor else None
         if anchor:
@@ -120,6 +130,8 @@ def main():
     ap.add_argument("--max-level", type=int, default=3,
                     help="最深納入目錄的標題層級（預設 3）")
     ap.add_argument("--title", default="目錄")
+    ap.add_argument("--h3-under", default="",
+                    help="逗號分隔的 h2 標題關鍵字；只有這些章節底下的次級標題會進目錄")
     ap.add_argument("--plain", action="store_true",
                     help="只產純 Markdown 連結，不加 onclick fallback")
     ap.add_argument("--dry-run", action="store_true")
@@ -129,7 +141,8 @@ def main():
     lines = path.read_text(encoding="utf-8").split("\n")
 
     body, insert_at = split_toc_block(lines)
-    headings = collect_headings(body, args.max_level)
+    h3_under = [s.strip() for s in args.h3_under.split(",") if s.strip()]
+    headings = collect_headings(body, args.max_level, h3_under)
     if not headings:
         raise SystemExit("找不到任何 h2~h{} 標題，沒東西可做目錄".format(args.max_level))
     headings = assign_ids(headings)
