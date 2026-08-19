@@ -77,3 +77,48 @@ sqlite3 <repo>/data/annsinhome.db \
 ## 完整部署/設定（GAS 部署步驟、LINE Developers Console、token 輪替）
 
 不在此重複——這份文件只保留「資料在哪、怎麼查」這種穩定不變的知識；部署細節會隨專案演進變動，見來源專案 `AnnSinHome_v0/README.md`（若當下仍存在）。
+
+## 發送訊息（push）——這個 bot 不是唯讀的
+
+`AnnSinHome_v0/app/line_api.py` 有現成的 `push(to, text)` / `reply(reply_token, text)` async 函式，走 LINE Messaging API（`https://api.line.me/v2/bot/message/push`），憑證是 `LINE_CHANNEL_ACCESS_TOKEN`（跟 `gas_query.py` 用的 GAS 憑證是完全不同的兩組，不要混用）。`to` 填 `group_id`（見下方對照表）即可推到指定群組，文字上限 4900 字元。
+
+**獨立腳本已包好**：`scripts/gas_query.py` 旁邊的 `scripts/line_push.py`（deploy 後在 `~/.claude/docs/line-data-sop/scripts/line_push.py`），純標準庫、不需要 repo 環境：
+
+```bash
+python scripts/line_push.py push <group_id> --text "<文字>"          # 預設 dry-run，只印出會送什麼，不會真的發
+python scripts/line_push.py push <group_id> --text "<文字>" --send   # 確認過內容才加 --send 真的送出
+python scripts/line_push.py push <group_id> --file msg.txt --send    # 多行/特殊字元時用 --file 比 shell 參數安全
+```
+
+Token 讀取順序：環境變數 `LINE_CHANNEL_ACCESS_TOKEN` → `~/.claude/.env` 的 `ANNSINHOME_LINE_CHANNEL_ACCESS_TOKEN`（尚未實際同步，長期可攜路徑）→ 本機 `AnnSinHome_v0/.env`（目前唯一有這個值的地方，只在跑 docker-compose 那台 PC 上）。
+
+**重要限制，動手前一定要跟使用者確認過**（腳本預設 dry-run 就是為了這個）：
+- 訊息會顯示是 **AnnSinHome bot 帳號**發的，不是使用者本人——群組成員看到的署名是 bot，不是本人
+- LINE 沒有內建收回/刪除 API 給這個場景，**發出去就送出去了**，沒有事後補救的路
+- 屬於「發訊息給他人／影響共享狀態」的高風險動作類別，每次要送都要先讓使用者看過最終文字內容並明確同意，不能因為前一次做過就當作長期授權——**不要因為腳本存在就跳過確認直接加 `--send`**
+
+## 已知 group_id 對照表
+
+`groups` 表的 `display_name` 欄位目前都是 `NULL`（沒有被寫入過），**不能**靠這欄位對應群組名稱。目前唯二可行的辨識方法：
+
+1. **內容比對（土法）**：`SELECT group_id, COUNT(*), (取幾筆 text 樣本) FROM messages GROUP BY group_id`，人工看訊息內容猜是哪個群——這是本文件目前記錄下面對照表的方法，準確但費工
+2. **官方 API（更可靠，尚未在任何腳本裡實際跑過）**：`line_api.py` 有 `get_group_summary(group_id)`，打 `GET /v2/bot/group/{group_id}/summary` 直接拿到真正的 `groupName`——如果 1 的土法對不準或要批次核對，優先用這個
+
+已確認的對照範例格式（實際 ID/群組名屬個人資料，**不放公開 repo**——真實對照表維護在 `~/.claude/docs/line-data-sop.md` 本機版，查到新的就回填在那邊）：
+
+| group_id | 群組 |
+|---|---|
+| `<group_id_1>` | （範例）某群組說明 |
+| `<user_id 開頭是使用者，非 group_id>` | 個人 1:1 |
+
+其餘 group_id 尚未核對，需要時用上面兩種方法之一辨認，**確認後回填本機版對照表**，別每次都重新猜。
+
+## 已知 user_id 對照表
+
+`users` 表的 `display_name` 有正常寫入（跟 `groups` 不同），可以直接 `SELECT user_id, display_name FROM users WHERE display_name LIKE '%關鍵字%'` 查，不需要土法比對。真實查到的 user_id/display_name 對照（同上，屬個人資料，**不放公開 repo**）維護在本機版：
+
+| user_id | display_name |
+|---|---|
+| `<user_id_1>` | （範例）某成員說明 |
+
+要撈某人風格範本（例如「他習慣怎麼分享文章」），用 `messages.user_id` + `group_id` 篩，只挑 `text LIKE '%http%'` 的訊息看格式（開場方式、有沒有摘要、連結放哪、有沒有 emoji），不用整批全讀。
